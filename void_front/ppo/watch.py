@@ -21,8 +21,8 @@ def watchPPO(path: str = None):
     # env.training = False
     # env.norm_reward = False
 
-    checkpoint_dir = Path("./models/checkpoints/ppo") if path == None else Path(path)
-    # checkpoint_dir = Path("./models/best_model/ppo") if path == None else Path(path)
+    # checkpoint_dir = Path("./models/checkpoints/ppo") if path == None else Path(path)
+    checkpoint_dir = Path("./models/best_model/ppo") if path == None else Path(path)
 
     step = -1
     total_reward = 0

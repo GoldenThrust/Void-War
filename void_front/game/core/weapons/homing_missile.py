@@ -36,7 +36,7 @@ class HomingMissile(PlasmaCanon):
         dy = toroidalDelta(self.target.y, self.y, world.height)
         targetAngle = np.atan2(dy, dx)
         diff = (targetAngle + self.angle) + np.pi / 2
-        diff = np.atan2(np.sin(diff), np.cos(diff))
+        diff = np.atan2(-np.sin(diff), -np.cos(diff))
         self.angle += clamp(diff, self.turnRate)
 
     def update(self, dt, manager=None):

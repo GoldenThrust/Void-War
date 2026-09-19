@@ -35,7 +35,7 @@ class EnemyShip(Ship):
         if abs(alpha - np.pi / 2) < np.pi / 16:
             self.fire()
         beta = alpha + np.pi / 2
-        delta = np.atan2(np.sin(beta), np.cos(beta))
+        delta = np.atan2(-np.sin(beta), -np.cos(beta))
         self.angle = wrap(lerp(self.angle, self.angle - clamp(delta, self.turnRate) * FIXED_DT * self.speed_factor, 0.3), np.pi * 2)
 
     def nearByWeapon(self):

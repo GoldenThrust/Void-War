@@ -35,4 +35,4 @@ class World:
             self.object = obj
 
 
-world = World(x=0, y=0, width=worldSize.width, height=worldSize.height, scale=0.7)
+world = World(x=0, y=0, width=worldSize.width, height=worldSize.height, scale=0.1)

@@ -1,9 +1,9 @@
 import WeaponManager from "./core/weapons/manager.js";
 
-import Ship, { destroyedShips } from "./core/player/ships/ship.js";
+import { destroyedShips } from "./core/player/ships/ship.js";
 import { world } from "./core/world/world.js";
 import { stars } from "./core/world/object/Star.js";
-import { canvas, ctx, resizeCanvas } from "./core/world/canvas.js";
+import { canvas, ctx } from "./core/world/canvas.js";
 import { minimap } from "./core/world/minimap.js";
 import { asteroids } from "./core/world/object/asteroid/asteroid.js";
 import { clamp } from "./core/utils/math.js";
@@ -12,8 +12,6 @@ import { explosions } from "./core/player/prop/explosion.js";
 
 import PlayerShip, { ship } from "./core/player/ships/player.js";
 import EnemyManager from "./core/player/ships/enemies/manager.js";
-
-import Projectile from "./core/weapons/projectile.js";
 
 import { spatial } from "./core/world/spatialHash.js";
 import Minature from "./core/weapons/minature.js";

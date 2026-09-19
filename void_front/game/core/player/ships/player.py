@@ -29,7 +29,7 @@ class PlayerShip(Ship):
         spawnDistance = 200000
         spawnX = np.random.uniform(x - spawnDistance, x + spawnDistance)
         spawnY = np.random.uniform(y - spawnDistance, y + spawnDistance)
-        ship = PlayerShip(x=spawnX, y=spawnY, angle=angle, width=50, height=50, color="#84d0ff", controllable=False, acceleration=np.random.uniform(600, 1500), turnRate=np.random.uniform(2, 4.5))
+        ship = PlayerShip(x=spawnX, y=spawnY, angle=angle, width=50, height=50, color="#84d0ff", controllable=False, acceleration=np.random.uniform(50, 100), turnRate=np.random.uniform(2, 4.5))
         
         return ship
 

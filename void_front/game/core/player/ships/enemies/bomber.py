@@ -17,7 +17,7 @@ class Bomber(EnemyShip):
             width=50,
             height=50,
             angle=angle,
-            acceleration=900,
+            acceleration=100,
             color="blue",
             vertices=shapes[4],
             name="Bomber Drone",
@@ -43,8 +43,8 @@ class Bomber(EnemyShip):
         dist = toroidalDistance(self.x, self.y, player.ship.x, player.ship.y)
         self.AI(
             idleDistance=dist > 10**12,
-            fleeCondition=dist < 80000,
-            seekCondition=(self.state == "flee" and dist > 10**7)
+            fleeCondition=dist < 80000000,
+            seekCondition=(self.state == "flee" and dist > 1**7)
             or self.state != "flee",
             fireCondition={
                 "func": lambda delta: abs(delta) < np.pi / 6,

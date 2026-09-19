@@ -20,12 +20,12 @@ class EnemyManager:
     @staticmethod
     def init(num_enemies: int = sizeOf.ship):
         EnemyManager.types = [
-            FleetDrone,
+            # FleetDrone,
             Bomber,
-            Miner,
-            MissileLaucher,
-            Sniper,
-            Tormenter,
+            # Miner,
+            # MissileLaucher,
+            # Sniper,
+            # Tormenter,
         ]
         EnemyManager.ships.clear()
         for _ in range(num_enemies):

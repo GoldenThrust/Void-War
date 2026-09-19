@@ -19,9 +19,9 @@ destroyedShips: list = []
 
 
 class Ship:
-    def __init__(self, *, x, y, width, height, angle, img=None, flameImg=None, weapon=None, acceleration=1000, turnRate=2, life=100, vertices=None, color="red", name="Player", controllable=False, maxWeaponHeat=10000):
+    def __init__(self, *, x, y, width, height, angle, img=None, flameImg=None, weapon=None, acceleration=1000, turnRate=4, life=100, vertices=None, color="red", name="Player", controllable=False, maxWeaponHeat=10000):
         from game.core.weapons.pulse_canon import PulseCanon
-
+        print(turnRate)
         self.x = x
         self.y = y
         self.speed = 0
@@ -238,7 +238,7 @@ class Ship:
         if abs(alpha - np.pi / 2) < np.pi / 16:
             self.fire()
         beta = alpha + np.pi / 2
-        delta = np.atan2(np.sin(beta), np.cos(beta))
+        delta = np.atan2(np.sin(beta), -np.cos(beta))
         self.angle = wrap(lerp(self.angle, self.angle - clamp(delta, self.turnRate) * FIXED_DT * self.speed_factor, 0.3), np.pi * 2)
 
     def nearByWeapon(self):
