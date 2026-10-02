@@ -11,6 +11,7 @@ export default class Shield extends Perk {
     prop.name = "Shield";
     prop.vertices = shapes[1];
     prop.duration = 20000;
+    prop.color = "#59f0c1";
     super(prop as PerkC);
   }
 
@@ -41,7 +42,7 @@ export default class Shield extends Perk {
       drawWrapped({
         fn: () => {
           ctx.fillStyle = "#ffffff10";
-          ctx.strokeStyle = "springgreen";
+          ctx.strokeStyle = this.color;
           ctx.beginPath();
           ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
           ctx.fill();

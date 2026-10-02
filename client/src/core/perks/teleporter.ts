@@ -8,6 +8,7 @@ export default class Teleporter extends Perk {
   constructor(prop: SuperDashC) {
     prop.name = "Teleporter";
     prop.vertices = shapes[2];
+    prop.color = "#ffb347";
     super(prop as PerkC);
   }
 

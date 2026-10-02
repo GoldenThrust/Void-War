@@ -21,6 +21,7 @@ export default class Perk {
   public angle: number;
   public width: number;
   public height: number;
+  public color: string;
   protected vertices;
   private path2D;
   protected ship: Ship | null = null;
@@ -34,7 +35,8 @@ export default class Perk {
     width = 40,
     height = 40,
     vertices = shapes[0],
-    duration = 1000
+    duration = 1000,
+    color = "#d2ff52",
   }: PerkC) {
     this.id = uuid();
     this.name = name;
@@ -44,6 +46,7 @@ export default class Perk {
     this.vertices = vertices;
     this.width = width;
     this.height = height;
+    this.color = color;
     this.path2D = createVerticesPath(
       tranformVertices(this.vertices, 0, 0, this.width, this.height, 0),
     );
@@ -69,7 +72,7 @@ export default class Perk {
     drawWrapped({
       fn: () => {
         ctx.rotate(-this.angle);
-        drawVerticesPath(this.path2D, "#d2ff52");
+        drawVerticesPath(this.path2D, this.color);
       },
       x: this.x,
       y: this.y,

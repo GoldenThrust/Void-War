@@ -17,6 +17,8 @@ type Telemetry = {
   friends: number;
   enemies: number;
   weapon: string;
+  x: number;
+  y: number;
 };
 
 function Game() {
@@ -30,6 +32,8 @@ function Game() {
     friends: 0,
     enemies: 0,
     weapon: "Pulse Canon",
+    x: 0,
+    y: 0,
   });
 
   useEffect(() => {
@@ -57,6 +61,8 @@ function Game() {
               friends: ShipManager.friendsAlive,
               enemies: ShipManager.enemiesAlive,
               weapon: ship.weapon.name,
+              x: Math.round(ship.x),
+              y: Math.round(ship.y),
             });
           }, 250);
         } catch (error) {
@@ -81,7 +87,7 @@ function Game() {
           <div className="mission-status"><span className="live-pip" /> {type === "online" ? "NETWORK // FRONTIER" : "LOCAL // DEEP SPACE"}</div>
         </header>
 
-        <section className="mission-readout"><span className="hud-kicker">MISSION 07-A</span><strong>{type === "online" ? "FRONTIER ASSAULT" : "VOID PROTOCOL"}</strong><span className="readout-line" /><span className="hud-muted">SECTOR 07 / BEYOND THE BELT</span></section>
+        <section className="mission-readout"><span className="hud-kicker">MISSION 07-A</span><strong>{type === "online" ? "FRONTIER ASSAULT" : "VOID PROTOCOL"}</strong><span className="readout-line" /><span className="hud-muted">SECTOR 07 / BEYOND THE BELT</span><span className="hud-muted">X: {telemetry.x} / Y: {telemetry.y}</span></section>
 
         <section className="tactical-panel right-panel"><div className="panel-kicker"><Globe2 size={13} /> TACTICAL MAP</div><div className="map-legend"><span><i className="legend-player" /> YOU</span><span><i className="legend-hostile" /> HOSTILE</span></div><canvas id="minimap" /></section>
 

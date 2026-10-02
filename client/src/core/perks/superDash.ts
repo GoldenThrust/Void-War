@@ -8,6 +8,7 @@ export default class SuperDash extends Perk {
   constructor(prop: SuperDashC) {
     prop.name = "Super Dash";
     prop.vertices = shapes[0];
+    prop.color = "#65a7ff";
     super(prop as PerkC);
     this.multiplier = prop.multiplier;
   }

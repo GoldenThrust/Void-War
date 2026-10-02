@@ -5,6 +5,7 @@ type PerkC = {
   angle: number;
   width?: number;
   height?: number;
+  color?: string;
   vertices?: {
     x: number;
     y: number;
