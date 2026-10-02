@@ -1,0 +1,5 @@
+perks files;
+asteroid update and render
+change ship accelerations
+weapon speed
+correct dampspeed

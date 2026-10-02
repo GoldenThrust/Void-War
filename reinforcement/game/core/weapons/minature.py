@@ -1,0 +1,25 @@
+from __future__ import annotations
+
+from core.weapons.projectile import Projectile
+
+
+class Minature(Projectile):
+    def __init__(self, options, force=False):
+        defaults = {
+            "name": "Minature",
+            "speed": options.get("speed", 10),
+            "acceleration": options.get("speed", 10),
+            "x": options.get("x"),
+            "y": options.get("y"),
+            "width": 10,
+            "height": 10,
+            "angle": options.get("angle"),
+            "damage": 5,
+            "range": options.get("range", 500),
+            "fireRate": 1,
+            "energyCost": 0,
+            "ship": options.get("ship"),
+            "color": options.get("color"),
+            "img": options.get("img"),
+        }
+        super().__init__(defaults, force)

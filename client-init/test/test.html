@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        const obj = {
+            x: innerWidth/2,
+            y: innerHeight/2,
+            angle: Math.PI*2
+        }
+        const ctx = new AudioContext();
+
+        const listener = ctx.listener;
+
+        listener.positionX.value = obj.x;
+        listener.positionY.value = obj.y;
+        listener.positionZ.value = 500;
+        listener.forwardX.value = 0;
+        listener.forwardY.value = 0;
+        listener.forwardZ.value = -1;
+        listener.upX.value = 0;
+        listener.upY.value = 1;
+        listener.upZ.value = 0;
+    
+        const pannerSource = new PannerNode(ctx, {
+            distanceModel: "linear",
+            positionX: obj.x,
+            positionY: obj.y,
+            positionZ: 50,
+            orientationX: Math.cos(obj.angle),
+            orientationY: Math.sin(obj.angle),
+            orientationZ: 0,
+            maxDistance: 10000,
+            rolloffFactor: 1,
+        });
+
+        const nodes = {};
+        // constantSource.connect(pannerSource);    
+        pannerSource.connect(ctx.destination);
+
+        //  static constantSource = new ConstantSourceNode(ctx);
+
+        //constantSource.start();
+
+        //constantSource.connect(ctx.destination);
+
+        nodes["5JaRtSRAYTOWkAt0sdhPb"] = ctx.createOscillator();
+        nodes["5JaRtSRAYTOWkAt0sdhPb"].type = "sawtooth";
+        nodes["5JaRtSRAYTOWkAt0sdhPb"].frequency.value = 200;
+        nodes["5JaRtSRAYTOWkAt0sdhPb"].detune.value = 20;
+        nodes["5JaRtSRAYTOWkAt0sdhPb"].start(0);
+        nodes["5yQIdfobKsNZCWgl8X1Qy"] = ctx.createBiquadFilter();
+        nodes["5yQIdfobKsNZCWgl8X1Qy"].type = "lowpass";
+        nodes["5yQIdfobKsNZCWgl8X1Qy"].frequency.value = 100;
+        nodes["5yQIdfobKsNZCWgl8X1Qy"].Q.value = 2;
+        nodes["5yQIdfobKsNZCWgl8X1Qy"].gain.value = 15;
+        nodes["1vINkvaPOg82_uTZ1Hh6R"] = ctx.createOscillator();
+        nodes["1vINkvaPOg82_uTZ1Hh6R"].type = "sine";
+        nodes["1vINkvaPOg82_uTZ1Hh6R"].frequency.value = 1;
+        nodes["1vINkvaPOg82_uTZ1Hh6R"].detune.value = 0;
+        nodes["1vINkvaPOg82_uTZ1Hh6R"].start(0);
+        nodes["XHlurqezddWtuoT4KaCOf"] = ctx.createGain();
+        nodes["XHlurqezddWtuoT4KaCOf"].gain.value = 100;
+        nodes["8JD1SbGld8eVdxRR9QJAT"] = ctx.createOscillator();
+        nodes["8JD1SbGld8eVdxRR9QJAT"].type = "sawtooth";
+        nodes["8JD1SbGld8eVdxRR9QJAT"].frequency.value = 1;
+        nodes["8JD1SbGld8eVdxRR9QJAT"].detune.value = 0;
+        nodes["8JD1SbGld8eVdxRR9QJAT"].start(0);
+        nodes["J924FBWX4R_2CGoynHHXR"] = ctx.createGain();
+        nodes["J924FBWX4R_2CGoynHHXR"].gain.value = 1000;
+
+        nodes["5JaRtSRAYTOWkAt0sdhPb"].connect(
+            nodes["5yQIdfobKsNZCWgl8X1Qy"],
+        );
+        nodes["1vINkvaPOg82_uTZ1Hh6R"].connect(
+            nodes["XHlurqezddWtuoT4KaCOf"],
+        );
+        nodes["XHlurqezddWtuoT4KaCOf"].connect(
+            nodes["1vINkvaPOg82_uTZ1Hh6R"]["frequency"],
+        );
+        nodes["XHlurqezddWtuoT4KaCOf"].connect(
+            nodes["5JaRtSRAYTOWkAt0sdhPb"]["detune"],
+        );
+        nodes["8JD1SbGld8eVdxRR9QJAT"].connect(
+            nodes["J924FBWX4R_2CGoynHHXR"],
+        );
+        nodes["J924FBWX4R_2CGoynHHXR"].connect(
+            nodes["5JaRtSRAYTOWkAt0sdhPb"]["frequency"],
+        );
+        nodes["J924FBWX4R_2CGoynHHXR"].connect(
+            nodes["8JD1SbGld8eVdxRR9QJAT"]["frequency"],
+        );
+
+        nodes["5yQIdfobKsNZCWgl8X1Qy"]
+            .connect(pannerSource);
+
+        addEventListener(
+            "click",
+            async () => {
+                if (ctx.state !== "running") {
+                    ctx.resume();
+                }
+            },
+            {
+                once: true,
+            },
+        );
+
+        addEventListener("mousemove", ({ x, y }) => {
+            pannerSource.positionX.value = (x * 20) - innerWidth/2;
+            pannerSource.positionY.value = (y * 20) - innerHeight/2;
+        })
+
+    </script>
+</body>
+
+</html>
