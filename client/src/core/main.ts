@@ -1,7 +1,6 @@
 import { world } from "./world/world.ts";
 import WeaponManager from "./weapons/manager.ts";
 
-import { destroyedShips } from "./player/ships/ship.ts";
 import { stars } from "./world/object/star.ts";
 import { minimap } from "./world/minimap.ts";
 import Asteroid from "./world/object/asteroid/asteroid.ts";
@@ -117,32 +116,32 @@ async function animate(t: number) {
   // spatial.renderSpatialDebug();
   // spatial.renderCellRadius(ship.x, ship.y, 600);
 
-  // static canvas object
-  ctx.resetTransform();
-  ctx.font = "20px monospace";
-  ctx.fillStyle = "white";
-  ctx.fillText(
-    `Friend Alive: ${ShipManager.friendsAlive} Enemy Alive: ${ShipManager.enemiesAlive} - Destroyed: ${destroyedShips.length} Kill: ${ship.killScore} Weapon name: ${ship.weapon.name} heat: ${ship.heatPercent} x: ${Math.floor(ship.x)}y: ${Math.floor(ship.y)} speed: ${Math.floor(ship.speed)} max speed: ${Math.floor(ship.maxSpeed)} scales (World: ${world.scale} MiniMap: ${minimap.scale})`,
-    10,
-    20,
-  );
-  ctx.fillStyle = "white";
-  ctx.fillText(
-    `Life ${ship.life}`,
-    10,
-    50,
-  );
-
   if ((ShipManager.friendsAlive > 0 && ShipManager.enemiesAlive > 0 && gameType !== "online") || gameType === "online")
     requestAnimationFrame(animate);
   else {
-    const text =
-      ship.life <= 0 ? "Game Over 😭. Try again." : "You dominate the void 🥳.";
+    const won = ship.life > 0;
+    const title = won ? "SECTOR SECURED" : "SIGNAL LOST";
+    const subtitle = won ? "The void is clear. Return to command." : "Your vessel was lost beyond the belt.";
+    const panelWidth = Math.min(canvas.width * 0.72, 560);
+    const panelHeight = 150;
+    const panelX = (canvas.width - panelWidth) / 2;
+    const panelY = (canvas.height - panelHeight) / 2;
 
-    ctx.font = "50px Arial";
-
-    const { width } = ctx.measureText(text);
-    ctx.fillText(text, (canvas.width - width) / 2, canvas.height / 2);
+    ctx.resetTransform();
+    ctx.fillStyle = "rgba(3, 8, 13, 0.9)";
+    ctx.fillRect(panelX, panelY, panelWidth, panelHeight);
+    ctx.strokeStyle = won ? "rgba(210, 255, 82, 0.7)" : "rgba(255, 82, 107, 0.7)";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(panelX, panelY, panelWidth, panelHeight);
+    ctx.fillStyle = won ? "#d2ff52" : "#ff526b";
+    ctx.fillRect(panelX, panelY, 5, panelHeight);
+    ctx.textAlign = "center";
+    ctx.font = "700 28px monospace";
+    ctx.fillText(title, canvas.width / 2, panelY + 65);
+    ctx.fillStyle = "#9eaaa9";
+    ctx.font = "14px monospace";
+    ctx.fillText(subtitle, canvas.width / 2, panelY + 100);
+    ctx.textAlign = "start";
   }
 }
 

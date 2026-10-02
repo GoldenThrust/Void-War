@@ -26,14 +26,14 @@ export default class Weapon implements WeaponI {
   public width: number;
   public height: number;
   public angle: number;
-  public damage;
-  public range;
-  public fireRate;
-  public energyCost;
-  public ship;
-  public active;
-  public penetration;
-  public distanceTraveled;
+  public damage: number;
+  public range: number;
+  public fireRate: number;
+  public energyCost: number;
+  public ship: Ship;
+  public active: boolean;
+  public penetration: number;
+  public distanceTraveled: number;
 
   protected color: string;
   protected img;
@@ -109,6 +109,8 @@ export default class Weapon implements WeaponI {
     drawWrapped({
       fn: () => {
         ctx.rotate(-this.angle);
+        ctx.shadowColor = this.ship.friend ? "#d2ff52" : "#ffb347";
+        ctx.shadowBlur = 10;
         // ctx.shadowColor = this.color;
         // ctx.shadowBlur = 10;
         if (this.img) {
@@ -122,6 +124,7 @@ export default class Weapon implements WeaponI {
         } else {
           drawVerticesPath(this.path2D, this.ship.friend ? "green" : "yellow");
         }
+        ctx.shadowBlur = 0;
       },
       x: this.x,
       y: this.y,

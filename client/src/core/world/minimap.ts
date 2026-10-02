@@ -53,23 +53,27 @@ export default class Minimap {
     this.canvas.height = this.canvas.height;
   }
 
-  drawMainShip(x: number, y: number, angle: number, size = 1, color = "red") {
+  drawPlayerMarker(x: number, y: number, angle: number, size = 1) {
     const dx = this.sx * x;
     const dy = this.sy * y;
     
     drawWrapped({
       fn: () => {
-        this.ctx.lineWidth = 2;
+        this.ctx.lineWidth = 1.5;
         this.ctx.beginPath();
         this.ctx.rotate(-angle);
         this.ctx.moveTo(0, -size * 2);
-        this.ctx.lineTo(size, size * 2);
-        this.ctx.lineTo(0, size / 2);
-        this.ctx.lineTo(-size, size * 2);
+        this.ctx.lineTo(size * 1.25, size * 1.5);
+        this.ctx.lineTo(0, size);
+        this.ctx.lineTo(-size * 1.25, size * 1.5);
 
         this.ctx.closePath();
-        this.ctx.fillStyle = color;
+        this.ctx.fillStyle = "#d2ff52";
+        this.ctx.strokeStyle = "#f4ffd0";
+        this.ctx.shadowColor = "#d2ff52";
+        this.ctx.shadowBlur = 8;
         this.ctx.fill();
+        this.ctx.stroke();
       },
       x: dx,
       y: dy,
@@ -79,7 +83,7 @@ export default class Minimap {
     });
   }
 
-  drawWeapon(
+  drawWeaponMarker(
     x: number,
     y: number,
     height: number,
@@ -94,11 +98,13 @@ export default class Minimap {
       fn: () => {
         this.ctx.rotate(-angle);
         this.ctx.beginPath();
-        this.ctx.rect(0, 0, size, -Math.max(height / this.world.height, size));
+        this.ctx.moveTo(0, -Math.max(height / this.world.height, size * 2));
+        this.ctx.lineTo(size, size);
+        this.ctx.lineTo(-size, size);
+        this.ctx.closePath();
         this.ctx.fillStyle = color;
-        // this.ctx.shadowColor = color;
-        // this.ctx.shadowBlur = 10;
-
+        this.ctx.shadowColor = color;
+        this.ctx.shadowBlur = 5;
         this.ctx.fill();
       },
       x: dx,
@@ -109,19 +115,19 @@ export default class Minimap {
     });
   }
 
-  draw(x: number, y: number, size = 1, color = "red", friend: boolean) {
+  drawShipMarker(x: number, y: number, size = 1, friend = false) {
     const dx = this.sx * x;
     const dy = this.sy * y;
 
     drawWrapped({
       fn: () => {
+        const color = friend ? "#77d9ff" : "#ff526b";
         this.ctx.beginPath();
         this.ctx.arc(0, 0, size, 0, Math.PI * 2);
         this.ctx.fillStyle = color;
-        this.ctx.strokeStyle = friend ? 'springgreen' : "red";
-        this.ctx.shadowColor = friend ? 'springgreen' : "red";
+        this.ctx.strokeStyle = "#f1f6e8";
+        this.ctx.shadowColor = color;
         this.ctx.shadowBlur = 5;
-
         this.ctx.stroke();
         this.ctx.fill();
       },
@@ -133,9 +139,50 @@ export default class Minimap {
     });
   }
 
+  drawPerkMarker(x: number, y: number, size = 1) {
+    const dx = this.sx * x;
+    const dy = this.sy * y;
+
+    drawWrapped({
+      fn: () => {
+        this.ctx.rotate(Math.PI / 4);
+        this.ctx.fillStyle = "#d2ff52";
+        this.ctx.strokeStyle = "#f4ffd0";
+        this.ctx.shadowColor = "#d2ff52";
+        this.ctx.shadowBlur = 7;
+        this.ctx.fillRect(-size, -size, size * 2, size * 2);
+        this.ctx.strokeRect(-size, -size, size * 2, size * 2);
+      },
+      x: dx,
+      y: dy,
+      space: this.world,
+      screen: this.canvas,
+      wCtx: this.ctx,
+    });
+  }
+
+  drawRadarGrid() {
+    const centerX = this.canvas.width / 2;
+    const centerY = this.canvas.height / 2;
+    this.ctx.strokeStyle = "rgba(119, 217, 255, 0.16)";
+    this.ctx.lineWidth = 1;
+    for (const radius of [this.canvas.width * 0.18, this.canvas.width * 0.34, this.canvas.width * 0.49]) {
+      this.ctx.beginPath();
+      this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+      this.ctx.stroke();
+    }
+    this.ctx.beginPath();
+    this.ctx.moveTo(centerX, 0);
+    this.ctx.lineTo(centerX, this.canvas.height);
+    this.ctx.moveTo(0, centerY);
+    this.ctx.lineTo(this.canvas.width, centerY);
+    this.ctx.stroke();
+  }
+
   render() {
     // const captureDuration = 5000;
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.drawRadarGrid();
 
     this.ctx.save();
     this.ctx.translate(
@@ -149,35 +196,29 @@ export default class Minimap {
     this.world.x = dx;
     this.world.y = dy;
 
-    this.drawMainShip(
-      ship.x,
-      ship.y,
-      ship.angle,
-      this.canvas.width / 40,
-      "#84d0ff",
-    );
+    this.drawPlayerMarker(ship.x, ship.y, ship.angle, this.canvas.width / 40);
 
     this.ctx.globalAlpha = 1;
     // this.ctx.globalAlpha = Math.sin((performance.now() % captureDuration) / captureDuration * Math.PI);
 
     for (const weapon of WeaponManager.weapons.values()) {
-      this.drawWeapon(
+      this.drawWeaponMarker(
         weapon.x,
         weapon.y,
         weapon.height,
         weapon.angle,
         1,
-        weapon.ship instanceof PlayerShip ? "yellow" : weapon.ship.friend ? "blue" : "rgb(255, 0, 0)",
+        weapon.ship instanceof PlayerShip ? "#f6e58d" : weapon.ship.friend ? "#77d9ff" : "#ff526b",
       );
     }
 
-    for (const ship of ShipManager.ships.values()) {
-      this.draw(ship.x, ship.y, 1, ship.color, ship.friend);
-      // this.draw(ship.x, ship.y, 1.5, `rgb(181, 117, 255)`);
+    for (const otherShip of ShipManager.ships.values()) {
+      if (otherShip === ship) continue;
+      this.drawShipMarker(otherShip.x, otherShip.y, 1, otherShip.friend);
     }
 
     for (const perk of PerkManager.perks.values()) {
-      this.draw(perk.x, perk.y, 0.5, "aliceblue", true);
+      this.drawPerkMarker(perk.x, perk.y, 0.75);
     }
     this.ctx.restore();
   }

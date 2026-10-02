@@ -13,7 +13,7 @@ type ShipC = {
   }[];
   img?: HTMLImageElement;
   flameImg?: HTMLImageElement;
-  weapon?: Weapon;
+  weapon?: typeof import("../core/weapons/weapon.ts").default;
   color?: string;
   controllable?: boolean;
   maxWeaponHeat?: number;

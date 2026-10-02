@@ -24,7 +24,7 @@ interface WeaponI {
 
 type WeaponC = {
   name?: string;
-  type?: string;
+  type?: "projectile" | "utility" | string;
   x: number;
   y: number;
   width?: number;
@@ -43,5 +43,5 @@ type WeaponC = {
       }[];
   color?: string;
   img?: HTMLImageElement;
-  penetration?: number
+  penetration?: number;
 };

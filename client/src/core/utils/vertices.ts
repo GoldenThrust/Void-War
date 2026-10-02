@@ -72,14 +72,25 @@ export function createVerticesPath(vertices: Vertices) {
 
 export function drawVerticesPath(path: Path2D, color = "blue", fill = true) {
   ctx.save();
-  ctx.beginPath();
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 1.25;
   ctx.fillStyle = color;
-  // ctx.strokeStyle = color;
-  ctx.globalAlpha = 1;
+  ctx.strokeStyle = color;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 8;
 
-  if (fill) ctx.fill(path);
-  else ctx.stroke(path);
+  if (fill) {
+    ctx.globalAlpha = 0.2;
+    ctx.fill(path);
+  }
+
+  ctx.shadowBlur = 0;
+  ctx.globalAlpha = 0.9;
+  ctx.stroke(path);
+
+  ctx.globalAlpha = 0.28;
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 0.5;
+  ctx.stroke(path);
   ctx.restore();
 }
 

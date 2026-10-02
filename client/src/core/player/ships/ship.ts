@@ -156,21 +156,29 @@ export default class Ship {
     drawWrapped({
       fn: () => {
         // draw lifej
-        const scaleLife = (this.life / this.fullLife) * this.width;
+        const lifeRatio = clamp(this.life / this.fullLife, 0, 1);
+        const color = this.friend ? "#d2ff52" : "#ff526b";
+        const segments = 8;
+        const gap = 2;
+        const segmentWidth = (this.width - gap * (segments - 1)) / segments;
 
-        const color = this.friend ? "springgreen" : "red";
-        ctx.fillStyle = color;
-        ctx.strokeStyle = color;
-
-        ctx.beginPath();
-        ctx.roundRect(-this.width / 2, -this.height, this.width, 3, 10);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.roundRect(-this.width / 2, -this.height, scaleLife, 3, 10);
-        ctx.fill();
+        ctx.fillStyle = "rgba(10, 18, 22, 0.9)";
+        ctx.fillRect(-this.width / 2, -this.height - 5, this.width, 5);
+        for (let index = 0; index < segments; index++) {
+          const segmentStart = index / segments;
+          ctx.fillStyle = segmentStart < lifeRatio ? color : "rgba(111, 128, 132, 0.25)";
+          ctx.fillRect(
+            -this.width / 2 + index * (segmentWidth + gap),
+            -this.height - 5,
+            segmentWidth,
+            3,
+          );
+        }
         ctx.rotate(-this.angle);
 
         if (this.img && this.flameImg) {
+          ctx.shadowColor = this.friend ? "#d2ff52" : "#ff526b";
+          ctx.shadowBlur = 12;
           if (this.speed > 50) {
             ctx.globalAlpha = clamp(this.speed / 200, 0, 1);
             ctx.drawImage(
@@ -189,6 +197,7 @@ export default class Ship {
             this.width,
             this.height,
           );
+          ctx.shadowBlur = 0;
         } else {
           drawVerticesPath(this.path2D, this.color);
         }

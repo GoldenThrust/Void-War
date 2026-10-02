@@ -106,7 +106,7 @@ export default class Asteroid {
     drawWrapped({
       fn: () => {
         ctx.rotate(-this.angle);
-        drawVerticesPath(this.path2D, "grey");
+        drawVerticesPath(this.path2D, "#65727a");
       },
       x: this.x,
       y: this.y,

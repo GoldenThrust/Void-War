@@ -8,7 +8,7 @@ import Ship from "./ship.ts";
 
 export default class Miner extends Ship {
     constructor({ x = 10, y = 20, angle = 0, friend = false }) {
-        super({ x, y, width: 50, height: 50, angle, acceleration: 450, color: "azure", vertices: shapes[5], name: "Miner Drone", maxWeaponHeat: 100, life: 150, weapon: Mine, img: assets?.images?.minership, flameImg: assets?.images?.flame4, friend  });
+        super({ x, y, width: 52, height: 52, angle, acceleration: 430, color: "azure", vertices: shapes[5], name: "Miner Drone", maxWeaponHeat: 900, life: 220, weapon: Mine, img: assets?.images?.minership, flameImg: assets?.images?.flame4, friend  });
         this.seekAcceleration = this.acceleration;
         this.fleeAcceleration = this.acceleration * 0.9;
     }

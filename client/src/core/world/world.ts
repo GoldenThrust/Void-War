@@ -24,6 +24,35 @@ export default class World {
 
     render() {
         resizeCanvas(this.scale);
+        ctx.save();
+        ctx.resetTransform();
+        const centerX = canvas.width * 0.58;
+        const centerY = canvas.height * 0.42;
+        const nebula = ctx.createRadialGradient(
+            centerX,
+            centerY,
+            0,
+            centerX,
+            centerY,
+            Math.max(canvas.width, canvas.height) * 0.72,
+        );
+        nebula.addColorStop(0, "rgba(32, 44, 91, 0.32)");
+        nebula.addColorStop(0.32, "rgba(14, 31, 58, 0.2)");
+        nebula.addColorStop(1, "rgba(1, 5, 11, 0)");
+
+        ctx.fillStyle = "#02060d";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = nebula;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const horizon = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        horizon.addColorStop(0, "rgba(92, 46, 150, 0.08)");
+        horizon.addColorStop(0.48, "rgba(0, 0, 0, 0)");
+        horizon.addColorStop(1, "rgba(18, 96, 116, 0.08)");
+        ctx.fillStyle = horizon;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.restore();
+
         ctx.translate((canvas.width - this.width) / 2, (canvas.height - this.height) / 2);
     }
 

@@ -69,7 +69,7 @@ export default class Perk {
     drawWrapped({
       fn: () => {
         ctx.rotate(-this.angle);
-        drawVerticesPath(this.path2D, "springgreen");
+        drawVerticesPath(this.path2D, "#d2ff52");
       },
       x: this.x,
       y: this.y,
