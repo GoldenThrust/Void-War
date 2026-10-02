@@ -5,5 +5,5 @@ export default class OnlineShip extends Ship {
         super(prop);
     }
 
-    // update(x: number, y: number, fire: boolean): void {}
+    update(_t: number, _dt: number): void {}
 }

@@ -18,10 +18,10 @@ export default class Mine extends Weapon {
             width: 20,
             height: 20,
             angle: angle,
-            damage: 50,
-            range: 1000,
-            fireRate: 0.01,
-            energyCost: 600,
+            damage: 300,
+            range: 1400,
+            fireRate: 0.15,
+            energyCost: 400,
             ship,
             color,
             vertices: shapes[1],
@@ -33,14 +33,15 @@ export default class Mine extends Weapon {
     override update() {
         this.colliding();
         if (!(--this.duration)) {
-            this.destroy()
-            this.explode(10, 1000)
+            this.explode(10, 1000);
+            this.destroy();
         };
     }
 
     override destroy() {
+        if (!this.active) return;
+        this.explode(10);
         super.destroy();
-        this.explode(10)
     }
 
 
@@ -62,7 +63,6 @@ export default class Mine extends Weapon {
     }
 
     override colide() {
-        console.log("Mine colided");
         this.explode();
     }
 }

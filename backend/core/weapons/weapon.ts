@@ -88,6 +88,8 @@ export default class Weapon implements WeaponI {
   }
 
   destroy() {
+    if (!this.active) return;
+    this.active = false;
     WeaponManager.destroy(this);
   }
 

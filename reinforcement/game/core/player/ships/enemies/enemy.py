@@ -53,7 +53,6 @@ class EnemyShip(Ship):
 
     def update(self, t, dt, thrust=0, turn=0):
         super().update(t, dt, thrust, turn)
-        self.nearByWeapon()
 
     def AI(
         self,

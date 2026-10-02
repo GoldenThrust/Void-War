@@ -14,15 +14,15 @@ class Bomber(EnemyShip):
         super().__init__(
             x=x,
             y=y,
-            width=50,
-            height=50,
+            width=56,
+            height=56,
             angle=angle,
-            acceleration=100,
+            acceleration=280,
             color="blue",
             vertices=shapes[4],
             name="Bomber Drone",
-            maxWeaponHeat=10000,
-            life=200,
+            maxWeaponHeat=1800,
+            life=240,
             weapon=PlasmaCanon,
             img=getattr(getattr(assets, "images", None), "bombership", None),
             flameImg=getattr(getattr(assets, "images", None), "flame2", None),
@@ -31,23 +31,14 @@ class Bomber(EnemyShip):
         self.fleeAcceleration = self.acceleration * 0.9
 
     def update(self, t, dt, thrust=0, turn=0):
-        updateWrapped(
-            fn=lambda *_: self._update(t, dt, thrust=thrust, turn=turn),
-            x=self.x,
-            y=self.y,
-            margin={"width": 4000, "height": 4000},
-        )
+        self._update(t, dt, thrust=thrust, turn=turn)
 
     def _update(self, t, dt, thrust=0, turn=0):
         super().update(t, dt, thrust=thrust, turn=turn)
-        dist = toroidalDistance(self.x, self.y, player.ship.x, player.ship.y)
-        self.AI(
-            idleDistance=dist > 10**12,
-            fleeCondition=dist < 80000000,
-            seekCondition=(self.state == "flee" and dist > 1**7)
-            or self.state != "flee",
-            fireCondition={
-                "func": lambda delta: abs(delta) < np.pi / 6,
-                "others": dist < 5000000,
-            },
+        self.tacticalUpdate(
+            idealRange=1800,
+            fleeRange=450,
+            fireRange=7000,
+            fireArc=np.pi / 10,
+            lead=0.35,
         )

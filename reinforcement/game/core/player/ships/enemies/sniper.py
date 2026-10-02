@@ -17,12 +17,12 @@ class Sniper(EnemyShip):
             width=50,
             height=50,
             angle=angle,
-            acceleration=1200,
+            acceleration=380,
             color="red",
             vertices=shapes[3],
             name="Sniper",
-            maxWeaponHeat=20000,
-            life=100,
+            maxWeaponHeat=2200,
+            life=180,
             weapon=HeavyRailGun,
             img=getattr(getattr(assets, "images", None), "snipership", None),
             flameImg=getattr(getattr(assets, "images", None), "flame1", None),
@@ -31,23 +31,15 @@ class Sniper(EnemyShip):
         self.fleeAcceleration = self.acceleration * 0.9
 
     def update(self, t, dt, thrust=0, turn=0):
-        updateWrapped(
-            fn=lambda *_: self._update(t, dt, thrust=thrust, turn=turn),
-            x=self.x,
-            y=self.y,
-            margin={"width": 5000, "height": 5000},
-        )
+        self._update(t, dt, thrust=thrust, turn=turn)
 
     def _update(self, t, dt, thrust=0, turn=0):
         super().update(t, dt, thrust=thrust, turn=turn)
-        dist = toroidalDistance(self.x, self.y, player.ship.x, player.ship.y)
-        self.AI(
-            idleDistance=dist > 11**11,
-            fleeCondition=dist < 150000,
-            seekCondition=(self.state == "flee" and dist > 8**10)
-            or self.state != "flee",
-            fireCondition={
-                "func": lambda delta: abs(delta) < np.pi / 32,
-                "others": dist < 10000000,
-            },
+        self.tacticalUpdate(
+            idealRange=14000,
+            fleeRange=3500,
+            fireRange=30000,
+            fireArc=np.pi / 40,
+            lead=1.5,
+            turnMultiplier=0.65,
         )

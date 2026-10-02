@@ -14,15 +14,15 @@ class FleetDrone(EnemyShip):
         super().__init__(
             x=x,
             y=y,
-            width=40,
-            height=40,
+            width=42,
+            height=42,
             angle=angle,
-            acceleration=650,
+            acceleration=520,
             color="springgreen",
             vertices=shapes[1],
             name="Fleet Drone",
-            maxWeaponHeat=1000,
-            life=100,
+            maxWeaponHeat=900,
+            life=280,
             weapon=PulseCanon,
             img=getattr(getattr(assets, "images", None), "fleetship", None),
             flameImg=getattr(getattr(assets, "images", None), "flame3", None),
@@ -31,23 +31,16 @@ class FleetDrone(EnemyShip):
         self.fleeAcceleration = self.acceleration * 0.9
 
     def update(self, t, dt, thrust=0, turn=0):
-        updateWrapped(
-            fn=lambda *_: self._update(t, dt, thrust=thrust, turn=turn),
-            x=self.x,
-            y=self.y,
-            margin={"width": 4000, "height": 4000},
-        )
+        self._update(t, dt, thrust=thrust, turn=turn)
 
     def _update(self, t, dt, thrust=0, turn=0):
         super().update(t, dt, thrust=thrust, turn=turn)
-        dist = toroidalDistance(self.x, self.y, player.ship.x, player.ship.y)
-        self.AI(
-            idleDistance=dist > 10**10,
-            fleeCondition=dist < 80000,
-            seekCondition=(self.state == "flee" and dist > 7**7)
-            or self.state != "flee",
-            fireCondition={
-                "func": lambda delta: abs(delta) < np.pi / 8,
-                "others": dist < 3000000,
-            },
+        self.tacticalUpdate(
+            searchRange=16000,
+            idealRange=1800,
+            fleeRange=700,
+            fireRange=5000,
+            fireArc=np.pi / 32,
+            orbit=0.65,
+            lead=0.2,
         )

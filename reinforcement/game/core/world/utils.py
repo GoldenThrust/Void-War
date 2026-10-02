@@ -43,7 +43,7 @@ def toroidalDirection(x1, y1, x2, y2, angle, offset=0):
 def worldToScreen(wx, wy, space=world):
     dx = toroidalDelta(space.x, wx, space.width)
     dy = toroidalDelta(space.y, wy, space.height)
-    return {"x": dx + canvas.width / 2, "y": dy + canvas.height / 2}
+    return {"x": dx + space.width / 2, "y": dy + space.height / 2}
 
 
 def inScreen(*, x, y, space=world, screen=canvas, margin=None):

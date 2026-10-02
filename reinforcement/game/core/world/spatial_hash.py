@@ -41,7 +41,9 @@ class SpatialHash:
                 if element != "Minature":
                     self.insert(element)
 
-    def query(self, x, y, radius=100):
+    def query(self, x, y, radius=None):
+        if radius is None:
+            radius = self.cellSize * 2
         results = []
         minX = int((x - radius) // self.cellSize)
         maxX = int((x + radius) // self.cellSize)

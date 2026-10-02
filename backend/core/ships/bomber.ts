@@ -4,7 +4,7 @@ import Ship from "./ship.ts";
 
 export default class Bomber extends Ship {
     constructor({ x = 10, y = 20, angle = 0, friend = false }) {
-        super({ x, y, width: 50, height: 50, angle, acceleration: 300, color: "blue", vertices: shapes[4], name: "Bomber Drone", maxWeaponHeat: 10000, life: 100, weapon: PlasmaCanon, friend  });
+        super({ x, y, width: 56, height: 56, angle, acceleration: 280, color: "blue", vertices: shapes[4], name: "Bomber Drone", maxWeaponHeat: 1800, life: 240, weapon: PlasmaCanon, friend  });
         this.seekAcceleration = this.acceleration;
         this.fleeAcceleration = this.acceleration * 0.9;
     }

@@ -4,7 +4,7 @@ import HomingMissile from "../weapons/homingMissile.ts";
 
 export default class MissileLaucher extends Ship {
     constructor({ x = 10, y = 20, angle = 0, friend = false }) {
-        super({ x, y, width: 50, height: 50, angle, acceleration: 300, color: "gold", vertices: shapes[6], name: "Missile Laucher", maxWeaponHeat: 3000, life: 100, weapon: HomingMissile, friend  });
+        super({ x, y, width: 50, height: 50, angle, acceleration: 320, color: "gold", vertices: shapes[6], name: "Missile Launcher", maxWeaponHeat: 1800, life: 170, weapon: HomingMissile, friend  });
         this.seekAcceleration = this.acceleration;
         this.fleeAcceleration = this.acceleration * 0.9;
     }

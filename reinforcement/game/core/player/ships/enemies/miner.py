@@ -19,12 +19,12 @@ class Miner(EnemyShip):
             width=50,
             height=50,
             angle=angle,
-            acceleration=1500,
+            acceleration=430,
             color="azure",
             vertices=shapes[5],
             name="Miner Drone",
-            maxWeaponHeat=100,
-            life=300,
+            maxWeaponHeat=900,
+            life=220,
             weapon=Mine,
             img=getattr(getattr(assets, "images", None), "minership", None),
             flameImg=getattr(getattr(assets, "images", None), "flame4", None),
@@ -42,23 +42,20 @@ class Miner(EnemyShip):
         self.angle = wrap(lerp(self.angle, self.angle - clamp(delta, self.turnRate) * FIXED_DT * self.speed_factor, 0.3), np.pi * 2)
 
     def update(self, t, dt, thrust=0, turn=0):
-        updateWrapped(
-            fn=lambda *_: self._update(t, dt, thrust=thrust, turn=turn),
-            x=self.x,
-            y=self.y,
-            margin={"width": 4000, "height": 4000},
-        )
+        self._update(t, dt, thrust=thrust, turn=turn)
 
     def _update(self, t, dt, thrust=0, turn=0):
         super().update(t, dt, thrust=thrust, turn=turn)
-        dist = toroidalDistance(self.x, self.y, player.ship.x, player.ship.y)
-        self.AI(
-            idleDistance=dist > 10**12,
-            fleeCondition=self.weaponState == "hot",
-            seekCondition=(self.state == "flee" and dist > 10**7)
-            or self.state != "flee",
-            fireCondition={
-                "func": lambda delta: abs(delta + np.pi) < np.pi / 2,
-                "others": dist < 500000,
-            },
+        tactics = self.tacticalUpdate(
+            idealRange=1700,
+            fleeRange=850,
+            fireRange=2800,
+            fireArc=np.pi / 3,
+            orbit=0.35,
+            fire=False,
         )
+        if self.target is not None and tactics and tactics["distance"] <= 3200 and self.canFire():
+            mine_distance = 300
+            mine_x = wrap(self.target.x - np.sin(self.target.angle) * mine_distance, world.width)
+            mine_y = wrap(self.target.y - np.cos(self.target.angle) * mine_distance, world.height)
+            self.fireFrom(mine_x, mine_y, self.target.angle)

@@ -17,12 +17,12 @@ class Tormenter(EnemyShip):
             width=50,
             height=40,
             angle=angle,
-            acceleration=1300,
+            acceleration=440,
             color="pink",
             vertices=shapes[2],
             name="Tormenter Drone",
-            maxWeaponHeat=3000,
-            life=100,
+            maxWeaponHeat=1200,
+            life=140,
             weapon=GatlingGun,
             img=getattr(getattr(assets, "images", None), "tormentership", None),
             flameImg=getattr(getattr(assets, "images", None), "flame6", None),
@@ -31,23 +31,17 @@ class Tormenter(EnemyShip):
         self.fleeAcceleration = self.acceleration * 0.9
 
     def update(self, t, dt, thrust=0, turn=0):
-        updateWrapped(
-            fn=lambda *_: self._update(t, dt, thrust=thrust, turn=turn),
-            x=self.x,
-            y=self.y,
-            margin={"width": 4000, "height": 4000},
-        )
+        self._update(t, dt, thrust=thrust, turn=turn)
 
     def _update(self, t, dt, thrust=0, turn=0):
         super().update(t, dt, thrust=thrust, turn=turn)
-        dist = toroidalDistance(self.x, self.y, player.ship.x, player.ship.y)
-        self.AI(
-            idleDistance=dist > 10**12,
-            fleeCondition=dist < 40000,
-            seekCondition=(self.state == "flee" and dist > 10**7)
-            or self.state != "flee",
-            fireCondition={
-                "func": lambda delta: abs(delta) < np.pi / 4,
-                "others": dist < 5000000,
-            },
+        self.tacticalUpdate(
+            idealRange=950,
+            fleeRange=300,
+            fireRange=3800,
+            fireArc=np.pi / 36,
+            orbit=0.45,
+            lead=0.8,
+            turnMultiplier=2,
+            threatRange=850,
         )

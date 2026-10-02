@@ -17,10 +17,10 @@ class HomingMissile(PlasmaCanon):
             "width": 15,
             "height": 50,
             "angle": options.get("angle"),
-            "damage": 50,
-            "range": 50000,
-            "fireRate": 0.001,
-            "energyCost": 1000,
+            "damage": 180,
+            "range": 40000,
+            "fireRate": 0.12,
+            "energyCost": 900,
             "ship": options.get("ship"),
             "color": options.get("color"),
             "img": options.get("img"),
@@ -30,13 +30,17 @@ class HomingMissile(PlasmaCanon):
         self.turnRate = 2
 
     def trackEnemy(self, dt):
-        if not self.target or getattr(self.target, "state", None) == "dead":
+        if (
+            not self.target
+            or getattr(self.target, "state", None) == "dead"
+            or self.target.life <= 0
+        ):
             return
         dx = toroidalDelta(self.x, self.target.x, world.width)
         dy = toroidalDelta(self.y, self.target.y, world.height)
         target_angle = np.arctan2(-dx, -dy)
         diff = np.arctan2(np.sin(target_angle - self.angle), np.cos(target_angle - self.angle))
-        self.angle += clamp(diff, self.turnRate * dt)
+        self.angle += clamp(diff, -self.turnRate * dt, self.turnRate * dt)
 
     def update(self, t, dt):
         self.trackEnemy(dt)

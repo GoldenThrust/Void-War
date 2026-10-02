@@ -17,12 +17,12 @@ class MissileLaucher(EnemyShip):
             width=50,
             height=50,
             angle=angle,
-            acceleration=800,
+            acceleration=320,
             color="gold",
             vertices=shapes[6],
-            name="Missile Laucher",
-            maxWeaponHeat=3000,
-            life=150,
+            name="Missile Launcher",
+            maxWeaponHeat=1800,
+            life=170,
             weapon=HomingMissile,
             img=getattr(getattr(assets, "images", None), "missilelauchership", None),
             flameImg=getattr(getattr(assets, "images", None), "flame5", None),
@@ -31,23 +31,15 @@ class MissileLaucher(EnemyShip):
         self.fleeAcceleration = self.acceleration * 0.9
 
     def update(self, t, dt, thrust=0, turn=0):
-        updateWrapped(
-            fn=lambda *_: self._update(t, dt, thrust=thrust, turn=turn),
-            x=self.x,
-            y=self.y,
-            margin={"width": 4000, "height": 4000},
-        )
+        self._update(t, dt, thrust=thrust, turn=turn)
 
     def _update(self, t, dt, thrust=0, turn=0):
         super().update(t, dt, thrust=thrust, turn=turn)
-        dist = toroidalDistance(self.x, self.y, player.ship.x, player.ship.y)
-        self.AI(
-            idleDistance=dist > 10**12,
-            fleeCondition=dist < 80000,
-            seekCondition=(self.state == "flee" and dist > 10**7)
-            or self.state != "flee",
-            fireCondition={
-                "func": lambda delta: abs(delta) < np.pi / 2,
-                "others": dist < 5000000,
-            },
+        self.tacticalUpdate(
+            idealRange=4200,
+            fleeRange=1200,
+            fireRange=10000,
+            fireArc=np.pi / 3,
+            lead=1.2,
+            turnMultiplier=0.8,
         )
