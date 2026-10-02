@@ -5,7 +5,6 @@ import HeavyRailGun from "./heavyRailGun.ts";
 import PlasmaCanon from "./plasmaCanon.ts";
 import Mine from "./mine.ts";
 import HomingMissile from "./homingMissile.ts";
-import Websocket from "../../config/websocket.ts";
 
 export default class WeaponManager {
   constructor() {}
@@ -29,12 +28,6 @@ export default class WeaponManager {
   static update(t: number, dt: number) {
     for (const weapon of WeaponManager.weapons.values()) {
       weapon.update(t, dt);
-      Websocket.socket.emit("weapon:update", {
-        id: weapon.name,
-        x: weapon.x,
-        y: weapon.y,
-        angle: weapon.angle,
-      });
     }
   }
 

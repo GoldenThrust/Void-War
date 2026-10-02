@@ -18,26 +18,26 @@ class Mine(Weapon):
             "width": 20,
             "height": 20,
             "angle": options.get("angle"),
-            "damage": 50,
-            "range": 10000,
-            "fireRate": 1,
-            "energyCost": getattr(options.get("ship"), "maxHeat", 0) + 100,
+            "damage": 500,
+            "range": 1000,
+            "fireRate": 0.005,
+            "energyCost": 600,
             "ship": options.get("ship"),
             "color": options.get("color"),
-            "vertices": shapes[0],
+            "vertices": shapes[1],
             "img": options.get("img"),
         }
         super().__init__(defaults, force)
-        self.duration = 1000
+        self.duration = 10000
 
-    def update(self, dt):
+    def update(self, t, dt):
         self.colliding()
         self.duration -= 1
         if self.duration <= 0:
             self.destroy()
-            self.explode(200, 1000)
+            self.explode(10, 1000)
 
-    def explode(self, particles=50, radius=500):
+    def explode(self, particles=50, radius=1000):
         if not self.active:
             return
         for _ in range(particles):

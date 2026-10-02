@@ -1,10 +1,8 @@
 import Ship from "../ships/ship.ts";
 import { isSeperatingAxes } from "../utils/collision.ts";
+import { DAMPSPEED, FIXED_DT } from "../utils/constants.ts";
 import { tranformVertices } from "../utils/vertices.ts";
 import { spatial } from "../world/spatialHash.ts";
-import {
-  worldToScreen,
-} from "../world/utils.ts";
 import WeaponManager from "./manager.ts";
 
 import { shapes } from "./shapes.ts";
@@ -54,11 +52,13 @@ export default class Weapon implements WeaponI {
     img,
     penetration = 0,
   }: WeaponC) {
+    const currentShipAcceleration =
+      (ship.maxSpeed * (1 - DAMPSPEED)) / (DAMPSPEED * FIXED_DT);
     this.id = crypto.randomUUID();
     this.name = name;
     this.type = type;
-    this.acceleration = acceleration;
-    this.speed = speed;
+    this.acceleration = currentShipAcceleration + acceleration;
+    this.speed = ship.speed + speed;
     this.x = x;
     this.y = y;
     this.width = width;
@@ -76,7 +76,7 @@ export default class Weapon implements WeaponI {
     this.color = color;
     this.ship = ship;
 
-    this.dampSpeed = 0.99;
+    this.dampSpeed = DAMPSPEED;
     this.active = true;
     this.penetration = penetration;
     this.distanceTraveled = 0;
@@ -92,11 +92,10 @@ export default class Weapon implements WeaponI {
   }
 
   getVertices() {
-    const world = worldToScreen(this.x, this.y);
     const vertices = tranformVertices(
       this.vertices,
-      world.x,
-      world.y,
+      this.x,
+      this.y,
       this.width,
       this.height,
       this.angle,
@@ -126,10 +125,7 @@ export default class Weapon implements WeaponI {
             weapon.ship.friend === element.friend ||
             element.state === "dead")) ||
         (element instanceof Weapon &&
-          (
-            // weapon.ship === element.ship || 
-            weapon.ship.friend === element.ship.friend || 
-            weapon === element))
+          (weapon.ship === element.ship || weapon === element))
       )
         continue;
 

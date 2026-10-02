@@ -2,10 +2,11 @@ import { wrap } from "../world/utils.ts";
 import { world } from "../world/world.ts";
 import { shapes } from "./shapes.ts";
 import Ship from "./ship.ts";
+import Mine from "../weapons/mine.ts";
 
 export default class Miner extends Ship {
     constructor({ x = 10, y = 20, angle = 0, friend = false }) {
-        super({ x, y, width: 50, height: 50, angle, acceleration: 900, color: "azure", vertices: shapes[5], name: "Miner Drone", maxWeaponHeat: 100, life: 300, friend  });
+        super({ x, y, width: 50, height: 50, angle, acceleration: 450, color: "azure", vertices: shapes[5], name: "Miner Drone", maxWeaponHeat: 100, life: 150, weapon: Mine, friend  });
         this.seekAcceleration = this.acceleration;
         this.fleeAcceleration = this.acceleration * 0.9;
     }

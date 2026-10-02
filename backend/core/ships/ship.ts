@@ -2,12 +2,11 @@ import {
   toroidalDirection,
   toroidalDistance,
   toroidalDelta,
-  worldToScreen,
   wrap,
 } from "../world/utils.ts";
 import { world } from "../world/world.ts";
 import { clamp, lerp } from "../utils/math.ts";
-import { FIXED_DT } from "../utils/constants.ts";
+import { DAMPSPEED, FIXED_DT } from "../utils/constants.ts";
 
 import WeaponManager from "../weapons/manager.ts";
 import { shapes } from "./shapes.ts";
@@ -31,7 +30,6 @@ export default class Ship {
   protected turnRate: number;
   protected img;
   protected flameImg;
-  protected dampSpeed;
   // protected dt;
   protected controllable;
   protected lastTime;
@@ -44,7 +42,6 @@ export default class Ship {
   protected heat;
   protected maxHeat;
   protected weaponState;
-  protected maxSpeed;
   protected speedFactor;
   public state;
   public friend;
@@ -80,7 +77,7 @@ export default class Ship {
     this.x = x;
     this.y = y;
     this.speed = 0;
-    this.acceleration = acceleration / 2;
+    this.acceleration = acceleration;
     this.width = width;
     this.height = height;
     this.angle = angle;
@@ -92,9 +89,6 @@ export default class Ship {
 
     this.img = img;
     this.flameImg = flameImg;
-
-    this.dampSpeed = 0.75 ** FIXED_DT;
-    // this.dt = FIXED_DT;
 
     this.controllable = controllable;
 
@@ -112,15 +106,16 @@ export default class Ship {
     this.heat = 0;
     this.maxHeat = maxWeaponHeat;
     this.weaponState = "cool";
-    this.maxSpeed =
-      (this.dampSpeed * acceleration * FIXED_DT) / (1 - this.dampSpeed);
-
     this.speedFactor = Math.sqrt(this.speed / (this.maxSpeed || 1));
     this.state = "idle";
     // this.engineSound = new EngineSound(this);
     // AudioManager.set = this.engineSound;
     this.seekAcceleration = this.acceleration;
     this.fleeAcceleration = this.acceleration * 1.2;
+  }
+
+  get maxSpeed() {
+    return (DAMPSPEED * this.acceleration * FIXED_DT) / (1 - DAMPSPEED);
   }
 
   update(_t: number, dt: number, thrust = 0, turn = 0) {
@@ -146,7 +141,7 @@ export default class Ship {
       Math.PI * 2,
     );
 
-    this.speed = Math.max(this.speed * this.dampSpeed, 0);
+    this.speed = Math.max(this.speed * DAMPSPEED, 0);
 
     this.x = wrap(
       this.x - Math.sin(this.angle) * (this.speed * dt),
@@ -322,7 +317,7 @@ export default class Ship {
     for (const object of threats) {
       if (
         !(object instanceof Weapon) ||
-        // object === this.weapon ||
+        object === this.weapon ||
         !object.active ||
         object.ship.friend === this.friend
       )
@@ -386,11 +381,10 @@ export default class Ship {
   }
 
   getVertices() {
-    const world = worldToScreen(this.x, this.y);
     const vertices = tranformVertices(
       this.vertices as Vertices,
-      world.x,
-      world.y,
+      this.x,
+      this.y,
       this.width,
       this.height,
       this.angle,

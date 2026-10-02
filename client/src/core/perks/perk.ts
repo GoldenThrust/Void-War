@@ -31,8 +31,8 @@ export default class Perk {
     x,
     y,
     angle,
-    width = 100,
-    height = 100,
+    width = 40,
+    height = 40,
     vertices = shapes[0],
     duration = 1000
   }: PerkC) {

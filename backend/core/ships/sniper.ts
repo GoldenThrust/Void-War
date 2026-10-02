@@ -5,7 +5,7 @@ import Ship from "./ship.ts";
 
 export default class Sniper extends Ship {
     constructor({ x = 10, y = 20, angle = 0, friend = false }) {
-        super({ x, y, width: 50, height: 50, angle, acceleration: 800, color: "red", vertices: shapes[3], name: "Sniper", maxWeaponHeat: 20000, life: 100, weapon: HeavyRailGun, friend  });
+        super({ x, y, width: 50, height: 50, angle, acceleration: 400, color: "red", vertices: shapes[3], name: "Sniper", maxWeaponHeat: 20000, life: 100, weapon: HeavyRailGun, friend  });
         this.seekAcceleration = this.acceleration;
         this.fleeAcceleration = this.acceleration * 0.9;
     }

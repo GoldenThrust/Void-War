@@ -11,15 +11,15 @@ class HomingMissile(PlasmaCanon):
         defaults = {
             "name": "Homing Missile",
             "speed": options.get("speed", 10),
-            "acceleration": 15000,
+            "acceleration": 500,
             "x": options.get("x"),
             "y": options.get("y"),
             "width": 15,
             "height": 50,
             "angle": options.get("angle"),
-            "damage": 5,
-            "range": 25000,
-            "fireRate": 0.005,
+            "damage": 50,
+            "range": 50000,
+            "fireRate": 0.001,
             "energyCost": 1000,
             "ship": options.get("ship"),
             "color": options.get("color"),
@@ -27,26 +27,27 @@ class HomingMissile(PlasmaCanon):
         }
         super().__init__(defaults, force)
         self.target = None
-        self.turnRate = 0.01
+        self.turnRate = 2
 
-    def trackEnemy(self):
-        if not self.target or getattr(self.target, "state", None) == "dead" or self.distanceTraveled <= 200:
+    def trackEnemy(self, dt):
+        if not self.target or getattr(self.target, "state", None) == "dead":
             return
-        dx = toroidalDelta(self.target.x, self.x, world.width)
-        dy = toroidalDelta(self.target.y, self.y, world.height)
-        targetAngle = np.atan2(dy, dx)
-        diff = (targetAngle + self.angle) + np.pi / 2
-        diff = np.atan2(-np.sin(diff), -np.cos(diff))
-        self.angle += clamp(diff, self.turnRate)
+        dx = toroidalDelta(self.x, self.target.x, world.width)
+        dy = toroidalDelta(self.y, self.target.y, world.height)
+        target_angle = np.arctan2(-dx, -dy)
+        diff = np.arctan2(np.sin(target_angle - self.angle), np.cos(target_angle - self.angle))
+        self.angle += clamp(diff, self.turnRate * dt)
 
-    def update(self, dt, manager=None):
-        self.trackEnemy()
-        super().update(dt, manager)
+    def update(self, t, dt):
+        self.trackEnemy(dt)
+        super().update(t, dt)
 
     def closeObject(self, obj):
         from core.world.object.asteroid.asteroid import Asteroid
 
-        if isinstance(obj, Asteroid):
+        if isinstance(obj, Asteroid) or (
+            hasattr(obj, "friend") and obj.friend == self.ship.friend
+        ):
             return
         targetDistance = toroidalDistance(self.target.x, self.target.y, self.x, self.y) if self.target else float("inf")
         newDistance = toroidalDistance(obj.x, obj.y, self.x, self.y)

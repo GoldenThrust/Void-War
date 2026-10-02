@@ -1,6 +1,6 @@
 
 import { assets } from "../../assets/main.ts";
-import PulseCanon from "../../weapons/pulse-canon.ts";
+import PulseCanon from "../../weapons/pulseCanon.ts";
 import { shapes } from "./shapes.ts";
 import Ship from "./ship.ts";
 
@@ -9,7 +9,7 @@ export default class FleetDrone extends Ship {
     private formationSlot: number;
 
     constructor({ x = 10, y = 20, angle = 0, friend = false }) {
-        super({ x, y, width: 40, height: 40, angle, acceleration: 500, color: "springgreen", vertices: shapes[1], name: "Fleet Drone", maxWeaponHeat: 1000, life: 100, weapon: PulseCanon, img: assets?.images?.fleetship, flameImg: assets?.images?.flame3, friend });
+        super({ x, y, width: 40, height: 40, angle, acceleration: 500, color: "springgreen", vertices: shapes[1], name: "Fleet Drone", maxWeaponHeat: 1000, life: 300, weapon: PulseCanon, img: assets?.images?.fleetship, flameImg: assets?.images?.flame3, friend });
         this.formationSlot = FleetDrone.nextFormationSlot.get(friend) ?? 0;
         FleetDrone.nextFormationSlot.set(friend, this.formationSlot + 1);
         this.seekAcceleration = this.acceleration;

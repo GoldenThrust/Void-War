@@ -53,9 +53,7 @@ class EnemyShip(Ship):
 
     def update(self, t, dt, thrust=0, turn=0):
         super().update(t, dt, thrust, turn)
-        if self.state != "AI":
-            self.speed = self.speed + (self.acceleration * dt)
-            self.nearByWeapon()
+        self.nearByWeapon()
 
     def AI(
         self,

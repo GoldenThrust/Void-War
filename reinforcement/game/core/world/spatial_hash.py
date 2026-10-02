@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from pydantic import InstanceOf
-
 from core.world.utils import wrap
 from core.world.world import world
 
@@ -23,7 +21,7 @@ class SpatialHash:
         self.map.clear()
 
     def hash(self, cx, cy):
-        return f"{cx},{cy}"
+        return cy * self.cols + cx
 
     def wrapCellX(self, cx):
         return int(wrap(cx, self.cols))
@@ -46,9 +44,9 @@ class SpatialHash:
     def query(self, x, y, radius=100):
         results = []
         minX = int((x - radius) // self.cellSize)
-        maxX = int((x + radius * 2) // self.cellSize)
+        maxX = int((x + radius) // self.cellSize)
         minY = int((y - radius) // self.cellSize)
-        maxY = int((y + radius * 2) // self.cellSize)
+        maxY = int((y + radius) // self.cellSize)
 
         for cy in range(minY, maxY + 1):
             for cx in range(minX, maxX + 1):
@@ -61,4 +59,4 @@ class SpatialHash:
 
         return results
 
-spatial = SpatialHash(world.width, world.height, 100)
+spatial = SpatialHash(world.width, world.height, 300)

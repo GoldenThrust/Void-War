@@ -14,7 +14,7 @@ class PulseCanon(Projectile):
             "width": 8,
             "height": 15,
             "angle": options.get("angle"),
-            "damage": 40,
+            "damage": 20,
             "range": 10000,
             "fireRate": 0.5,
             "energyCost": 50,

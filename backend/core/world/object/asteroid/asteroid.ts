@@ -1,6 +1,6 @@
 import { randomNum } from "../../../utils/random.ts";
 import { world } from "../../world.ts";
-import { worldToScreen, wrap } from "../../utils.ts";
+import { wrap } from "../../utils.ts";
 import { sizeOf } from "../../../utils/constants.ts";
 import { shapes } from "./shapes.ts";
 import { tranformVertices } from "../../../utils/vertices.ts";
@@ -51,16 +51,13 @@ export default class Asteroid {
   }
 
   getVertices() {
-    const world = worldToScreen(this.x, this.y);
-    const vertices = tranformVertices(
+    return tranformVertices(
       this.vertices,
-      world.x,
-      world.y,
+      this.x,
+      this.y,
       this.width,
       this.height,
       this.angle,
     );
-
-    return vertices;
   }
 }

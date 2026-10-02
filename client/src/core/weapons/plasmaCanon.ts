@@ -16,7 +16,7 @@ export default class PlasmaCanon extends Projectile {
     acceleration = 25000,
     width = 10,
     height = 45,
-    damage = 10,
+    damage = 45,
     range = 50000,
     speed = 100,
     fireRate = 0.002,
@@ -43,7 +43,7 @@ export default class PlasmaCanon extends Projectile {
 
   explode(radius = 1000) {
     if (!this.active) return;
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 10; i++) {
       const prop = {
         x: this.x - Math.sin(this.angle) * this.width,
         y: this.y - Math.cos(this.angle) * this.height,

@@ -53,7 +53,6 @@ class SpatialHash {
   }
 
   insertAll(...object: any) {
-    console.log(object)
     for (const elements of object) {
       for (const element of elements) {
         if (element !== "Minature") {

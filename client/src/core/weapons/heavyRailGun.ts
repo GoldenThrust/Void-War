@@ -13,7 +13,7 @@ export default class HeavyRailGun extends Projectile {
             width: 10,
             height: 70,
             angle: angle,
-            damage: 100,
+            damage: 1000,
             range: 100000,
             fireRate: 0.005,
             energyCost: 1000,

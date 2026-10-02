@@ -16,7 +16,7 @@ class Projectile(Weapon):
     def update(self, t, dt):
         self.speed = self.speed + (self.acceleration * dt)
         self.speed *= self.dampSpeed
-        self.x = wrap(self.x + np.sin(self.angle) * (self.speed * dt), world.width)
+        self.x = wrap(self.x - np.sin(self.angle) * (self.speed * dt), world.width)
         self.y = wrap(self.y - np.cos(self.angle) * (self.speed * dt), world.height)
         self.distanceTraveled += (self.speed * dt)
         if self.distanceTraveled >= self.range:

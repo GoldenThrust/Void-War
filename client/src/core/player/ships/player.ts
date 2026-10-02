@@ -1,7 +1,7 @@
 
 import { assets } from "../../assets/main.ts";
 import { randomNum } from "../../utils/random.ts";
-import PulseCanon from "../../weapons/pulse-canon.ts";
+import PulseCanon from "../../weapons/pulseCanon.ts";
 import ShipManager from "./manager.ts";
 import { shapes } from "./shapes.ts";
 import Ship from "./ship.ts";

@@ -6,6 +6,11 @@
     box-sizing: border-box;
 }
 
+body {
+    min-width: 320px;
+    background: #070a0f;
+}
+
 canvas {
     position: absolute;
     /* top: 0;

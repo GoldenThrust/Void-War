@@ -6,7 +6,7 @@ from core.utils.vertices import createVerticesPath, tranformVertices
 from core.world.canvas import blit_image, draw_polygon
 from core.world.spatial_hash import spatial
 from core.world.utils import worldToScreen
-import numpy as np
+from core.utils.constants import FIXED_DT
 
 
 class Weapon:
@@ -15,8 +15,8 @@ class Weapon:
 
         self.name = options.get("name")
         self.type = options.get("type")
-        self.acceleration = options.get("acceleration", 10)
-        self.speed = options.get("speed", 10)
+        base_acceleration = options.get("acceleration", 10)
+        base_speed = options.get("speed", 10)
         self.x = options.get("x")
         self.y = options.get("y")
         self.width = options.get("width")
@@ -30,7 +30,15 @@ class Weapon:
         self.vertices = options.get("vertices", shapes[0])
         self.color = options.get("color", "red")
         self.ship = options.get("ship")
-        self.dampSpeed = 0.99
+        self.dampSpeed = 0.75 ** FIXED_DT
+        if self.ship is not None:
+            self.acceleration = (
+                self.ship.maxSpeed * (1 - self.dampSpeed)
+            ) / (self.dampSpeed * FIXED_DT) + base_acceleration
+            self.speed = self.ship.speed + base_speed
+        else:
+            self.acceleration = base_acceleration
+            self.speed = base_speed
         self.path2D = createVerticesPath(tranformVertices(self.vertices, 0, -self.height / 2, self.width, self.height, 0))
         self.active = True
         if not force and self.ship is not None:
@@ -56,14 +64,18 @@ class Weapon:
     def nearBy(weapon, vertices, x, y):
         object_list = spatial.query(x, y)
         for element in object_list:
-            if isinstance(element, Ship) and (weapon.ship == element or getattr(element, "state", None) == "dead"):
+            if isinstance(element, Ship) and (
+                weapon.ship is element
+                or weapon.ship.friend == element.friend
+                or getattr(element, "state", None) == "dead"
+            ):
                 continue
             if isinstance(element, Weapon) and (weapon.ship == element.ship or weapon is element):
                 continue
             if hasattr(weapon, "closeObject"):
                 weapon.closeObject(element)
             if isSeperatingAxes(element.getVertices(), vertices).get("collision"):
-                weapon.ship.damage_score = weapon.damage
+                weapon.ship.damage_score += weapon.damage
                 if isinstance(element, Ship):
                     element.life = max(0, element.life - weapon.damage)
                     if element.life <= 0:
@@ -75,7 +87,7 @@ class Weapon:
                 weapon.range *= 0.8
                 if hasattr(weapon, "penetration"):
                     weapon.penetration -= 1
-                    if not weapon.penetration:
+                    if weapon.penetration <= 0:
                         weapon.colide()
                         weapon.destroy()
 

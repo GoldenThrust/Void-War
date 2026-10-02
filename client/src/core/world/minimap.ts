@@ -177,7 +177,7 @@ export default class Minimap {
     }
 
     for (const perk of PerkManager.perks.values()) {
-      this.draw(perk.x, perk.y, 2, "aliceblue", true);
+      this.draw(perk.x, perk.y, 0.5, "aliceblue", true);
     }
     this.ctx.restore();
   }

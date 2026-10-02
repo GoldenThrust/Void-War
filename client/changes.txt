@@ -1,5 +1,7 @@
-perks files;
+perks folders;
 asteroid update and render
 change ship accelerations
 weapon speed
 correct dampspeed
+weapon explosions sizes
+spatial world.

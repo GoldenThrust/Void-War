@@ -20,23 +20,24 @@ class EnemyManager:
     @staticmethod
     def init(num_enemies: int = sizeOf.ship):
         EnemyManager.types = [
-            # FleetDrone,
+            FleetDrone,
             Bomber,
-            # Miner,
-            # MissileLaucher,
-            # Sniper,
-            # Tormenter,
+            Miner,
+            MissileLaucher,
+            Sniper,
+            Tormenter,
         ]
         EnemyManager.ships.clear()
+        destroyedShips.clear()
         for _ in range(num_enemies):
             cls = EnemyManager.types[int(np.random.uniform(0, len(EnemyManager.types)))]
-            EnemyManager.ships.append(
-                cls(
-                    x=np.random.uniform(0, world.width),
-                    y=np.random.uniform(0, world.height),
-                    angle=np.random.uniform(-np.pi * 2, np.pi * 2),
-                )
+            enemy = cls(
+                x=np.random.uniform(0, world.width),
+                y=np.random.uniform(0, world.height),
+                angle=np.random.uniform(-np.pi * 2, np.pi * 2),
             )
+            enemy.friend = False
+            EnemyManager.ships.append(enemy)
 
     @staticmethod
     def destroy(enemy):

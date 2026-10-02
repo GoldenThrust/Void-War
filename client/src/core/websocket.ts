@@ -1,8 +1,4 @@
 import { io } from "socket.io-client";
-import ShipManager from "./player/ships/manager";
-import OnlineShip from "./player/ships/onlineShip";
-import { ship } from "./player/ships/player";
-import Asteroid from "./world/object/asteroid/asteroid";
 
 export default class Websocket {
   public socket;

@@ -3,6 +3,7 @@ import time
 import pygame
 
 from core.assets.main import build_assets
+from core.events.keys import release_key, trigger_key
 from core.player.ships.enemies.manager import EnemyManager
 from core.player.ships import player
 from core.utils.constants import FIXED_DT
@@ -14,11 +15,19 @@ from core.weapons.manager import WeaponManager
 _last_time = None
 _time_accumulator = 0.0
 _clock = pygame.time.Clock()
+_pygame_key_names = {
+    pygame.K_UP: "ArrowUp",
+    pygame.K_DOWN: "ArrowDown",
+    pygame.K_LEFT: "ArrowLeft",
+    pygame.K_RIGHT: "ArrowRight",
+    pygame.K_RETURN: "Enter",
+    pygame.K_SPACE: "Space",
+}
 
 
 def init() -> None:
     build_assets()
-    player.PlayerShip.spawn(world.x, world.y)
+    player.PlayerShip.spawn(world.x, world.y, controllable=True)
     EnemyManager.init()
     WeaponManager.init()
     world.attach(player.ship)
@@ -36,16 +45,11 @@ def update_loop(now: float) -> bool:
 
     while _time_accumulator >= FIXED_DT:
         spatial.clear()
-        spatial.insertAll([player.ship], EnemyManager.ships, [])
+        spatial.insertAll([player.ship], EnemyManager.ships, WeaponManager.weapons)
 
         world.update()
 
-        try:
-            from core.weapons.manager import WeaponManager
-
-            WeaponManager.update(now, FIXED_DT)
-        except Exception:
-            pass
+        WeaponManager.update(now, FIXED_DT)
 
         EnemyManager.update(now, FIXED_DT)
 
@@ -57,12 +61,7 @@ def update_loop(now: float) -> bool:
     clear((0, 0, 0))
     world.render()
 
-    try:
-        from core.weapons.manager import WeaponManager
-
-        WeaponManager.render()        
-    except Exception:
-        pass
+    WeaponManager.render()
 
     if player.ship is not None:
         player.ship.render()
@@ -98,6 +97,10 @@ def game_loop() -> None:
                 running = False
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 running = False
+            elif event.type == pygame.KEYDOWN:
+                trigger_key(_pygame_key_names.get(event.key, pygame.key.name(event.key)))
+            elif event.type == pygame.KEYUP:
+                release_key(_pygame_key_names.get(event.key, pygame.key.name(event.key)))
 
         if not playing:
             screen = get_screen()

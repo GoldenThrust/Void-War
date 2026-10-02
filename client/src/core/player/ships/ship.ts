@@ -20,7 +20,7 @@ import { DAMPSPEED, FIXED_DT } from "../../utils/constants.ts";
 
 import WeaponManager from "../../weapons/manager.ts";
 import { shapes } from "./shapes.ts";
-import PulseCanon from "../../weapons/pulse-canon.ts";
+import PulseCanon from "../../weapons/pulseCanon.ts";
 import Weapon from "../../weapons/weapon.ts";
 import { spatial } from "../../world/spatialHash.ts";
 import ShipManager from "./manager.ts";

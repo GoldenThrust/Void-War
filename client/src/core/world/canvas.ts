@@ -17,6 +17,9 @@ export function resizeCanvas(scale = 1) {
   ctx.translate(-canvas.width / 2, -canvas.height / 2);
 }
 
+window.addEventListener("resize", () => resizeCanvas());
+
+
 resizeCanvas();
 
 ctx.beginPath();

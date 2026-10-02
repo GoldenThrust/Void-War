@@ -1,7 +1,7 @@
 import { keybinds } from "../events/keybind.ts";
 import { worldManager } from "../world/manager.ts";
 import type Weapon from "./weapon.ts";
-import PulseCanon from "./pulse-canon.ts";
+import PulseCanon from "./pulseCanon.ts";
 import GatlingGun from "./gatlingGun.ts";
 import HeavyRailGun from "./heavyRailGun.ts";
 import PlasmaCanon from "./plasmaCanon.ts";

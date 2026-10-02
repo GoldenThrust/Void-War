@@ -1,12 +1,22 @@
+import os
+import sys
+
 import numpy as np
 import gymnasium as gym
 from gymnasium import spaces
 import pygame
 
+
+GAME_DIR = os.path.join(os.path.dirname(__file__), "game")
+if GAME_DIR not in sys.path:
+    sys.path.insert(0, GAME_DIR)
+
 from core.player.ships.enemies.manager import EnemyManager
 from core.weapons.manager import WeaponManager
-from core.world.canvas import draw_text
+from core.world.canvas import clear, draw_text, get_screen
 from core.world.utils import toroidalDelta, toroidalDistance, wrap
+from core.world.spatial_hash import spatial
+from core.world.world import world
 
 
 from core.player.ships import player
@@ -30,7 +40,7 @@ class VoidFrontEnv(gym.Env):
     """
 
     metadata = {
-        "render_modes": ["human"],
+        "render_modes": ["human", "rgb_array"],
         "render_fps": 60,
     }
 
@@ -273,7 +283,7 @@ class VoidFrontEnv(gym.Env):
         )
 
         self.window = None
-        self.clock = None
+        self.clock = pygame.time.Clock()
         self.render_mode = render_mode
         self.window_size = (1920, 1080)
 
@@ -546,10 +556,18 @@ class VoidFrontEnv(gym.Env):
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
+        if seed is not None:
+            np.random.seed(seed)
+        WeaponManager.weapons.clear()
+        spatial.clear()
         self.game_player = player.PlayerShip.spawn(
-            self.world_width / 2, self.world_height / 2
+            self.world_width / 2,
+            self.world_height / 2,
+            controllable=True,
         )
         EnemyManager.init(self.K_enemies)
+        world.attach(self.game_player)
+        self._sync_spatial()
 
         self.acceleration = float(getattr(self.game_player, "acceleration", 3500.0))
         self.turn_rate = float(getattr(self.game_player, "turnRate", 2.0))
@@ -583,12 +601,11 @@ class VoidFrontEnv(gym.Env):
         self.last_health = float(getattr(ship, "life", 1000.0))
         self.last_fire = False
 
-        self.game_player.update(self.current_step, self.dt, thrust=thrust, turn=turn)
-        if fire_signal > 0.5 and hasattr(self.game_player, "fire"):
-            self.game_player.fire()
-            self.last_fire = True
-
         self.game_player.set_weapon(weapon_signal)
+
+        self._sync_spatial()
+        world.update()
+        WeaponManager.update(self.current_step, self.dt)
 
         # Physics update still runs over every enemy EnemyManager is
         # tracking (this is a full-world tick, not an observation
@@ -599,6 +616,13 @@ class VoidFrontEnv(gym.Env):
             enemy.update(
                 self.current_step, self.dt, thrust=enemy_thrust, turn=enemy_turn
             )
+
+        self.game_player.update(self.current_step, self.dt, thrust=thrust, turn=turn)
+        if fire_signal > 0.5 and hasattr(self.game_player, "fire"):
+            self.game_player.fire()
+            self.last_fire = True
+
+        self._sync_spatial()
 
         reward, distance, alignment = self._calculate_reward()
 
@@ -625,6 +649,11 @@ class VoidFrontEnv(gym.Env):
             self.w_alignment = 0
 
         return observation, reward, terminated, truncated, info
+
+    def _sync_spatial(self):
+        spatial.clear()
+        spatial.insert(self.game_player)
+        spatial.insertAll(EnemyManager.ships, WeaponManager.weapons)
 
     def _nearest(self, ship, entities):
         """Return (entity, distance) for the closest entity in a list, or (None, None)."""
@@ -784,7 +813,12 @@ class VoidFrontEnv(gym.Env):
     # RENDER
     # =============================================================
     def render(self):
-        if self.render_mode == "human":
+        if self.render_mode in ("human", "rgb_array"):
+            if not pygame.get_init():
+                pygame.init()
+            self.window = get_screen()
+            clear((0, 0, 0))
+            world.render()
             WeaponManager.render()
             self.game_player.render()
             EnemyManager.render()
@@ -809,10 +843,9 @@ class VoidFrontEnv(gym.Env):
             pygame.display.flip()
             if self.clock is not None:
                 self.clock.tick(self.metadata["render_fps"])
+            if self.render_mode == "rgb_array":
+                return np.transpose(pygame.surfarray.array3d(self.window), (1, 0, 2))
             return None
-
-        if self.render_mode == "rgb_array":
-            return np.transpose(pygame.surfarray.array3d(self.window), (1, 0, 2))
 
         return None
 
@@ -821,6 +854,6 @@ class VoidFrontEnv(gym.Env):
     # =============================================================
 
     def close(self):
-        if self.window is not None:
+        if self.window is not None or pygame.get_init():
             pygame.quit()
             self.window = None

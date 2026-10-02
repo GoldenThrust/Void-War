@@ -11,3 +11,4 @@ export const worldSize = {
 }
 
 export const FIXED_DT = 1 / 240;
+export const DAMPSPEED = 0.75 ** FIXED_DT;

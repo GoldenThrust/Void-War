@@ -20,7 +20,7 @@ export default class HomingMissile extends PlasmaCanon {
       width: 15,
       height: 50,
       angle: angle,
-      damage: 5,
+      damage: 50,
       range: 50000,
       fireRate: 0.001,
       energyCost: 1000,

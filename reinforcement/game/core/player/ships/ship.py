@@ -19,9 +19,8 @@ destroyedShips: list = []
 
 
 class Ship:
-    def __init__(self, *, x, y, width, height, angle, img=None, flameImg=None, weapon=None, acceleration=1000, turnRate=4, life=100, vertices=None, color="red", name="Player", controllable=False, maxWeaponHeat=10000):
+    def __init__(self, *, x, y, width, height, angle, img=None, flameImg=None, weapon=None, acceleration=3500, turnRate=2, life=100, vertices=None, color="red", name="Player", controllable=False, maxWeaponHeat=10000, friend=False):
         from core.weapons.pulse_canon import PulseCanon
-        print(turnRate)
         self.x = x
         self.y = y
         self.speed = 0
@@ -32,6 +31,7 @@ class Ship:
         self.color = color
         self.turnRate = turnRate
         self.name = name
+        self.friend = friend
         self.img = img
         self.flameImg = flameImg
         self.dampSpeed = 0.75 ** FIXED_DT
@@ -108,9 +108,9 @@ class Ship:
         elif getattr(self, "state", None) == "AI":
             self.speed = max(self.speed + thrusting * self.acceleration * dt, 0)
 
-        self.angle = wrap(self.angle + (steering * self.turnRate * self.speed_factor * FIXED_DT), 6.283185307179586)
+        self.angle = wrap(self.angle + (steering * self.turnRate * self.speed_factor * dt), 6.283185307179586)
         self.speed = max(self.speed * self.dampSpeed, 0)
-        self.x = wrap(self.x + np.sin(self.angle) * (self.speed * dt), world.width)
+        self.x = wrap(self.x - np.sin(self.angle) * (self.speed * dt), world.width)
         self.y = wrap(self.y - np.cos(self.angle) * (self.speed * dt), world.height)
         if self.cooldown >= 0:
             self.cooldown -= 1
@@ -141,12 +141,15 @@ class Ship:
     def fire(self):
         if not self.canFire():
             return
-        
+
         from core.weapons.manager import WeaponManager
 
+        fire_distance = -100 if self.weapon.__name__ == "Mine" else 10
+        fire_x = wrap(self.x - np.sin(self.angle) * fire_distance, world.width)
+        fire_y = wrap(self.y - np.cos(self.angle) * fire_distance, world.height)
         prop = {
-            "x": self.x + np.sin(self.angle) * self.width / 2,
-            "y": self.y - np.cos(self.angle) * self.height / 2,
+            "x": wrap(fire_x - np.sin(self.angle) * self.width / 2, world.width),
+            "y": wrap(fire_y - np.cos(self.angle) * self.height / 2, world.height),
             "angle": self.angle,
             "speed": self.speed,
             "ship": self,
