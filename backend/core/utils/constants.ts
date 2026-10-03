@@ -3,6 +3,7 @@ export const sizeOf = {
     friendShip: 49,
     star: 100000,
     asteroid: 1000,
+    perk: 30,
 }
 
 export const worldSize = {

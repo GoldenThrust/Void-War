@@ -9,73 +9,93 @@ import Mine from "./mine.ts";
 import HomingMissile from "./homingMissile.ts";
 
 export default class WeaponManager {
-    constructor() {
-        this.#addKeybinds();
+  constructor() {
+    this.#addKeybinds();
+  }
+
+  static weaponTypes = [
+    PulseCanon,
+    GatlingGun,
+    HeavyRailGun,
+    PlasmaCanon,
+    HomingMissile,
+    Mine,
+  ];
+
+  static weapons: Map<string, Weapon> = new Map();
+
+  static fire(weapon: typeof Weapon, options: WeaponC) {
+    const newWeapon = new weapon(options);
+    WeaponManager.weapons.set(newWeapon.id, newWeapon);
+  }
+
+  static render() {
+    try {
+      for (const weapon of WeaponManager.weapons.values()) {
+        weapon.render();
+      }
+    } catch (error) {
+      console.log("error in weapon render", error);
+    }
+  }
+
+  static update(t: number, dt: number) {
+    try {
+      for (const weapon of WeaponManager.weapons.values()) {
+        weapon.update(t, dt);
+      }
+    } catch (error) {
+      console.log("error in weapon update", error);
+    }
+  }
+
+  static destroy(weapon: Weapon) {
+    WeaponManager.weapons.delete(weapon.id);
+  }
+
+  #addKeybinds() {
+    for (let i = 0; i < WeaponManager.weaponTypes.length; i++) {
+      keybinds[`${i}`] = () => {
+        this.changeWeapon(WeaponManager.weaponTypes[i]);
+      };
     }
 
-    static weaponTypes = [PulseCanon, GatlingGun, HeavyRailGun, PlasmaCanon, HomingMissile, Mine];
+    keybinds["q"] = () => {
+      this.previousWeapon();
+    };
 
-    static weapons: Map<string, Weapon> = new Map();
+    keybinds["e"] = () => {
+      this.nextWeapon();
+    };
+  }
 
-    static fire(weapon: typeof Weapon, options: WeaponC) {
-        const newWeapon = new weapon(options);
-        WeaponManager.weapons.set(newWeapon.id, newWeapon);
-    }
+  nextWeapon() {
+    const ship = worldManager.findAttachedShip();
+    const currentWeaponId =
+      WeaponManager.weaponTypes.findIndex((w) => w === ship.weapon) + 1;
 
-    static render() {
-        for (const weapon of WeaponManager.weapons.values()) {
-            weapon.render();
-        }
-    }
+    const nextWeapon =
+      WeaponManager.weaponTypes[currentWeaponId] ||
+      WeaponManager.weaponTypes[0];
 
-    static update(t: number, dt: number) {
-        for (const weapon of WeaponManager.weapons.values()) {
-            weapon.update(t, dt);
-        }
-    }
+    this.changeWeapon(nextWeapon);
+  }
 
-    static destroy(weapon: Weapon) {
-            WeaponManager.weapons.delete(weapon.id);
-    }
+  previousWeapon() {
+    const ship = worldManager.findAttachedShip();
 
+    const currentWeaponId =
+      WeaponManager.weaponTypes.findIndex((w) => w === ship.weapon) - 1;
+    const previousWeapon =
+      WeaponManager.weaponTypes[currentWeaponId] ||
+      WeaponManager.weaponTypes[WeaponManager.weaponTypes.length - 1];
 
-    #addKeybinds() {
-        for (let i = 0; i < WeaponManager.weaponTypes.length; i++) {
-            keybinds[`${i}`] = () => {
-                this.changeWeapon(WeaponManager.weaponTypes[i]);
-            }
-        }
+    this.changeWeapon(previousWeapon);
+  }
 
-        keybinds["q"] = () => {
-            this.previousWeapon();
-        }
-
-        keybinds["e"] = () => {
-            this.nextWeapon();
-        }
-    }
-
-    nextWeapon() {
-        const ship = worldManager.findAttachedShip();
-        const currentWeaponId = WeaponManager.weaponTypes.findIndex(w => w === ship.weapon) + 1;
-
-        const nextWeapon = WeaponManager.weaponTypes[currentWeaponId] || WeaponManager.weaponTypes[0];
-
-        this.changeWeapon(nextWeapon);
-    }
-
-    previousWeapon() {
-        const ship = worldManager.findAttachedShip();
-
-        const currentWeaponId = WeaponManager.weaponTypes.findIndex(w => w === ship.weapon) - 1;
-        const previousWeapon = WeaponManager.weaponTypes[currentWeaponId] || WeaponManager.weaponTypes[WeaponManager.weaponTypes.length - 1];
-
-        this.changeWeapon(previousWeapon);
-    }
-
-    changeWeapon(weapon: typeof Weapon) {
-        worldManager.findAttachedShip().weapon = weapon;
-    }
+  changeWeapon(weapon: typeof Weapon) {
+    worldManager.findAttachedShip().weapon = weapon;
+  }
 }
 
 // Todo: createWeapon pool

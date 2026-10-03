@@ -273,7 +273,7 @@ export default class Ship {
 
     // weapon update
     if (this.cooldown >= 0) {
-      this.cooldown -= 1;
+      this.cooldown -= dt * 1000;
     }
 
     this.heat = clamp(this.heat - this.maxHeat * 0.001, 0, this.maxHeat * 5);

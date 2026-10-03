@@ -1,3 +1,4 @@
+import { sizeOf } from "../utils/constants.ts";
 import { randomNum } from "../utils/random.ts";
 import { world } from "../world/world.ts";
 import Perk from "./perk.ts";
@@ -12,7 +13,7 @@ export default class PerkManager {
   static spawn() {
     if (PerkManager.perks.size > 0) return;
 
-    for (let i = 0; i < 200; i++) {
+    for (let i = 0; i < sizeOf.perk; i++) {
       const PerkType = this.types[Math.floor(randomNum(0, this.types.length))]!;
       const perk = new PerkType({
         x: randomNum(0, world.width),

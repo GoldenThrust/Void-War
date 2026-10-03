@@ -16,5 +16,6 @@ export default class Teleporter extends Perk {
     super.colide(ship);
     ship.x = randomNum(0, world.width);
     ship.y = randomNum(0, world.height);
+    ship.angle = randomNum(-Math.PI * 2, Math.PI * 2);
   }
 }

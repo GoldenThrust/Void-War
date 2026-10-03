@@ -17,12 +17,13 @@ import { FIXED_DT } from "./utils/constants.ts";
 // import AudioManager from "./assets/audio/manager.ts";
 // import { applyAIResults } from "./ai/init.ts";
 import { canvas, ctx } from "./world/canvas.ts";
-import { websocket } from "./websocket.ts";
 import PerkManager from "./perks/manager.ts";
+import Websocket from "./websocket.ts";
 
 let initPromise: Promise<void> | undefined;
 export let gameType = "offline";
-
+    const backendUrl =
+      import.meta.env.VITE_BACKEND_URL ?? "http://localhost:3000";
 export function init(gameType: string) {
   if (!initPromise) {
     initPromise = initialize(gameType);
@@ -43,13 +44,20 @@ async function initialize(type: string) {
     ShipManager.init();
     PerkManager.spawn();
   } else {
+    const websocket = new Websocket(backendUrl);
+
     websocket.init();
   }
   PlayerShip.spawn(world.x, world.y);
 
   world.attach(ship);
 
-  console.log((ShipManager.friendsAlive > 0 && ShipManager.enemiesAlive > 0 && gameType !== "online") || gameType === "online")
+  console.log(
+    (ShipManager.friendsAlive > 0 &&
+      ShipManager.enemiesAlive > 0 &&
+      gameType !== "online") ||
+      gameType === "online",
+  );
   requestAnimationFrame(animate);
 }
 
@@ -64,7 +72,9 @@ async function animate(t: number) {
   timeAccumulator += deltaTime;
   // console.log("Loop started");
 
-  while (timeAccumulator >= FIXED_DT) {
+  let simulationSteps = 0;
+  const maxSimulationSteps = 8;
+  while (timeAccumulator >= FIXED_DT && simulationSteps < maxSimulationSteps) {
     // console.log("In loop");
     spatial.clear();
     spatial.insertAll(ShipManager.ships.values(), Asteroid.asteroids.values());
@@ -89,7 +99,11 @@ async function animate(t: number) {
     }
 
     timeAccumulator -= FIXED_DT;
+    simulationSteps++;
   }
+
+  // Avoid a catch-up spiral after a slow frame or a blocked browser tab.
+  if (simulationSteps === maxSimulationSteps) timeAccumulator = 0;
 
   // console.log("Out loop");
 
@@ -101,10 +115,10 @@ async function animate(t: number) {
 
   WeaponManager.render();
 
+  PerkManager.render();
   // ship.render();
   ShipManager.render();
 
-  PerkManager.render();
 
   Asteroid.render();
 
@@ -116,12 +130,19 @@ async function animate(t: number) {
   // spatial.renderSpatialDebug();
   // spatial.renderCellRadius(ship.x, ship.y, 600);
 
-  if ((ShipManager.friendsAlive > 0 && ShipManager.enemiesAlive > 0 && gameType !== "online") || gameType === "online")
+  if (
+    (ShipManager.friendsAlive > 0 &&
+      ShipManager.enemiesAlive > 0 &&
+      gameType !== "online") ||
+    gameType === "online"
+  )
     requestAnimationFrame(animate);
   else {
     const won = ship.life > 0;
     const title = won ? "SECTOR SECURED" : "SIGNAL LOST";
-    const subtitle = won ? "The void is clear. Return to command." : "Your vessel was lost beyond the belt.";
+    const subtitle = won
+      ? "The void is clear. Return to command."
+      : "Your vessel was lost beyond the belt.";
     const panelWidth = Math.min(canvas.width * 0.72, 560);
     const panelHeight = 150;
     const panelX = (canvas.width - panelWidth) / 2;
@@ -130,7 +151,9 @@ async function animate(t: number) {
     ctx.resetTransform();
     ctx.fillStyle = "rgba(3, 8, 13, 0.9)";
     ctx.fillRect(panelX, panelY, panelWidth, panelHeight);
-    ctx.strokeStyle = won ? "rgba(210, 255, 82, 0.7)" : "rgba(255, 82, 107, 0.7)";
+    ctx.strokeStyle = won
+      ? "rgba(210, 255, 82, 0.7)"
+      : "rgba(255, 82, 107, 0.7)";
     ctx.lineWidth = 2;
     ctx.strokeRect(panelX, panelY, panelWidth, panelHeight);
     ctx.fillStyle = won ? "#d2ff52" : "#ff526b";

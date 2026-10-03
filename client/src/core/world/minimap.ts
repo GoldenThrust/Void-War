@@ -32,17 +32,17 @@ export default class Minimap {
 
     this.minScale = minScale;
     this.scale = clamp(scale, minScale, 1);
-    
+
     this.world = {
       x: 0,
       y: 0,
       width: width / this.scale,
       height: height / this.scale,
     };
-    
+
     this.sx = this.world.width / world.width;
     this.sy = this.world.height / world.height;
-    
+
     this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
 
     this.lastTime = 0;
@@ -56,7 +56,7 @@ export default class Minimap {
   drawPlayerMarker(x: number, y: number, angle: number, size = 1) {
     const dx = this.sx * x;
     const dy = this.sy * y;
-    
+
     drawWrapped({
       fn: () => {
         this.ctx.lineWidth = 1.5;
@@ -166,7 +166,11 @@ export default class Minimap {
     const centerY = this.canvas.height / 2;
     this.ctx.strokeStyle = "rgba(119, 217, 255, 0.16)";
     this.ctx.lineWidth = 1;
-    for (const radius of [this.canvas.width * 0.18, this.canvas.width * 0.34, this.canvas.width * 0.49]) {
+    for (const radius of [
+      this.canvas.width * 0.18,
+      this.canvas.width * 0.34,
+      this.canvas.width * 0.49,
+    ]) {
       this.ctx.beginPath();
       this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
       this.ctx.stroke();
@@ -196,6 +200,9 @@ export default class Minimap {
     this.world.x = dx;
     this.world.y = dy;
 
+    for (const perk of PerkManager.perks.values()) {
+      this.drawPerkMarker(perk.x, perk.y, 0.75);
+    }
     this.drawPlayerMarker(ship.x, ship.y, ship.angle, this.canvas.width / 40);
 
     this.ctx.globalAlpha = 1;
@@ -208,7 +215,11 @@ export default class Minimap {
         weapon.height,
         weapon.angle,
         1,
-        weapon.ship instanceof PlayerShip ? "#f6e58d" : weapon.ship.friend ? "#77d9ff" : "#ff526b",
+        weapon.ship instanceof PlayerShip
+          ? "#f6e58d"
+          : weapon.ship.friend
+            ? "#77d9ff"
+            : "#ff526b",
       );
     }
 
@@ -216,17 +227,12 @@ export default class Minimap {
       if (otherShip === ship) continue;
       this.drawShipMarker(otherShip.x, otherShip.y, 1, otherShip.friend);
     }
-
-    for (const perk of PerkManager.perks.values()) {
-      this.drawPerkMarker(perk.x, perk.y, 0.75);
-    }
     this.ctx.restore();
   }
 
   zoom(f = 1) {
     this.scale = this.scale * f;
     this.scale = clamp(this.scale, this.minScale, 1);
-
 
     this.world = {
       x: 0,

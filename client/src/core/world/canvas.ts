@@ -10,8 +10,12 @@ export const { width: canvasWidth, height: canvasHeight } =
 export const dpr = window.devicePixelRatio ?? 1;
 
 export function resizeCanvas(scale = 1) {
-  canvas.width = canvasWidth * dpr;
-  canvas.height = canvasHeight * dpr;
+  const width = canvasWidth * dpr;
+  const height = canvasHeight * dpr;
+  if (canvas.width === width && canvas.height === height) return;
+
+  canvas.width = width;
+  canvas.height = height;
   ctx.translate(canvas.width / 2, canvas.height / 2);
   ctx.scale(dpr * scale, dpr * scale);
   ctx.translate(-canvas.width / 2, -canvas.height / 2);

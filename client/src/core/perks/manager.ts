@@ -1,16 +1,19 @@
+import { sizeOf } from "../utils/constants";
 import { randomNum } from "../utils/random";
 import { world } from "../world/world";
 import type Perk from "./perk";
 import Shield from "./shield";
 import SuperDash from "./superDash";
 import Teleporter from "./teleporter";
+import RepairNanites from "./repairNanites";
+import Overdrive from "./overdrive";
 
 export default class PerkManager {
   static perks: Map<string, Perk> = new Map();
-  static types = [SuperDash, Teleporter, Shield];
+  static types = [SuperDash, Teleporter, Shield, RepairNanites, Overdrive];
   static spawn() {
-    for (let i = 0; i < 200; i++) {
-      // const perk = new this.types[2]!({
+    for (let i = 0; i < sizeOf.perk; i++) {
+      // const perk = new this.types[1]!({
       const perk = new this.types[Math.floor(randomNum(0, this.types.length))]!({
         x: randomNum(0, world.width),
         y: randomNum(0, world.height),
