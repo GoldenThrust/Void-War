@@ -13,10 +13,11 @@ export default class Perk {
   public angle: number;
   public width: number;
   public height: number;
-  protected vertices: Vertices;
+  public vertices: Vertices;
   protected ship: Ship | null = null;
-  private duration: number;
+  public duration: number;
   private startTime?: number;
+  public color: string;
 
   constructor({
     name = "Perk",
@@ -27,6 +28,7 @@ export default class Perk {
     height = 40,
     vertices = shapes[0]!,
     duration = 1000,
+    color = "#d2ff52",
   }: PerkC) {
     this.id = crypto.randomUUID();
     this.name = name;
@@ -37,6 +39,7 @@ export default class Perk {
     this.width = width;
     this.height = height;
     this.duration = duration;
+    this.color = color;
   }
 
   getVertices() {

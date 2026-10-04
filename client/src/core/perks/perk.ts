@@ -28,6 +28,7 @@ export default class Perk {
   private duration;
   private startTime?: number;
   constructor({
+    id = uuid(),
     name = "Perk",
     x,
     y,
@@ -38,7 +39,7 @@ export default class Perk {
     duration = 1000,
     color = "#d2ff52",
   }: PerkC) {
-    this.id = uuid();
+    this.id = id;
     this.name = name;
     this.x = x;
     this.y = y;

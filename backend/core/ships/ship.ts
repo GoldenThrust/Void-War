@@ -58,6 +58,7 @@ export default class Ship {
   private static squadTargets = new Map<boolean, Ship>();
 
   constructor({
+    id = uuid(),
     x,
     y,
     width,
@@ -75,7 +76,7 @@ export default class Ship {
     maxWeaponHeat = 10000,
     friend = false,
   }: ShipC) {
-    this.id = uuid();
+    this.id = id;
     this.x = x;
     this.y = y;
     this.speed = 0;

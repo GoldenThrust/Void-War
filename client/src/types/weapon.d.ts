@@ -23,6 +23,7 @@ interface WeaponI {
 }
 
 type WeaponC = {
+  id?: string;
   name?: string;
   type?: "projectile" | "utility" | string;
   x: number;

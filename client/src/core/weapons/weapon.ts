@@ -41,6 +41,7 @@ export default class Weapon implements WeaponI {
   protected path2D;
 
   constructor({
+    id = uuid(),
     name = "Weapon",
     type = "Projectile",
     x,
@@ -62,7 +63,7 @@ export default class Weapon implements WeaponI {
   }: WeaponC) {
     const currentSheepAcceleration =
       (ship.maxSpeed * (1 - DAMPSPEED)) / (DAMPSPEED * FIXED_DT);
-    this.id = uuid();
+    this.id = id;
     this.name = name;
     this.type = type;
     this.acceleration = currentSheepAcceleration + acceleration;

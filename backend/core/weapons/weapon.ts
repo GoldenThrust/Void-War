@@ -27,10 +27,10 @@ export default class Weapon implements WeaponI {
   public penetration;
   public distanceTraveled;
 
-  protected color: string;
+  public color: string;
   protected img;
   protected dampSpeed;
-  protected vertices;
+  public vertices;
 
   constructor({
     name = "Weapon",

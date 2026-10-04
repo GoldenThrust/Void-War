@@ -24,6 +24,8 @@ let initPromise: Promise<void> | undefined;
 export let gameType = "offline";
     const backendUrl =
       import.meta.env.VITE_BACKEND_URL ?? "http://localhost:3000";
+
+let websocket: Websocket | undefined;
 export function init(gameType: string) {
   if (!initPromise) {
     initPromise = initialize(gameType);
@@ -44,7 +46,7 @@ async function initialize(type: string) {
     ShipManager.init();
     PerkManager.spawn();
   } else {
-    const websocket = new Websocket(backendUrl);
+    websocket = new Websocket(backendUrl);
 
     websocket.init();
   }
@@ -96,6 +98,7 @@ async function animate(t: number) {
       PerkManager.update(t);
     } else {
       ship.update(t, FIXED_DT);
+      websocket?.update();
     }
 
     timeAccumulator -= FIXED_DT;

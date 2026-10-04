@@ -1,4 +1,5 @@
 type ShipC = {
+  id?: string;
   name?: string;
   x: number;
   y: number;

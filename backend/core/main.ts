@@ -36,7 +36,7 @@ export function step(t = performance.now(), dt = FIXED_DT) {
   PerkManager.update(t);
 }
 
-export function snapshot() {
+export function initSnapShot() {
   return {
     ships: Array.from(ShipManager.ships.values(), (ship) => ({
       id: ship.id,
@@ -47,7 +47,6 @@ export function snapshot() {
       speed: ship.speed,
       life: ship.life,
       friend: ship.friend,
-      state: ship.state,
       vertices: ship.vertices,
       width: ship.width,
       height: ship.height,
@@ -56,12 +55,22 @@ export function snapshot() {
     weapons: Array.from(WeaponManager.weapons.values(), (weapon) => ({
       id: weapon.id,
       name: weapon.name,
+      type: weapon.type,
       x: weapon.x,
       y: weapon.y,
       angle: weapon.angle,
-      active: weapon.active,
       width: weapon.width,
       height: weapon.height,
+      vertices: weapon.vertices,
+      color: weapon.color,
+      penetration: weapon.penetration,
+      ship: weapon.ship.id,
+      acceleration: weapon.acceleration,
+      speed: weapon.speed,
+      damage: weapon.damage,
+      range: weapon.range,
+      fireRate: weapon.fireRate,
+      energyCost: weapon.energyCost,
     })),
     asteroids: Array.from(Asteroid.asteroids.values(), (asteroid) => ({
       id: asteroid.id,
@@ -82,12 +91,50 @@ export function snapshot() {
       angle: perk.angle,
       width: perk.width,
       height: perk.height,
-      vertices: perk.getVertices(),
+      duration: perk.duration,
+      color: perk.color,
+      vertices: perk.vertices,
       collectedBy: perk.getShip()?.id ?? null,
     })),
     counts: {
       friendsAlive: ShipManager.friendsAlive,
       enemiesAlive: ShipManager.enemiesAlive,
     },
+    time: performance.now(),
+  };
+}
+
+export function updateSnapShot() {
+  return {
+    ships: Array.from(ShipManager.ships.values(), (ship) => ({
+      id: ship.id,
+      x: ship.x,
+      y: ship.y,
+      angle: ship.angle,
+      life: ship.life,
+    })),
+    weapons: Array.from(WeaponManager.weapons.values(), (weapon) => ({
+      id: weapon.id,
+      x: weapon.x,
+      y: weapon.y,
+      angle: weapon.angle,
+    })),
+    asteroids: Array.from(Asteroid.asteroids.values(), (asteroid) => ({
+      id: asteroid.id,
+      x: asteroid.x,
+      y: asteroid.y,
+      angle: asteroid.angle,
+    })),
+    perks: Array.from(PerkManager.perks.values(), (perk) => ({
+      id: perk.id,
+      x: perk.x,
+      y: perk.y,
+      angle: perk.angle,
+    })),
+    counts: {
+      friendsAlive: ShipManager.friendsAlive,
+      enemiesAlive: ShipManager.enemiesAlive,
+    },
+    time: performance.now(),
   };
 }
