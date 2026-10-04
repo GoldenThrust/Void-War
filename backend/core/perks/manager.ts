@@ -1,14 +1,16 @@
 import { sizeOf } from "../utils/constants.ts";
 import { randomNum } from "../utils/random.ts";
 import { world } from "../world/world.ts";
+import Overdrive from "./overdrive.ts";
 import Perk from "./perk.ts";
+import RepairNanites from "./repairNanites.ts";
 import Shield from "./shield.ts";
 import SuperDash from "./superDash.ts";
 import Teleporter from "./teleporter.ts";
 
 export default class PerkManager {
   static perks: Map<string, Perk> = new Map();
-  static types = [SuperDash, Teleporter, Shield];
+  static types = [SuperDash, Teleporter, Shield, RepairNanites, Overdrive];
 
   static spawn() {
     if (PerkManager.perks.size > 0) return;

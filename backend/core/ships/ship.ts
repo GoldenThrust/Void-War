@@ -15,6 +15,8 @@ import Weapon from "../weapons/weapon.ts";
 import { spatial } from "../world/spatialHash.ts";
 import ShipManager from "./manager.ts";
 import { tranformVertices } from "../utils/vertices.ts";
+import { v4 as uuid } from "uuid";
+
 
 export default class Ship {
   public id: string;
@@ -73,7 +75,7 @@ export default class Ship {
     maxWeaponHeat = 10000,
     friend = false,
   }: ShipC) {
-    this.id = crypto.randomUUID();
+    this.id = uuid();
     this.x = x;
     this.y = y;
     this.speed = 0;
@@ -116,6 +118,10 @@ export default class Ship {
 
   get maxSpeed() {
     return (DAMPSPEED * this.acceleration * FIXED_DT) / (1 - DAMPSPEED);
+  }
+
+  get maxLife() {
+    return this.fullLife;
   }
 
   update(_t: number, dt: number, thrust = 0, turn = 0) {

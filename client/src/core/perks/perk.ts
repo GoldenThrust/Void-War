@@ -83,7 +83,7 @@ export default class Perk {
     this.nearBy();
     if (!this.ship) return;
     if (!this.startTime) this.startTime = t;
-    if (t - this.startTime > this.duration) this.finishedRuning();
+    if (t - this.startTime > this.duration) this.finishedRunning();
   }
 
   nearBy(
@@ -118,7 +118,7 @@ export default class Perk {
     // console.log("collision between", this.name, "and", ship.name)
   }
 
-  finishedRuning() {
+  finishedRunning() {
     PerkManager.perks.delete(this.id);
   }
 }

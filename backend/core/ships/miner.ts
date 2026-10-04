@@ -6,7 +6,7 @@ import Mine from "../weapons/mine.ts";
 
 export default class Miner extends Ship {
     constructor({ x = 10, y = 20, angle = 0, friend = false }) {
-        super({ x, y, width: 52, height: 52, angle, acceleration: 430, color: "azure", vertices: shapes[5], name: "Miner Drone", maxWeaponHeat: 900, life: 220, weapon: Mine, friend  });
+        super({ x, y, width: 52, height: 52, angle, acceleration: 530, color: "azure", vertices: shapes[5], name: "Miner Drone", maxWeaponHeat: 900, life: 220, weapon: Mine, friend  });
         this.seekAcceleration = this.acceleration;
         this.fleeAcceleration = this.acceleration * 0.9;
     }

@@ -1,6 +1,6 @@
-import type Ship from "../player/ships/ship";
-import Perk from "./perk";
-import shapes from "./shapes";
+import type Ship from "../ships/ship.ts";
+import Perk from "./perk.ts";
+import shapes from "./shapes.ts";
 
 export default class Overdrive extends Perk {
   private previousAcceleration = 0;
@@ -14,7 +14,7 @@ export default class Overdrive extends Perk {
     super(prop);
   }
 
-  colide(ship: Ship) {
+  override colide(ship: Ship) {
     super.colide(ship);
     this.previousAcceleration = ship.acceleration;
     this.previousSpeed = ship.speed;
@@ -22,7 +22,7 @@ export default class Overdrive extends Perk {
     ship.speed *= 1.15;
   }
 
-  finishedRuning() {
+  override finishedRunning() {
     if (this.ship) {
       this.ship.acceleration = this.previousAcceleration;
       this.ship.speed = Math.min(this.ship.speed, this.previousSpeed);

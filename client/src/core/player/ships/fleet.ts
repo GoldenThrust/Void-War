@@ -9,7 +9,7 @@ export default class FleetDrone extends Ship {
     private formationSlot: number;
 
     constructor({ x = 10, y = 20, angle = 0, friend = false }) {
-        super({ x, y, width: 42, height: 42, angle, acceleration: 520, color: "springgreen", vertices: shapes[1], name: "Fleet Drone", maxWeaponHeat: 900, life: 280, weapon: PulseCanon, img: assets?.images?.fleetship, flameImg: assets?.images?.flame3, friend });
+        super({ x, y, width: 42, height: 42, angle, acceleration: 620, color: "springgreen", vertices: shapes[1], name: "Fleet Drone", maxWeaponHeat: 900, life: 280, weapon: PulseCanon, img: assets?.images?.fleetship, flameImg: assets?.images?.flame3, friend });
         this.formationSlot = FleetDrone.nextFormationSlot.get(friend) ?? 0;
         FleetDrone.nextFormationSlot.set(friend, this.formationSlot + 1);
         this.seekAcceleration = this.acceleration;

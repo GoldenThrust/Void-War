@@ -5,7 +5,15 @@ type PerkC = {
   angle: number;
   width?: number;
   height?: number;
-  vertices?: Vertices;
+  color?: string;
+  vertices?: {
+    x: number;
+    y: number;
+  }[];
   duration?: number;
   multiplier?: number;
 };
+
+type SuperDashC = PerkC & {
+    multiplier: number;
+}

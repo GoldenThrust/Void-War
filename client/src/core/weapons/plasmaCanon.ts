@@ -19,8 +19,8 @@ export default class PlasmaCanon extends Projectile {
     damage = 120,
     range = 45000,
     speed = 100,
-    fireRate = 0.25,
-    energyCost = 900,
+    fireRate = 0.15,
+    energyCost = 600,
   }: WeaponC) {
     super({
       name,

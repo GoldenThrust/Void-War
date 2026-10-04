@@ -452,7 +452,7 @@ export default class Ship {
     for (const object of threats) {
       if (
         !(object instanceof Weapon) ||
-        object === this.weapon ||
+        object.ship === this ||
         !object.active ||
         object.ship.friend === this.friend
       )

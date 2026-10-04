@@ -11,17 +11,19 @@ import Overdrive from "./overdrive";
 export default class PerkManager {
   static perks: Map<string, Perk> = new Map();
   static types = [SuperDash, Teleporter, Shield, RepairNanites, Overdrive];
+
   static spawn() {
+    if (PerkManager.perks.size > 0) return;
+
     for (let i = 0; i < sizeOf.perk; i++) {
-      // const perk = new this.types[1]!({
-      const perk = new this.types[Math.floor(randomNum(0, this.types.length))]!({
+      const PerkType = this.types[Math.floor(randomNum(0, this.types.length))]!;
+      const perk = new PerkType({
         x: randomNum(0, world.width),
         y: randomNum(0, world.height),
         angle: randomNum(-Math.PI * 2, Math.PI * 2),
         duration: randomNum(2000, 10000),
         multiplier: randomNum(1.5, 5),
       });
-
       PerkManager.perks.set(perk.id, perk);
     }
   }

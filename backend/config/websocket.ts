@@ -33,6 +33,7 @@ export default class Websocket {
       socket.emit("game:init", state);
       socket.emit("init:ship", state.ships);
       socket.emit("init:asteroid", state.asteroids);
+      socket.emit("init:perk", state.perks);
     });
   }
 }

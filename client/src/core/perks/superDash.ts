@@ -20,9 +20,9 @@ export default class SuperDash extends Perk {
     ship.speed *= this.multiplier;
   }
 
-  finishedRuning() {
+  finishedRunning() {
     if (this.ship) this.ship.speed = this.previousSpeed;
 
-    super.finishedRuning();
+    super.finishedRunning();
   }
 }

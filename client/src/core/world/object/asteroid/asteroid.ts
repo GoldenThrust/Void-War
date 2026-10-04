@@ -46,48 +46,6 @@ export default class Asteroid {
     );
   }
 
-  init({
-    x,
-    y,
-    angle,
-    width,
-    height,
-    speed,
-    rotationSpeed,
-    vertices,
-  }: {
-    x: number;
-    y: number;
-    angle: number;
-    width: number;
-    height: number;
-    speed: number;
-    rotationSpeed: number;
-    vertices: {
-      x: number;
-      y: number;
-    }[];
-  }) {
-    this.x = x;
-    this.y = y;
-    this.width = width;
-    this.height = height;
-    this.speed = speed;
-    this.rotationSpeed = rotationSpeed;
-    this.angle = angle;
-    this.vertices = vertices;
-    this.path2D = createVerticesPath(
-      tranformVertices(
-        this.vertices,
-        0,
-        0,
-        this.width,
-        this.height,
-        this.angle,
-      ),
-    );
-  }
-
   static init() {
     for (let i = 0; i < sizeOf.asteroid; i++) {
       const asteroid = new Asteroid();

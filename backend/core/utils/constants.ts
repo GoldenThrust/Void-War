@@ -1,14 +1,14 @@
 export const sizeOf = {
-    enemyShip: 50,
-    friendShip: 49,
-    star: 100000,
-    asteroid: 1000,
-    perk: 30,
+    enemyShip: 10,
+    friendShip: 9,
+    star: 100,
+    asteroid: 10,
+    perk: 10,
 }
 
 export const worldSize = {
-    width:  100000,
-    height: 100000,
+    width:  5000,
+    height: 5000,
 }
 
 export const FIXED_DT = 1 / 240;
