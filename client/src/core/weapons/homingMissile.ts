@@ -10,22 +10,23 @@ import Weapon from "./weapon.ts";
 export default class HomingMissile extends PlasmaCanon {
   private target: Ship | null;
   private turnRate: number;
-  constructor({ x, y, angle, ship, color, speed = 10 }: WeaponC) {
+  constructor(prop: WeaponC) {
     super({
+      ...prop,
       name: "Homing Missile",
-      speed: speed,
+      speed: prop.speed ?? 10,
       acceleration: 500,
-      x: x,
-      y: y,
+      x: prop.x,
+      y: prop.y,
       width: 15,
       height: 50,
-      angle: angle,
+      angle: prop.angle,
       damage: 180,
       range: 40000,
       fireRate: 0.12,
       energyCost: 900,
-      ship,
-      color,
+      ship: prop.ship,
+      color: prop.color,
       img: assets?.images?.homingmissile,
     });
 

@@ -8,10 +8,10 @@ export default class FleetDrone extends Ship {
     private static nextFormationSlot = new Map<boolean, number>();
     private formationSlot: number;
 
-    constructor({ x = 10, y = 20, angle = 0, friend = false }) {
-        super({ x, y, width: 42, height: 42, angle, acceleration: 620, color: "springgreen", vertices: shapes[1], name: "Fleet Drone", maxWeaponHeat: 900, life: 280, weapon: PulseCanon, img: assets?.images?.fleetship, flameImg: assets?.images?.flame3, friend });
-        this.formationSlot = FleetDrone.nextFormationSlot.get(friend) ?? 0;
-        FleetDrone.nextFormationSlot.set(friend, this.formationSlot + 1);
+    constructor(prop: ShipC) {
+        super({ ...prop, x: prop.x ?? 10, y: prop.y ?? 20, width: 42, height: 42, angle: prop.angle ?? 0, acceleration: 620, color: "springgreen", vertices: shapes[1], name: "Fleet Drone", maxWeaponHeat: 900, life: 280, weapon: PulseCanon, img: assets?.images?.fleetship, flameImg: assets?.images?.flame3, friend: prop.friend ?? false });
+        this.formationSlot = FleetDrone.nextFormationSlot.get(this.friend) ?? 0;
+        FleetDrone.nextFormationSlot.set(this.friend, this.formationSlot + 1);
         this.seekAcceleration = this.acceleration;
         this.fleeAcceleration = this.acceleration * 0.9;
     }

@@ -8,22 +8,23 @@ import Minature from "./minature.ts";
 
 export default class Mine extends Weapon {
     private duration;
-    constructor({ x, y, angle, ship, color, speed = 10 }: WeaponC) {
+    constructor(prop: WeaponC) {
         super({
+            ...prop,
             name: "Mine",
-            speed: speed,
+            speed: prop.speed ?? 10,
             acceleration: 10000,
-            x: x,
-            y: y,
+            x: prop.x,
+            y: prop.y,
             width: 20,
             height: 20,
-            angle: angle,
+            angle: prop.angle,
             damage: 300,
             range: 1400,
             fireRate: 0.15,
             energyCost: 400,
-            ship,
-            color,
+            ship: prop.ship,
+            color: prop.color,
             vertices: shapes[1],
             img: assets?.images?.mine
         });

@@ -3,23 +3,24 @@ import { assets } from "../assets/main.ts";
 import Projectile from "./projectile.ts";
 
 export default class HeavyRailGun extends Projectile {
-    constructor({ x, y, angle, ship, color, speed = 10 }: WeaponC) {
+    constructor(prop: WeaponC) {
         super({
+            ...prop,
             name: "Heavy RailGun",
-            speed: speed * 5,
+            speed: (prop.speed ?? 10) * 5,
             acceleration: 50000,
-            x: x,
-            y: y,
+            x: prop.x,
+            y: prop.y,
             width: 10,
             height: 70,
-            angle: angle,
+            angle: prop.angle,
             damage: 450,
             range: 30000,
             fireRate: 0.08,
             energyCost: 1000,
             penetration: 2,
-            ship,
-            color,
+            ship: prop.ship,
+            color: prop.color,
             img: assets?.images?.heavyrailgun
         });
     }

@@ -3,22 +3,23 @@ import { assets } from "../assets/main.ts";
 import Projectile from "./projectile.ts";
 
 export default class Minature extends Projectile {
-    constructor({ x, y, angle, ship, range = 500, color, speed = 10 }: WeaponC) {
+    constructor(prop: WeaponC) {
         super({
+            ...prop,
             name: "Minature",
-            speed: speed,
-            acceleration: speed,
-            x: x,
-            y: y,
+            speed: prop.speed ?? 10,
+            acceleration: prop.speed ?? 10,
+            x: prop.x,
+            y: prop.y,
             width: 10,
             height: 10,
-            angle: angle,
+            angle: prop.angle,
             damage: 5,
-            range,
+            range: prop.range ?? 500,
             fireRate: 1,
             energyCost: 0,
-            ship,
-            color,
+            ship: prop.ship,
+            color: prop.color,
             img: assets?.images?.explosionflame
         });
     }

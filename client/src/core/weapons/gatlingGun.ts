@@ -4,22 +4,23 @@ import { randomNum } from "../utils/random.ts";
 import Projectile from "./projectile.ts";
 
 export default class GatlingGun extends Projectile {
-    constructor({ x, y, angle, ship, color, speed = 10 }: WeaponC) {
+    constructor(prop: WeaponC) {
         super({
+            ...prop,
             name: "Gatling Gun",
-            speed: speed,
+            speed: prop.speed ?? 10,
             acceleration: 50000,
-            x: x,
-            y: y,
+            x: prop.x,
+            y: prop.y,
             width: 8,
             height: 15,
-            angle: angle,
+            angle: prop.angle,
             damage: 10,
             range: 8000,
             fireRate: 1,
             energyCost: 70,
-            ship,
-            color,
+            ship: prop.ship,
+            color: prop.color,
             img: assets?.images?.projectile,
         });
     }

@@ -5,8 +5,8 @@ import { shapes } from "./shapes.ts";
 import Ship from "./ship.ts";
 
 export default class Tormenter extends Ship {
-    constructor({ x = 10, y = 20, angle = 0, friend = false }) {
-        super({ x, y, width: 50, height: 40, angle, acceleration: 560, color: "pink", vertices: shapes[2], name: "Tormenter Drone", maxWeaponHeat: 1200, life: 140, weapon: GatlingGun, img: assets?.images?.tormentership, flameImg: assets?.images?.flame6, friend });
+    constructor(prop: ShipC) {
+        super({ ...prop, x: prop.x ?? 10, y: prop.y ?? 20, width: 50, height: 40, angle: prop.angle ?? 0, acceleration: 560, color: "pink", vertices: shapes[2], name: "Tormenter Drone", maxWeaponHeat: 1200, life: 140, weapon: GatlingGun, img: assets?.images?.tormentership, flameImg: assets?.images?.flame6, friend: prop.friend ?? false });
         this.seekAcceleration = this.acceleration;
         this.fleeAcceleration = this.acceleration * 0.9;
     }
