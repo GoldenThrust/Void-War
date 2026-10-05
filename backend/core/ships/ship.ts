@@ -33,7 +33,7 @@ export default class Ship {
   protected img;
   protected flameImg;
   // protected dt;
-  protected controllable;
+  public controllable;
   protected lastTime;
   public weapon;
   public killScore;
@@ -72,7 +72,7 @@ export default class Ship {
     vertices = shapes[0],
     color = "red",
     name = "Player",
-    controllable = false,
+    controllable = true,
     maxWeaponHeat = 10000,
     friend = false,
   }: ShipC) {

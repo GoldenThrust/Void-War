@@ -6,22 +6,18 @@ import Minature from "./minature.ts";
 
 
 export default class PlasmaCanon extends Projectile {
-    constructor({ x, y, angle, ship, color, name = "Plasma Canon", acceleration = 25000, width = 10, height = 45, damage = 120, range = 45000, speed = 100, fireRate = 0.15, energyCost = 600, }: WeaponC) {
+    constructor(prop: WeaponC) {
         super({
-            name,
-            speed: speed,
-            acceleration,
-            x: x,
-            y: y,
-            width,
-            height,
-            angle,
-            damage,
-            range,
-            fireRate,
-            energyCost,
-            ship,
-            color,
+            ...prop,
+            name: prop.name ?? "Plasma Canon",
+            speed: prop.speed ?? 100,
+            acceleration: prop.acceleration ?? 25000,
+            width: prop.width ?? 10,
+            height: prop.height ?? 45,
+            damage: prop.damage ?? 120,
+            range: prop.range ?? 45000,
+            fireRate: prop.fireRate ?? 0.15,
+            energyCost: prop.energyCost ?? 600,
         });
     }
 

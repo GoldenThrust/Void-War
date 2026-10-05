@@ -19,18 +19,18 @@ class WorldManager:
 
     def findAttachedShip(self):
         if self.attachedId == -1:
-            from core.player.ships import player
+            from reinforcement.game.core.ships import player
 
             return player.ship
 
-        from core.player.ships.enemies.manager import EnemyManager
+        from reinforcement.game.core.ships.manager import EnemyManager
 
         if 0 <= self.attachedId < len(EnemyManager.ships):
             return EnemyManager.ships[self.attachedId]
         return None
 
     def attachRandom(self):
-        from core.player.ships.enemies.manager import EnemyManager
+        from reinforcement.game.core.ships.manager import EnemyManager
 
         if not EnemyManager.ships:
             return
@@ -40,7 +40,7 @@ class WorldManager:
         world.attach(EnemyManager.ships[self.attachedId])
 
     def attachNext(self):
-        from core.player.ships.enemies.manager import EnemyManager
+        from reinforcement.game.core.ships.manager import EnemyManager
 
         if not EnemyManager.ships:
             return
@@ -48,7 +48,7 @@ class WorldManager:
         world.attach(EnemyManager.ships[self.attachedId])
 
     def attachPrevious(self):
-        from core.player.ships.enemies.manager import EnemyManager
+        from reinforcement.game.core.ships.manager import EnemyManager
 
         if not EnemyManager.ships:
             return
@@ -57,7 +57,7 @@ class WorldManager:
 
     def attachMainShip(self):
         self.attachedId = -1
-        from core.player.ships.player import ship
+        from reinforcement.game.core.ships.player import ship
 
         world.attach(ship)
 

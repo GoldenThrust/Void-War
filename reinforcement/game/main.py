@@ -2,10 +2,9 @@ import time
 
 import pygame
 
-from core.assets.main import build_assets
 from core.events.keys import release_key, trigger_key
-from core.player.ships.enemies.manager import EnemyManager
-from core.player.ships import player
+from reinforcement.game.core.ships.manager import EnemyManager
+from reinforcement.game.core.ships import player
 from core.utils.constants import FIXED_DT
 from core.world.canvas import clear, draw_text, get_screen, present
 from core.world.spatial_hash import spatial
@@ -26,7 +25,6 @@ _pygame_key_names = {
 
 
 def init() -> None:
-    build_assets()
     player.PlayerShip.spawn(world.x, world.y, controllable=True)
     EnemyManager.init()
     WeaponManager.init()
@@ -90,6 +88,7 @@ def game_loop() -> None:
 
     while running:
         now = time.perf_counter()
+        print(f"FPS: {int(_clock.get_fps())}")
         playing = update_loop(now)
 
         for event in pygame.event.get():

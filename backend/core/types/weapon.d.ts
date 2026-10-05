@@ -11,6 +11,7 @@ interface WeaponI {
 }
 
 type WeaponC = {
+  id?: string;
   name?: string;
   type?: string;
   x: number;
@@ -32,4 +33,5 @@ type WeaponC = {
   color?: string;
   img?: HTMLImageElement;
   penetration?: number
+  controllable?: boolean;
 };

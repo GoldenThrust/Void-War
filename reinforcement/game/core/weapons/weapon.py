@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from core.player.ships.ship import Ship
+from reinforcement.game.core.ships.ship import Ship
 from core.utils.collision import isSeperatingAxes
 from core.utils.vertices import createVerticesPath, tranformVertices
 from core.world.canvas import blit_image, draw_polygon

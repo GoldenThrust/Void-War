@@ -58,7 +58,9 @@ export default class ShipManager {
 
   static update(t: number, dt: number) {
     for (const ship of ShipManager.ships.values()) {
-      ship.update(t, dt);
+      if (ship.controllable) {
+        ship.update(t, dt);
+      }
     }
   }
 }

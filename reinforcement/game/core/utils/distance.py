@@ -32,7 +32,7 @@ def withinRange(a, b, dist):
 
 
 def nearByEnemy(self, callback=lambda *_: None):
-    from ..player.ships.ship import Ship
+    from ..ships.ship import Ship
 
     object_list = spatial.query(self.x, self.y)
     for ship in object_list:

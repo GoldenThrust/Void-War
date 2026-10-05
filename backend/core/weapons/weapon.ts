@@ -4,7 +4,7 @@ import { DAMPSPEED, FIXED_DT } from "../utils/constants.ts";
 import { tranformVertices } from "../utils/vertices.ts";
 import { spatial } from "../world/spatialHash.ts";
 import WeaponManager from "./manager.ts";
-
+import { v4 as uuid } from "uuid";
 import { shapes } from "./shapes.ts";
 
 export default class Weapon implements WeaponI {
@@ -26,6 +26,7 @@ export default class Weapon implements WeaponI {
   public active;
   public penetration;
   public distanceTraveled;
+  public controllable;
 
   public color: string;
   protected img;
@@ -33,6 +34,7 @@ export default class Weapon implements WeaponI {
   public vertices;
 
   constructor({
+    id = uuid(),
     name = "Weapon",
     type = "Projectile",
     x,
@@ -51,10 +53,11 @@ export default class Weapon implements WeaponI {
     color = "rgb(122,0,0)",
     img,
     penetration = 0,
+    controllable = true,
   }: WeaponC) {
     const currentShipAcceleration =
       (ship.maxSpeed * (1 - DAMPSPEED)) / (DAMPSPEED * FIXED_DT);
-    this.id = crypto.randomUUID();
+    this.id = id;
     this.name = name;
     this.type = type;
     this.acceleration = currentShipAcceleration + acceleration;
@@ -80,6 +83,7 @@ export default class Weapon implements WeaponI {
     this.active = true;
     this.penetration = penetration;
     this.distanceTraveled = 0;
+    this.controllable = controllable;
 
     if (true) {
       ship.increaseHeat(this.energyCost);
@@ -196,8 +200,8 @@ export default class Weapon implements WeaponI {
     Weapon.nearBy(this, this.getVertices(), this.x, this.y);
   }
 
-  update(t: number, dt: number) {
-    if (false) console.log(t, dt);
+  update(_t: number, _dt: number) {
+    this.colliding();
   }
   colide() {}
   travelEnd() {}

@@ -13,13 +13,22 @@ type Snapshot = {
   ships: Array<ShipC & { id: string; speed: number; state: string }>;
   weapons: Array<{
     id: string;
-    name: string;
+    name?: string;
+    type?: string;
     x: number;
     y: number;
     angle: number;
-    active: boolean;
-    width: number;
-    height: number;
+    active?: boolean;
+    width?: number;
+    height?: number;
+    acceleration?: number;
+    speed?: number;
+    damage?: number;
+    range?: number;
+    fireRate?: number;
+    energyCost?: number;
+    penetration?: number;
+    distanceTraveled?: number;
     ship: string;
   }>;
   asteroids: Array<{
@@ -73,6 +82,7 @@ export default class Websocket {
   private lastSnapshotAt = 0;
   private playerId?: string;
   private resyncRequested = false;
+  private acknowledgedWeaponIds = new Set<string>();
 
   constructor(url: string) {
     this.socket = io(url, {
@@ -110,36 +120,51 @@ export default class Websocket {
     if (!this.socket || !this.socket.connected) return;
     const ship = ShipManager.ships.get("player");
     if (!ship) return;
-    
+    this.playerId = ship.id;
+
     const shipState = {
       id: ship.id,
       x: ship.x,
       y: ship.y,
       angle: ship.angle,
       speed: ship.speed,
+      controllable: false,
     };
 
     const weaponsState = Array.from(WeaponManager.weapons.values())
-      .filter((weapon) => weapon.ship.id === ship.id)
+      .filter((weapon) => weapon.ship.id === ship.id && weapon.active)
       .map((weapon) => ({
         id: weapon.id,
+        name: weapon.name,
+        type: weapon.type,
         x: weapon.x,
         y: weapon.y,
         angle: weapon.angle,
         speed: weapon.speed,
+        width: weapon.width,
+        height: weapon.height,
+        acceleration: weapon.acceleration,
+        damage: weapon.damage,
+        range: weapon.range,
+        fireRate: weapon.fireRate,
+        energyCost: weapon.energyCost,
+        penetration: weapon.penetration,
+        distanceTraveled: weapon.distanceTraveled,
+        active: weapon.active,
+        controllable: false,
       }));
 
-  
-      // console.log("Sending player update", { ship: shipState, weapons: weaponsState });
+    // console.log("Sending player update", { ship: shipState, weapons: weaponsState });
 
     this.socket.emit("player:update", {
       ship: shipState,
       weapons: weaponsState,
-    })
+    });
   }
-  
+
   private applyInitSnapshot(state: Snapshot) {
-    this.playerId = state.playerId ?? this.playerId;
+    const localShip = ShipManager.ships.get("player");
+    this.playerId = localShip?.id ?? state.playerId ?? this.playerId;
     this.resyncRequested = false;
 
     for (const remoteShip of state.ships) {
@@ -162,10 +187,13 @@ export default class Websocket {
     }
 
     for (const weaponState of state.weapons) {
+      this.acknowledgedWeaponIds.add(weaponState.id);
       let weapon = WeaponManager.weapons.get(weaponState.id);
       if (!weapon) {
-        const ship = ShipManager.ships.get(weaponState.ship);
-        if (!ship) continue;
+        const ship = ShipManager.ships.get(
+          weaponState.ship === this.playerId ? "player" : weaponState.ship,
+        );
+        if (!ship || weaponState.ship === this.playerId) continue;
         weapon = new RemoteWeapon({
           ...weaponState,
           ship: ship,
@@ -196,14 +224,14 @@ export default class Websocket {
     const snapshotDelta = this.lastSnapshotAt ? now - this.lastSnapshotAt : 0;
     this.lastSnapshotAt = now;
     if (!this.initialized) return;
-    const t = snapshotDelta > 0
-      ? 1 - Math.exp(-Math.min(snapshotDelta, 100) / 80)
-      : 0;
+    const localShip = ShipManager.ships.get("player");
+    if (localShip) this.playerId = localShip.id;
+    const t =
+      snapshotDelta > 0 ? 1 - Math.exp(-Math.min(snapshotDelta, 100) / 80) : 0;
 
     const serverShipIds = new Set(state.ships.map(({ id }) => id));
     for (const remoteShip of state.ships) {
-      if (remoteShip.id === this.playerId) continue;
-      let ship = ShipManager.ships.get(remoteShip.id);
+      let ship = ShipManager.ships.get(remoteShip.id === this.playerId ? "player" : remoteShip.id);
       if (!ship) {
         requestUpdate = true;
         continue;
@@ -249,21 +277,52 @@ export default class Websocket {
     }
 
     const serverWeaponIds = new Set(state.weapons.map(({ id }) => id));
+    for (const id of serverWeaponIds) {
+      this.acknowledgedWeaponIds.add(id);
+    }
 
     for (const weaponState of state.weapons) {
       let weapon = WeaponManager.weapons.get(weaponState.id);
       if (!weapon) {
-        requestUpdate = true;
+        const ship = ShipManager.ships.get(
+          weaponState.ship === this.playerId ? "player" : weaponState.ship,
+        );
+
+        if (weaponState.ship === this.playerId) continue;
+        if (ship) {
+          console.log("Creating remote weapon", weaponState, "for ship", ship);
+          weapon = new RemoteWeapon({
+            ...weaponState,
+            ship,
+          });
+          weapon.id = weaponState.id;
+          WeaponManager.weapons.set(weapon.id, weapon);
+        } else {
+          requestUpdate = true;
+        }
         continue;
       }
       weapon.x = toroidalLerp(weapon.x, weaponState.x, t, worldSize.width);
       weapon.y = toroidalLerp(weapon.y, weaponState.y, t, worldSize.height);
       weapon.angle += shortestAngleDist(weapon.angle, weaponState.angle) * t;
+      if (weaponState.speed !== undefined) weapon.speed = weaponState.speed;
+      if (weaponState.active !== undefined) weapon.active = weaponState.active;
+      if (weaponState.distanceTraveled !== undefined) {
+        weapon.distanceTraveled = lerp(
+          weapon.distanceTraveled,
+          weaponState.distanceTraveled,
+          t,
+        );
+      }
     }
     for (const [id] of WeaponManager.weapons) {
       const weapon = WeaponManager.weapons.get(id);
-      const isLocalWeapon = weapon?.ship.id === "player";
-      if (!isLocalWeapon && !serverWeaponIds.has(id)) WeaponManager.weapons.delete(id);
+      const isLocalWeapon = weapon?.ship.id === localShip?.id;
+      const wasAcknowledged = this.acknowledgedWeaponIds.has(id);
+      if (!serverWeaponIds.has(id) && (!isLocalWeapon || wasAcknowledged)) {
+        WeaponManager.weapons.delete(id);
+        this.acknowledgedWeaponIds.delete(id);
+      }
     }
 
     const serverPerkIds = new Set(state.perks.map(({ id }) => id));
@@ -277,7 +336,7 @@ export default class Websocket {
       perk.y = toroidalLerp(perk.y, perkState.y, t, worldSize.height);
       perk.angle += shortestAngleDist(perk.angle, perkState.angle) * t;
     }
-  
+
     for (const [id] of PerkManager.perks) {
       if (!serverPerkIds.has(id)) PerkManager.perks.delete(id);
     }
