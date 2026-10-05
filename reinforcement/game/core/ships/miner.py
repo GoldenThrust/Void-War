@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from core.assets.main import assets
 from reinforcement.game.core.ships.enemy import EnemyShip
 from reinforcement.game.core.ships import player
 from reinforcement.game.core.ships.shapes import shapes
@@ -26,8 +25,6 @@ class Miner(EnemyShip):
             maxWeaponHeat=900,
             life=220,
             weapon=Mine,
-            img=getattr(getattr(assets, "images", None), "minership", None),
-            flameImg=getattr(getattr(assets, "images", None), "flame4", None),
         )
         self.seekAcceleration = self.acceleration
         self.fleeAcceleration = self.acceleration * 0.9

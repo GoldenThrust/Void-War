@@ -5,6 +5,7 @@ import pygame
 from core.events.keys import release_key, trigger_key
 from reinforcement.game.core.ships.manager import EnemyManager
 from reinforcement.game.core.ships import player
+from core.perks.manager import PerkManager
 from core.utils.constants import FIXED_DT
 from core.world.canvas import clear, draw_text, get_screen, present
 from core.world.spatial_hash import spatial
@@ -28,6 +29,7 @@ def init() -> None:
     player.PlayerShip.spawn(world.x, world.y, controllable=True)
     EnemyManager.init()
     WeaponManager.init()
+    PerkManager.spawn()
     world.attach(player.ship)
 
 
@@ -43,7 +45,7 @@ def update_loop(now: float) -> bool:
 
     while _time_accumulator >= FIXED_DT:
         spatial.clear()
-        spatial.insertAll([player.ship], EnemyManager.ships, WeaponManager.weapons)
+        spatial.insertAll([player.ship], EnemyManager.ships, WeaponManager.weapons, PerkManager.perks.values())
 
         world.update()
 
@@ -54,12 +56,15 @@ def update_loop(now: float) -> bool:
         if player.ship is not None:
             player.ship.update(now, FIXED_DT)
 
+        PerkManager.update(now)
+
         _time_accumulator -= FIXED_DT
 
     clear((0, 0, 0))
     world.render()
 
     WeaponManager.render()
+    PerkManager.render()
 
     if player.ship is not None:
         player.ship.render()

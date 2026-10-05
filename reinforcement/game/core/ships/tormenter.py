@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from core.assets.main import assets
 from reinforcement.game.core.ships.enemy import EnemyShip
 from reinforcement.game.core.ships import player
 from reinforcement.game.core.ships.shapes import shapes
@@ -24,8 +23,6 @@ class Tormenter(EnemyShip):
             maxWeaponHeat=1200,
             life=140,
             weapon=GatlingGun,
-            img=getattr(getattr(assets, "images", None), "tormentership", None),
-            flameImg=getattr(getattr(assets, "images", None), "flame6", None),
         )
         self.seekAcceleration = self.acceleration
         self.fleeAcceleration = self.acceleration * 0.9

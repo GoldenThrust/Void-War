@@ -11,7 +11,7 @@ GAME_DIR = os.path.join(os.path.dirname(__file__), "game")
 if GAME_DIR not in sys.path:
     sys.path.insert(0, GAME_DIR)
 
-from core.player.ships.enemies.manager import EnemyManager
+from core.ships.manager import EnemyManager
 from core.weapons.manager import WeaponManager
 from core.world.canvas import clear, draw_text, get_screen
 from core.world.utils import toroidalDelta, toroidalDistance, wrap
@@ -19,7 +19,7 @@ from core.world.spatial_hash import spatial
 from core.world.world import world
 
 
-from core.player.ships import player
+from core.ships import player
 from core.world.world import world as game_world
 
 

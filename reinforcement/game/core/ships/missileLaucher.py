@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from core.assets.main import assets
 from reinforcement.game.core.ships.enemy import EnemyShip
 from reinforcement.game.core.ships import player
 from reinforcement.game.core.ships.shapes import shapes
@@ -24,8 +23,6 @@ class MissileLaucher(EnemyShip):
             maxWeaponHeat=1800,
             life=170,
             weapon=HomingMissile,
-            img=getattr(getattr(assets, "images", None), "missilelauchership", None),
-            flameImg=getattr(getattr(assets, "images", None), "flame5", None),
         )
         self.seekAcceleration = self.acceleration
         self.fleeAcceleration = self.acceleration * 0.9

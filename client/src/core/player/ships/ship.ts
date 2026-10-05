@@ -245,6 +245,7 @@ export default class Ship {
       if (keys[" "] || keys["Enter"] || keys["Space"]) {
         this.fire();
       }
+
     } else if (this.state !== "idle") {
       this.speed += thrusting * this.acceleration * dt;
       this.speed = Math.max(this.speed, 0);
