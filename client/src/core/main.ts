@@ -22,8 +22,7 @@ import Websocket from "./websocket.ts";
 
 let initPromise: Promise<void> | undefined;
 export let gameType = "offline";
-    const backendUrl =
-      import.meta.env.VITE_BACKEND_URL ?? "http://localhost:3000";
+const backendUrl = import.meta.env.VITE_BACKEND_URL ?? "http://localhost:3000";
 
 let websocket: Websocket | undefined;
 export function init(gameType: string) {
@@ -122,7 +121,6 @@ async function animate(t: number) {
   // ship.render();
   ShipManager.render();
 
-
   Asteroid.render();
 
   for (const exp of explosions) {
@@ -132,6 +130,9 @@ async function animate(t: number) {
   minimap.render();
   // spatial.renderSpatialDebug();
   // spatial.renderCellRadius(ship.x, ship.y, 600);
+
+  // ctx.resetTransform();
+  
 
   if (
     (ShipManager.friendsAlive > 0 &&

@@ -8,26 +8,10 @@ from core.weapons.weapon import Weapon
 
 
 class Mine(Weapon):
-    def __init__(self, options, force=False):
-        defaults = {
-            "name": "Mine",
-            "speed": options.get("speed", 10),
-            "acceleration": 10000,
-            "x": options.get("x"),
-            "y": options.get("y"),
-            "width": 20,
-            "height": 20,
-            "angle": options.get("angle"),
-            "damage": 300,
-            "range": 1400,
-            "fireRate": 0.15,
-            "energyCost": 400,
-            "ship": options.get("ship"),
-            "color": options.get("color"),
-            "vertices": shapes[1],
-            "img": options.get("img"),
-        }
-        super().__init__(defaults, force)
+    def __init__(self, **options):
+        options.update(name="Mine", x= options.get("x", 0), y= options.get("y", 0), speed=10, acceleration=10000, width=20, height=20, angle=options.get("angle", 0), damage=300, range=1400, fireRate=0.15, energyCost=400, ship=options.get("ship"), color=options.get("color"), vertices=shapes[1])
+
+        super().__init__(options)
         self.duration = 10000
 
     def update(self, t, dt):

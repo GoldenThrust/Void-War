@@ -13,11 +13,21 @@ addEventListener("keyup", ({ key }) => {
     keys[key] = false;
 })
 
-addEventListener("devicemotion", ({ rotationRate }) => {
-    const { alpha, beta, gamma } = rotationRate as DeviceMotionEventRotationRate;
-    orientation["alpha"] = alpha as number;
-    orientation["beta"] = beta as number;
-    orientation["gamma"] = gamma as number;
+// addEventListener("devicemotion", ({ rotationRate }) => {
+//     console.log("Device motion event:", rotationRate);
+//     const { alpha, beta, gamma } = rotationRate as DeviceMotionEventRotationRate;
+//     orientation["alpha"] = (alpha as number)/360;
+//     orientation["beta"] = (beta as number)/360;
+//     orientation["gamma"] = (gamma as number)/360;
+
+//     console.log("Device orientation:", orientation, rotationRate);
+// })
+
+addEventListener("deviceorientation", ({ alpha, beta, gamma }) => {
+    orientation["alpha"] = (alpha as number)/360;
+    orientation["beta"] = (beta as number)/360;
+    orientation["gamma"] = (gamma as number)/360;
+    console.log(orientation["gamma"]);
 })
 
 

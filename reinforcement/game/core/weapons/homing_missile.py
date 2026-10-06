@@ -7,25 +7,9 @@ from core.world.world import world
 import numpy as np
 
 class HomingMissile(PlasmaCanon):
-    def __init__(self, options, force=False):
-        defaults = {
-            "name": "Homing Missile",
-            "speed": options.get("speed", 10),
-            "acceleration": 500,
-            "x": options.get("x"),
-            "y": options.get("y"),
-            "width": 15,
-            "height": 50,
-            "angle": options.get("angle"),
-            "damage": 180,
-            "range": 40000,
-            "fireRate": 0.12,
-            "energyCost": 900,
-            "ship": options.get("ship"),
-            "color": options.get("color"),
-            "img": options.get("img"),
-        }
-        super().__init__(defaults, force)
+    def __init__(self, **options):
+        options.update(name="Homing Missile", x= options.get("x", 0), y= options.get("y", 0), speed=options.get("speed", 10), acceleration=500, width=15, height=50, angle=options.get("angle", 0), damage=180, range=40000, fireRate=0.12, energyCost=900, ship=options.get("ship"), color=options.get("color"))
+        super().__init__(options)
         self.target = None
         self.turnRate = 2
 

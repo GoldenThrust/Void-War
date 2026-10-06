@@ -23,9 +23,9 @@ export default class PlayerShip extends Ship {
         return Math.ceil((this.heat / this.maxHeat) * 100)
     }
 
-    update(t: number, dt: number) {
-        super.update(t, dt);
-    }
+    // update(t: number, dt: number) {
+    //     super.update(t, dt);
+    // }
 
     static spawn(x: number, y: number) {
         const angle = randomNum(-Math.PI * 2, Math.PI * 2);

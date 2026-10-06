@@ -1,29 +1,17 @@
 from __future__ import annotations
 
-from reinforcement.game.core.ships.enemy import EnemyShip
-from reinforcement.game.core.ships import player
-from reinforcement.game.core.ships.shapes import shapes
+from core.ships.ship import Ship
+from core.ships import player
+from core.ships.shapes import shapes
 from core.weapons.gatling_gun import GatlingGun
 from core.world.utils import toroidalDistance, updateWrapped
 import numpy as np
 
 
-class Tormenter(EnemyShip):
-    def __init__(self, x=10, y=20, angle=0):
-        super().__init__(
-            x=x,
-            y=y,
-            width=50,
-            height=40,
-            angle=angle,
-            acceleration=440,
-            color="pink",
-            vertices=shapes[2],
-            name="Tormenter Drone",
-            maxWeaponHeat=1200,
-            life=140,
-            weapon=GatlingGun,
-        )
+class Tormenter(Ship):
+    def __init__(self, **options):
+        options.update(name="Tormenter Drone", vertices=shapes[2], x=options.get("x", 10), y=options.get("y", 20), angle=options.get("angle", 0), width= 50, height= 40, acceleration= 560, color="pink", vertices=shapes[2], maxWeaponHeat= 1200, life= 140, weapon= GatlingGun)
+        super().__init__(**options)
         self.seekAcceleration = self.acceleration
         self.fleeAcceleration = self.acceleration * 0.9
 

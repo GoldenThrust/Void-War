@@ -11,7 +11,7 @@ GAME_DIR = os.path.join(os.path.dirname(__file__), "game")
 if GAME_DIR not in sys.path:
     sys.path.insert(0, GAME_DIR)
 
-from core.ships.manager import EnemyManager
+from core.ships.manager import ShipManager
 from core.weapons.manager import WeaponManager
 from core.world.canvas import clear, draw_text, get_screen
 from core.world.utils import toroidalDelta, toroidalDistance, wrap
@@ -75,7 +75,7 @@ class VoidFrontEnv(gym.Env):
         # Enemies and weapons are stored in a spatial hash and can be
         # of any number/size at runtime. K_enemies / K_weapons are just
         # the fixed-size slot budgets we expose to the observation
-        # space; the actual population living in EnemyManager /
+        # space; the actual population living in ShipManager /
         # WeaponManager can be smaller or larger than this at any time.
         self.K_enemies = int(max_enemies)
         self.K_weapons = int(max_weapons)
@@ -497,7 +497,7 @@ class VoidFrontEnv(gym.Env):
 
         # ----------------------------------------------------------
         # Enemies: query the ship's spatial hash instead of iterating
-        # every ship EnemyManager knows about. EnemyManager.ships can
+        # every ship ShipManager knows about. ShipManager.ships can
         # be any size, so we only ever want the nearby subset within
         # view_radius, capped to the K_enemies observation slots.
         # ----------------------------------------------------------
@@ -565,7 +565,7 @@ class VoidFrontEnv(gym.Env):
             self.world_height / 2,
             controllable=True,
         )
-        EnemyManager.init(self.K_enemies)
+        ShipManager.init(self.K_enemies)
         world.attach(self.game_player)
         self._sync_spatial()
 
@@ -607,10 +607,10 @@ class VoidFrontEnv(gym.Env):
         world.update()
         WeaponManager.update(self.current_step, self.dt)
 
-        # Physics update still runs over every enemy EnemyManager is
+        # Physics update still runs over every enemy ShipManager is
         # tracking (this is a full-world tick, not an observation
         # query), regardless of how many/what size they are.
-        for enemy in EnemyManager.ships:
+        for enemy in ShipManager.ships:
             enemy_turn = self.np_random.uniform(-1.0, 1.0)
             enemy_thrust = self.np_random.uniform(-0.5, 1.0)
             enemy.update(
@@ -627,7 +627,7 @@ class VoidFrontEnv(gym.Env):
         reward, distance, alignment = self._calculate_reward()
 
         self.last_distance = distance
-        terminated = self.game_player.life <= 0 or (len(EnemyManager.ships) < 1)
+        terminated = self.game_player.life <= 0 or (len(ShipManager.ships) < 1)
         truncated = self.current_step >= self.max_episode_steps
         observation = self._get_obs()
         info = {
@@ -653,7 +653,7 @@ class VoidFrontEnv(gym.Env):
     def _sync_spatial(self):
         spatial.clear()
         spatial.insert(self.game_player)
-        spatial.insertAll(EnemyManager.ships, WeaponManager.weapons)
+        spatial.insertAll(ShipManager.ships, WeaponManager.weapons)
 
     def _nearest(self, ship, entities):
         """Return (entity, distance) for the closest entity in a list, or (None, None)."""
@@ -676,7 +676,7 @@ class VoidFrontEnv(gym.Env):
 
         # ==========================================================
         # ENGAGEMENT — approach + face the nearest enemy.
-        # Spatial-hash query (not the raw EnemyManager population) so
+        # Spatial-hash query (not the raw ShipManager population) so
         # this scales the same whether there are 3 enemies or 3000.
         # Potential-based on distance: reward = how much closer we got
         # since last step, so orbiting at a fixed range nets ~0 rather
@@ -775,7 +775,7 @@ class VoidFrontEnv(gym.Env):
         kill_reward = self.w_kill * max(0, kills)
         self.last_kill_score = getattr(ship, "killScore", 0)
 
-        win_reward = self.w_win if len(EnemyManager.ships) < 1 else 0.0
+        win_reward = self.w_win if len(ShipManager.ships) < 1 else 0.0
         death_penalty = -self.w_death if current_health <= 0 else 0.0
 
         # ==========================================================
@@ -821,11 +821,11 @@ class VoidFrontEnv(gym.Env):
             world.render()
             WeaponManager.render()
             self.game_player.render()
-            EnemyManager.render()
+            ShipManager.render()
 
             draw_text(
                 (
-                    f"Ships Alive: {len(EnemyManager.ships)} - Destroyed: 0 - "
+                    f"Ships Alive: {len(ShipManager.ships)} - Destroyed: 0 - "
                     f"Kill: {getattr(player.ship, 'killScore', 0)} Weapon name: "
                     f"{getattr(getattr(player.ship, 'weapon', None), 'name', '')} heat: "
                     f"{int((getattr(player.ship, 'heat', 0) / max(getattr(player.ship, 'maxHeat', 1), 1)) * 100)}"

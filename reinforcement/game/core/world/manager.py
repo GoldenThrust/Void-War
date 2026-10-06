@@ -19,45 +19,45 @@ class WorldManager:
 
     def findAttachedShip(self):
         if self.attachedId == -1:
-            from reinforcement.game.core.ships import player
+            from core.ships import player
 
             return player.ship
 
-        from reinforcement.game.core.ships.manager import EnemyManager
+        from core.ships.manager import ShipManager
 
-        if 0 <= self.attachedId < len(EnemyManager.ships):
-            return EnemyManager.ships[self.attachedId]
+        if 0 <= self.attachedId < len(ShipManager.ships):
+            return ShipManager.ships[self.attachedId]
         return None
 
     def attachRandom(self):
-        from reinforcement.game.core.ships.manager import EnemyManager
+        from core.ships.manager import ShipManager
 
-        if not EnemyManager.ships:
+        if not ShipManager.ships:
             return
         import random
 
-        self.attachedId = random.randrange(len(EnemyManager.ships))
-        world.attach(EnemyManager.ships[self.attachedId])
+        self.attachedId = random.randrange(len(ShipManager.ships))
+        world.attach(ShipManager.ships[self.attachedId])
 
     def attachNext(self):
-        from reinforcement.game.core.ships.manager import EnemyManager
+        from core.ships.manager import ShipManager
 
-        if not EnemyManager.ships:
+        if not ShipManager.ships:
             return
-        self.attachedId = (self.attachedId + 1) % len(EnemyManager.ships)
-        world.attach(EnemyManager.ships[self.attachedId])
+        self.attachedId = (self.attachedId + 1) % len(ShipManager.ships)
+        world.attach(ShipManager.ships[self.attachedId])
 
     def attachPrevious(self):
-        from reinforcement.game.core.ships.manager import EnemyManager
+        from core.ships.manager import ShipManager
 
-        if not EnemyManager.ships:
+        if not ShipManager.ships:
             return
-        self.attachedId = (self.attachedId - 1 + len(EnemyManager.ships)) % len(EnemyManager.ships)
-        world.attach(EnemyManager.ships[self.attachedId])
+        self.attachedId = (self.attachedId - 1 + len(ShipManager.ships)) % len(ShipManager.ships)
+        world.attach(ShipManager.ships[self.attachedId])
 
     def attachMainShip(self):
         self.attachedId = -1
-        from reinforcement.game.core.ships.player import ship
+        from core.ships.player import ship
 
         world.attach(ship)
 

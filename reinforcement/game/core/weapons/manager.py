@@ -13,8 +13,8 @@ class WeaponManager:
         self._addKeybinds()
 
     @staticmethod
-    def fire(Weapon, options, force=False):
-        WeaponManager.weapons.append(Weapon(options, force))
+    def fire(Weapon, **options):
+        WeaponManager.weapons.append(Weapon(options))
 
     @staticmethod
     def render():

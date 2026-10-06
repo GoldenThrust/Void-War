@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+from uuid import uuid4
+
 from core.events.keys import keys
-from reinforcement.game.core.ships.shapes import shapes
+from core.ships.shapes import shapes
 from core.utils.constants import FIXED_DT
 from core.utils.math import clamp
 from core.utils.vertices import createVerticesPath, tranformVertices
@@ -19,41 +21,52 @@ destroyedShips: list = []
 
 
 class Ship:
-    def __init__(self, *, x, y, width, height, angle, img=None, flameImg=None, weapon=None, acceleration=3500, turnRate=2, life=100, vertices=None, color="red", name="Player", controllable=False, maxWeaponHeat=10000, friend=False):
+    squad_targets: dict[bool, "Ship"] = {}
+
+    def __init__(self, **options):
         from core.weapons.pulse_canon import PulseCanon
-        self.x = x
-        self.y = y
+        prop = dict(prop or {})
+        prop.update(options)
+        self.id = str(uuid4())
+        self.x = prop["x"]
+        self.y = prop["y"]
         self.speed = 0
-        self.acceleration = acceleration
-        self.width = width
-        self.height = height
-        self.angle = angle
-        self.color = color
-        self.turnRate = turnRate
-        self.name = name
-        self.friend = friend
-        self.img = img
-        self.flameImg = flameImg
+        self.acceleration = prop.get("acceleration", 3500)
+        self.width = prop.get("width", 40)
+        self.height = prop.get("height", 40)
+        self.angle = prop["angle"]
+        self.color = prop.get("color", "red")
+        self.turnRate = prop.get("turnRate", 2)
+        self.name = prop.get("name", "Player")
+        self.friend = prop.get("friend", False)
+        self.img = prop.get("img")
+        self.flameImg = prop.get("flameImg")
         self.dampSpeed = 0.75 ** FIXED_DT
         self.dt = FIXED_DT
-        self.controllable = controllable
+        self.controllable = prop.get("controllable", False)
         self.lastTime = 0
-        self.weapon = weapon or PulseCanon
+        self.weapon = prop.get("weapon") or PulseCanon
         self.killScore = 0
         self.damage_score = 0
-        self.vertices = vertices or shapes[0]
+        self.vertices = prop.get("vertices") or shapes[0]
         self.path2D = createVerticesPath(tranformVertices(self.vertices, 0, 0, self.width, self.height, 0))
-        self.life = life
-        self.fullLife = life
+        self.life = prop.get("life", 100)
+        self.fullLife = self.life
         self.cooldown = 0
         self.heat = 0
-        self.maxHeat = maxWeaponHeat
+        self.maxHeat = prop.get("maxWeaponHeat", 10000)
         self.weaponState = "cool"
         self.state = "idle"
         self.target = None
         self.lastDt = FIXED_DT
+        self.seekAcceleration = self.acceleration
+        self.fleeAcceleration = self.acceleration * 1.2
         self.maxSpeed = (self.dampSpeed * self.acceleration * FIXED_DT) / (1 - self.dampSpeed)
-        self.speed_factor = np.sqrt(self.speed / self.maxSpeed) if self.maxSpeed else 0
+        self.speed_factor = 0
+
+    @property
+    def maxLife(self):
+        return self.fullLife
         
     def render(self):
         if self.img is not None:
@@ -84,9 +97,9 @@ class Ship:
     def update(self, t, dt, thrust=0, turn=0):
         self.lastDt = dt
         steering = turn
-        thrusting = thrust if getattr(self, "state", None) == "AI" else 1
+        thrusting = thrust if self.state == "AI" else 1
         external_control = self.controllable and (thrust != 0 or turn != 0)
-        self.speed_factor = np.sqrt(self.speed / self.maxSpeed) if self.maxSpeed else 0
+        self.speed_factor = clamp(np.sqrt(self.speed / self.maxSpeed), 0, 1) if self.maxSpeed else 0
         if self.controllable:
             if external_control:
                 steering = turn
@@ -107,10 +120,10 @@ class Ship:
                     self.speed = max(self.speed - self.acceleration * dt, 0)
                 if keys.get(" ") or keys.get("Enter") or keys.get("Space"):
                     self.fire()
-        elif getattr(self, "state", None) == "idle":
-            self.randomMotion(t, dt, True)
-        elif getattr(self, "state", None) == "AI":
+        elif self.state != "idle":
             self.speed = max(self.speed + thrusting * self.acceleration * dt, 0)
+        else:
+            self.speed += self.acceleration * dt
 
         self.angle = wrap(self.angle + (steering * self.turnRate * self.speed_factor * dt), 6.283185307179586)
         self.speed = max(self.speed * self.dampSpeed, 0)
@@ -178,7 +191,9 @@ class Ship:
         self.weaponState = "hot"
 
     def destroy(self):
-        pass
+        from core.ships.manager import ShipManager
+
+        ShipManager.destroy(self)
 
     def getVertices(self):
         screen = worldToScreen(self.x, self.y)
@@ -301,6 +316,18 @@ class Ship:
                 closest_distance = distance
         if closest is not None:
             self.target = closest
+
+    @classmethod
+    def getSquadTarget(cls, friend):
+        target = cls.squad_targets.get(friend)
+        if target is None or target.state == "dead" or target.life <= 0:
+            cls.squad_targets.pop(friend, None)
+            return None
+        return target
+
+    @classmethod
+    def setSquadTarget(cls, friend, target):
+        cls.squad_targets[friend] = target
 
     def findThreat(self, radius=1000):
         from core.weapons.weapon import Weapon

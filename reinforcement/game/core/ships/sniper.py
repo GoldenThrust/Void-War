@@ -1,29 +1,17 @@
 from __future__ import annotations
 
-from reinforcement.game.core.ships.enemy import EnemyShip
-from reinforcement.game.core.ships import player
-from reinforcement.game.core.ships.shapes import shapes
+from core.ships.ship import Ship
+from core.ships import player
+from core.ships.shapes import shapes
 from core.weapons.heavy_rail_gun import HeavyRailGun
 from core.world.utils import toroidalDistance, updateWrapped
 import numpy as np
 
 
-class Sniper(EnemyShip):
-    def __init__(self, x=10, y=20, angle=0):
-        super().__init__(
-            x=x,
-            y=y,
-            width=50,
-            height=50,
-            angle=angle,
-            acceleration=380,
-            color="red",
-            vertices=shapes[3],
-            name="Sniper",
-            maxWeaponHeat=2200,
-            life=180,
-            weapon=HeavyRailGun,
-        )
+class Sniper(Ship):
+    def __init__(self, **options):
+        options.update(name="Sniper", vertices=shapes[3], x=options.get("x", 10), y=options.get("y", 20), angle=options.get("angle", 0), width= 50, height= 50, acceleration= 500, color="red", vertices=shapes[3], maxWeaponHeat= 2200, life= 180, weapon= HeavyRailGun)
+        super().__init__(**options)
         self.seekAcceleration = self.acceleration
         self.fleeAcceleration = self.acceleration * 0.9
 

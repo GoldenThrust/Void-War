@@ -1,29 +1,19 @@
 from __future__ import annotations
 
-from reinforcement.game.core.ships.enemy import EnemyShip
-from reinforcement.game.core.ships import player
-from reinforcement.game.core.ships.shapes import shapes
+from click import option
+
+from core.ships.ship import Ship
+from core.ships import player
+from core.ships.shapes import shapes
 from core.weapons.homing_missile import HomingMissile
 from core.world.utils import toroidalDistance, updateWrapped
 import numpy as np
 
 
-class MissileLaucher(EnemyShip):
-    def __init__(self, x=10, y=20, angle=0):
-        super().__init__(
-            x=x,
-            y=y,
-            width=50,
-            height=50,
-            angle=angle,
-            acceleration=320,
-            color="gold",
-            vertices=shapes[6],
-            name="Missile Launcher",
-            maxWeaponHeat=1800,
-            life=170,
-            weapon=HomingMissile,
-        )
+class MissileLaucher(Ship):
+    def __init__(self, **options):
+        options.update(name="Missile Launcher", vertices=shapes[6], x=options.get("x", 10), y=options.get("y", 20), angle=options.get("angle", 0), width= 50, height= 50, acceleration= 480, color="gold", vertices=shapes[6], maxWeaponHeat= 1800, life= 170, weapon= HomingMissile)
+        super().__init__(**options)
         self.seekAcceleration = self.acceleration
         self.fleeAcceleration = self.acceleration * 0.9
 

@@ -6,10 +6,10 @@ from core.world.world import world
 import numpy as np
 
 class Projectile(Weapon):
-    def __init__(self, options, force=False):
-        options = dict(options)
-        options["type"] = "projectile"
-        super().__init__(options, force)
+    def __init__(self, **options):
+        options.update(type="projectile")
+        
+        super().__init__(options)
         self.distanceTraveled = 0
         self.penetration = options.get("penetration", 1)
 

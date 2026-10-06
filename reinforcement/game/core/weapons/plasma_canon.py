@@ -7,25 +7,10 @@ from core.weapons.projectile import Projectile
 
 
 class PlasmaCanon(Projectile):
-    def __init__(self, options, force=False):
-        defaults = {
-            "name": "Plasma Canon",
-            "speed": options.get("speed", 100),
-            "acceleration": options.get("acceleration", 25000),
-            "width": options.get("width", 10),
-            "height": options.get("height", 45),
-            "damage": options.get("damage", 120),
-            "range": options.get("range", 45000),
-            "fireRate": options.get("fireRate", 0.25),
-            "energyCost": options.get("energyCost", 900),
-            "x": options.get("x"),
-            "y": options.get("y"),
-            "angle": options.get("angle"),
-            "ship": options.get("ship"),
-            "color": options.get("color"),
-            "img": options.get("img"),
-        }
-        super().__init__(defaults, force)
+    def __init__(self, **options):
+        options.update(name="Plasma Canon", x= options.get("x", 0), y= options.get("y", 0), speed=options.get("speed", 100), acceleration=options.get("acceleration", 25000), width=options.get("width", 10), height=options.get("height", 45), angle=options.get("angle", 0), damage=options.get("damage", 120), range=options.get("range", 45000), fireRate=options.get("fireRate", 0.25), energyCost=options.get("energyCost", 900), ship=options.get("ship"), color=options.get("color"))
+        
+        super().__init__(options)
 
     def explode(self, radius=1000):
         if not self.active:

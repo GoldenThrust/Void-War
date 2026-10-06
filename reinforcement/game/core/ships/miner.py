@@ -1,42 +1,31 @@
 from __future__ import annotations
 
-from reinforcement.game.core.ships.enemy import EnemyShip
-from reinforcement.game.core.ships import player
-from reinforcement.game.core.ships.shapes import shapes
+from core.ships.ship import Ship
+from core.ships import player
+from core.ships.shapes import shapes
 from core.utils.math import clamp
 from core.weapons.mine import Mine
 from core.world.utils import lerp, toroidalDistance, updateWrapped, wrap
 import numpy as np
 
 from core.utils.constants import FIXED_DT
+from reinforcement.game.core.world import world
 
-class Miner(EnemyShip):
-    def __init__(self, x=10, y=20, angle=0):
-        super().__init__(
-            x=x,
-            y=y,
-            width=50,
-            height=50,
-            angle=angle,
-            acceleration=430,
-            color="azure",
-            vertices=shapes[5],
-            name="Miner Drone",
-            maxWeaponHeat=900,
-            life=220,
-            weapon=Mine,
-        )
+class Miner(Ship):
+    def __init__(self, **options):
+        options.update(name="Miner Drone", vertices=shapes[5], x=options.get("x", 10), y=options.get("y", 20), angle=options.get("angle", 0), width= 52, height= 52, acceleration= 530, color="azure", vertices=shapes[5], maxWeaponHeat= 90, life= 220, weapon= Mine)
+        super().__init__(**options)
         self.seekAcceleration = self.acceleration
         self.fleeAcceleration = self.acceleration * 0.9
 
-    def closeWeapon(self, weapon, dist, alpha):
-        if dist > 7**7:
-            return
-        if abs(alpha + np.pi / 2) < np.pi / 8:
-            self.fire()
-        beta = alpha + np.pi / 2
-        delta = np.atan2(-np.sin(beta), -np.cos(beta))
-        self.angle = wrap(lerp(self.angle, self.angle - clamp(delta, self.turnRate) * FIXED_DT * self.speed_factor, 0.3), np.pi * 2)
+    # def closeWeapon(self, weapon, dist, alpha):
+    #     if dist > 7**7:
+    #         return
+    #     if abs(alpha + np.pi / 2) < np.pi / 8:
+    #         self.fire()
+    #     beta = alpha + np.pi / 2
+    #     delta = np.atan2(-np.sin(beta), -np.cos(beta))
+    #     self.angle = wrap(lerp(self.angle, self.angle - clamp(delta, self.turnRate) * FIXED_DT * self.speed_factor, 0.3), np.pi * 2)
 
     def update(self, t, dt, thrust=0, turn=0):
         self._update(t, dt, thrust=thrust, turn=turn)

@@ -15,7 +15,7 @@ import {
 import { world } from "../../world/world.ts";
 import Trail from "../prop/trail.ts";
 import { clamp, lerp } from "../../utils/math.ts";
-import { keys } from "../../events/keys.ts";
+import { keys, orientation, touchDetected } from "../../events/keys.ts";
 import { DAMPSPEED, FIXED_DT } from "../../utils/constants.ts";
 
 import WeaponManager from "../../weapons/manager.ts";
@@ -223,29 +223,32 @@ export default class Ship {
     );
 
     if (this.controllable) {
-      if (keys["ArrowLeft"]) {
+      if (keys["ArrowLeft"] || orientation["beta"] < -0.01) {
         // this.angle = wrap(this.angle + 0.01, Math.PI * 2);
         steering = 1;
       }
 
-      if (keys["ArrowRight"]) {
+      if (keys["ArrowRight"] || orientation["beta"] > 0.01) {
         // this.angle = wrap(this.angle - 0.01, Math.PI * 2);
         steering = -1;
       }
 
-      if (keys["ArrowUp"]) {
+      if (keys["ArrowUp"] || orientation["gamma"] > -0.13) {
         this.speed += this.acceleration * dt;
       }
 
-      if (keys["ArrowDown"]) {
+      // console.log("Orientation:", orientation, "Keys:", keys, "Touch:", touchDetected);
+
+      if (keys["ArrowDown"] || orientation["gamma"] < -0.15) {
         this.speed -= this.acceleration * dt;
         this.speed = Math.max(this.speed, 0);
       }
 
-      if (keys[" "] || keys["Enter"] || keys["Space"]) {
+      if (keys[" "] || keys["Enter"] || keys["Space"] || touchDetected["touch"] || touchDetected["mouse"]) {
         this.fire();
       }
-
+      // console.log(
+        // orientation)
     } else if (this.state !== "idle") {
       this.speed += thrusting * this.acceleration * dt;
       this.speed = Math.max(this.speed, 0);

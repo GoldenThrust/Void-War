@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from reinforcement.game.core.ships.ship import Ship
+from core.ships.ship import Ship
 from core.utils.collision import isSeperatingAxes
 from core.utils.vertices import createVerticesPath, tranformVertices
 from core.world.canvas import blit_image, draw_polygon
@@ -10,7 +10,7 @@ from core.utils.constants import FIXED_DT
 
 
 class Weapon:
-    def __init__(self, options, force=False):
+    def __init__(self, options):
         from core.weapons.shapes import shapes
 
         self.name = options.get("name")
@@ -41,15 +41,12 @@ class Weapon:
             self.speed = base_speed
         self.path2D = createVerticesPath(tranformVertices(self.vertices, 0, -self.height / 2, self.width, self.height, 0))
         self.active = True
-        if not force and self.ship is not None:
+        if True and self.ship is not None:
             self.ship.increaseHeat(self.energyCost)
             self.ship.setCoolDown(1 / self.fireRate)
 
     def render(self):
-        if self.img is not None:
-            blit_image(self.img, (self.x, self.y), size=(self.width, self.height), angle=self.angle)
-        else:
-            draw_polygon(self.getVertices(), color=self.color, width=0, alpha=255)
+        draw_polygon(self.getVertices(), color=self.color, width=0, alpha=255)
 
     def destroy(self):
         from core.weapons.manager import WeaponManager

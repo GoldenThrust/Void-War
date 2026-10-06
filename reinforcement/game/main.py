@@ -3,8 +3,8 @@ import time
 import pygame
 
 from core.events.keys import release_key, trigger_key
-from reinforcement.game.core.ships.manager import EnemyManager
-from reinforcement.game.core.ships import player
+from core.ships.manager import ShipManager
+from core.ships import player
 from core.perks.manager import PerkManager
 from core.utils.constants import FIXED_DT
 from core.world.canvas import clear, draw_text, get_screen, present
@@ -27,7 +27,7 @@ _pygame_key_names = {
 
 def init() -> None:
     player.PlayerShip.spawn(world.x, world.y, controllable=True)
-    EnemyManager.init()
+    ShipManager.init()
     WeaponManager.init()
     PerkManager.spawn()
     world.attach(player.ship)
@@ -45,13 +45,13 @@ def update_loop(now: float) -> bool:
 
     while _time_accumulator >= FIXED_DT:
         spatial.clear()
-        spatial.insertAll([player.ship], EnemyManager.ships, WeaponManager.weapons, PerkManager.perks.values())
+        spatial.insertAll([player.ship], ShipManager.ships, WeaponManager.weapons, PerkManager.perks.values())
 
         world.update()
 
         WeaponManager.update(now, FIXED_DT)
 
-        EnemyManager.update(now, FIXED_DT)
+        ShipManager.update(now, FIXED_DT)
 
         if player.ship is not None:
             player.ship.update(now, FIXED_DT)
@@ -69,11 +69,11 @@ def update_loop(now: float) -> bool:
     if player.ship is not None:
         player.ship.render()
 
-    EnemyManager.render()
+    ShipManager.render()
 
     draw_text(
         (
-            f"Ships Alive: {len(EnemyManager.ships)} - Destroyed: 0 - "
+            f"Ships Alive: {len(ShipManager.ships)} - Destroyed: 0 - "
             f"Kill: {getattr(player.ship, 'killScore', 0)} Weapon name: "
             f"{getattr(getattr(player.ship, 'weapon', None), 'name', '')} heat: "
             f"{int((getattr(player.ship, 'heat', 0) / max(getattr(player.ship, 'maxHeat', 1), 1)) * 100)}"
@@ -84,7 +84,7 @@ def update_loop(now: float) -> bool:
     )
     present()
     
-    return player.ship is not None and player.ship.life > 0 and len(EnemyManager.ships) > 0
+    return player.ship is not None and player.ship.life > 0 and len(ShipManager.ships) > 0
 
 
 def game_loop() -> None:

@@ -1,29 +1,18 @@
 from __future__ import annotations
 
-from reinforcement.game.core.ships.enemy import EnemyShip
-from reinforcement.game.core.ships import player
-from reinforcement.game.core.ships.shapes import shapes
+from core.ships import player
+from core.ships.shapes import shapes
 from core.weapons.plasma_canon import PlasmaCanon
 from core.world.utils import toroidalDistance, updateWrapped
 import numpy as np
 
+from core.ships.ship import Ship
 
-class Bomber(EnemyShip):
-    def __init__(self, x=10, y=20, angle=0):
-        super().__init__(
-            x=x,
-            y=y,
-            width=56,
-            height=56,
-            angle=angle,
-            acceleration=280,
-            color="blue",
-            vertices=shapes[4],
-            name="Bomber Drone",
-            maxWeaponHeat=1800,
-            life=240,
-            weapon=PlasmaCanon,
-        )
+class Bomber(Ship):
+    def __init__(self, **options):
+        options.update(name="Bomber", vertices=shapes[4], x=options.get("x", 10), y=options.get("y", 20), angle=options.get("angle", 0), width= 56, height= 56, acceleration= 420, color="blue", vertices=shapes[4], maxWeaponHeat= 1800, life= 240, weapon= PlasmaCanon)
+        super().__init__(**options)
+
         self.seekAcceleration = self.acceleration
         self.fleeAcceleration = self.acceleration * 0.9
 
