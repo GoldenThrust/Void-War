@@ -10,7 +10,7 @@ from core.ships.ship import Ship
 
 class Bomber(Ship):
     def __init__(self, **options):
-        options.update(name="Bomber", vertices=shapes[4], x=options.get("x", 10), y=options.get("y", 20), angle=options.get("angle", 0), width= 56, height= 56, acceleration= 420, color="blue", vertices=shapes[4], maxWeaponHeat= 1800, life= 240, weapon= PlasmaCanon)
+        options.update(name="Bomber", vertices=shapes[4], x=options.get("x", 10), y=options.get("y", 20), angle=options.get("angle", 0), width= 56, height= 56, acceleration= 420, color="blue", maxWeaponHeat= 1800, life= 240, weapon= PlasmaCanon)
         super().__init__(**options)
 
         self.seekAcceleration = self.acceleration

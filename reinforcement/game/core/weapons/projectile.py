@@ -9,7 +9,7 @@ class Projectile(Weapon):
     def __init__(self, **options):
         options.update(type="projectile")
         
-        super().__init__(options)
+        super().__init__(**options)
         self.distanceTraveled = 0
         self.penetration = options.get("penetration", 1)
 

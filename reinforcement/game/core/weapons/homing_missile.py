@@ -9,7 +9,7 @@ import numpy as np
 class HomingMissile(PlasmaCanon):
     def __init__(self, **options):
         options.update(name="Homing Missile", x= options.get("x", 0), y= options.get("y", 0), speed=options.get("speed", 10), acceleration=500, width=15, height=50, angle=options.get("angle", 0), damage=180, range=40000, fireRate=0.12, energyCost=900, ship=options.get("ship"), color=options.get("color"))
-        super().__init__(options)
+        super().__init__(**options)
         self.target = None
         self.turnRate = 2
 
@@ -17,7 +17,7 @@ class HomingMissile(PlasmaCanon):
         if (
             not self.target
             or getattr(self.target, "state", None) == "dead"
-            or self.target.life <= 0
+            or (hasattr(self.target, "life") and self.target.life <= 0)
         ):
             return
         dx = toroidalDelta(self.x, self.target.x, world.width)
@@ -31,9 +31,7 @@ class HomingMissile(PlasmaCanon):
         super().update(t, dt)
 
     def closeObject(self, obj):
-        from core.world.object.asteroid.asteroid import Asteroid
-
-        if isinstance(obj, Asteroid) or (
+        if (
             hasattr(obj, "friend") and obj.friend == self.ship.friend
         ):
             return

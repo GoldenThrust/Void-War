@@ -8,6 +8,7 @@ import {
   tranformVertices,
 } from "../utils/vertices.ts";
 import { ctx } from "../world/canvas.ts";
+import Asteroid from "../world/object/asteroid/asteroid.ts";
 import { spatial } from "../world/spatialHash.ts";
 import { drawWrapped, worldToScreen } from "../world/utils.ts";
 import WeaponManager from "./manager.ts";
@@ -193,7 +194,7 @@ export default class Weapon implements WeaponI {
             // Todo: check if it is friendly fire
             weapon.ship.killScore++;
           }
-        } else {
+        } else if (element instanceof Weapon || element instanceof Asteroid ) {
           element.destroy();
         }
 

@@ -30,7 +30,7 @@ class ShipManager:
 
         for _ in range(ShipManager.enemiesAlive):
             cls = ShipManager.types[int(np.random.uniform(0, len(ShipManager.types)))]
-            enemy = cls({
+            enemy = cls(**{
                 "x": np.random.uniform(0, world.width),
                 "y": np.random.uniform(0, world.height),
                 "angle": np.random.uniform(-np.pi * 2, np.pi * 2),
@@ -40,7 +40,7 @@ class ShipManager:
         
         for _ in range(ShipManager.friendsAlive):
             cls = ShipManager.types[int(np.random.uniform(0, len(ShipManager.types)))]
-            enemy = cls({
+            enemy = cls(**{
                 "x": np.random.uniform(0, world.width),
                 "y": np.random.uniform(0, world.height),
                 "angle": np.random.uniform(-np.pi * 2, np.pi * 2),
@@ -60,10 +60,10 @@ class ShipManager:
 
     @staticmethod
     def render():
-        for ship in ShipManager.ships:
+        for ship in ShipManager.ships.values():
             ship.render()
 
     @staticmethod
     def update(t, dt):
-        for ship in ShipManager.ships:
+        for ship in ShipManager.ships.values():
             ship.update(t, dt)

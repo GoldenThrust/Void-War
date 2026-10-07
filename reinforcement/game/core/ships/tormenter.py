@@ -10,7 +10,7 @@ import numpy as np
 
 class Tormenter(Ship):
     def __init__(self, **options):
-        options.update(name="Tormenter Drone", vertices=shapes[2], x=options.get("x", 10), y=options.get("y", 20), angle=options.get("angle", 0), width= 50, height= 40, acceleration= 560, color="pink", vertices=shapes[2], maxWeaponHeat= 1200, life= 140, weapon= GatlingGun)
+        options.update(name="Tormenter Drone", vertices=shapes[2], x=options.get("x", 10), y=options.get("y", 20), angle=options.get("angle", 0), width= 50, height= 40, acceleration= 560, color="pink", maxWeaponHeat= 1200, life= 140, weapon= GatlingGun)
         super().__init__(**options)
         self.seekAcceleration = self.acceleration
         self.fleeAcceleration = self.acceleration * 0.9

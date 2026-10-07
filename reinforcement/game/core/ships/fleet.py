@@ -12,7 +12,7 @@ class FleetDrone(Ship):
     next_formation_slot = {False: 0, True: 0}
 
     def __init__(self, **options):
-        options.update(name="Fleet Drone", vertices=shapes[1], x=options.get("x", 10), y=options.get("y", 20), angle=options.get("angle", 0), width= 42, height= 42, acceleration= 620, color="springgreen", vertices=shapes[1], maxWeaponHeat= 1800, life= 280, weapon= PulseCanon)
+        options.update(name="Fleet Drone", vertices=shapes[1], x=options.get("x", 10), y=options.get("y", 20), angle=options.get("angle", 0), width= 42, height= 42, acceleration= 620, color="springgreen", maxWeaponHeat= 1800, life= 280, weapon= PulseCanon)
         super().__init__(**options)
         self.formation_slot = FleetDrone.next_formation_slot[self.friend]
         FleetDrone.next_formation_slot[self.friend] += 1

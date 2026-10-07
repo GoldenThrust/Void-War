@@ -8,7 +8,7 @@ from core.utils.constants import FIXED_DT
 from core.utils.math import clamp
 from core.utils.vertices import createVerticesPath, tranformVertices
 from core.weapons.manager import WeaponManager, weaponManager
-from core.world.canvas import blit_image, draw_line, draw_polygon
+from core.world.canvas import draw_line, draw_polygon
 from core.world.utils import lerp, worldToScreen
 from core.world.world import world
 import numpy as np
@@ -25,36 +25,32 @@ class Ship:
 
     def __init__(self, **options):
         from core.weapons.pulse_canon import PulseCanon
-        prop = dict(prop or {})
-        prop.update(options)
         self.id = str(uuid4())
-        self.x = prop["x"]
-        self.y = prop["y"]
+        self.x = options.get("x", 0)
+        self.y = options.get("y", 0)
         self.speed = 0
-        self.acceleration = prop.get("acceleration", 3500)
-        self.width = prop.get("width", 40)
-        self.height = prop.get("height", 40)
-        self.angle = prop["angle"]
-        self.color = prop.get("color", "red")
-        self.turnRate = prop.get("turnRate", 2)
-        self.name = prop.get("name", "Player")
-        self.friend = prop.get("friend", False)
-        self.img = prop.get("img")
-        self.flameImg = prop.get("flameImg")
+        self.acceleration = options.get("acceleration", 3500)
+        self.width = options.get("width", 40)
+        self.height = options.get("height", 40)
+        self.angle = options.get("angle", 0)
+        self.color = options.get("color", "red")
+        self.turnRate = options.get("turnRate", 2)
+        self.name = options.get("name", "Player")
+        self.friend = options.get("friend", False)
         self.dampSpeed = 0.75 ** FIXED_DT
         self.dt = FIXED_DT
-        self.controllable = prop.get("controllable", False)
+        self.controllable = options.get("controllable", False)
         self.lastTime = 0
-        self.weapon = prop.get("weapon") or PulseCanon
+        self.weapon = options.get("weapon", PulseCanon)
         self.killScore = 0
         self.damage_score = 0
-        self.vertices = prop.get("vertices") or shapes[0]
+        self.vertices = options.get("vertices", shapes[0])
         self.path2D = createVerticesPath(tranformVertices(self.vertices, 0, 0, self.width, self.height, 0))
-        self.life = prop.get("life", 100)
+        self.life = options.get("life", 100)
         self.fullLife = self.life
         self.cooldown = 0
         self.heat = 0
-        self.maxHeat = prop.get("maxWeaponHeat", 10000)
+        self.maxHeat = options.get("maxWeaponHeat", 10000)
         self.weaponState = "cool"
         self.state = "idle"
         self.target = None
@@ -69,13 +65,7 @@ class Ship:
         return self.fullLife
         
     def render(self):
-        if self.img is not None:
-            if self.speed > 50 and self.flameImg is not None:
-                flame_alpha = max(0, min(255, int((self.speed / 200) * 255)))
-                blit_image(self.flameImg, (self.x, self.y), size=(self.width, self.height), angle=self.angle, alpha=flame_alpha)
-            blit_image(self.img, (self.x, self.y), size=(self.width, self.height), angle=self.angle)
-        else:
-            draw_polygon(self.getVertices(), color=self.color, width=0, alpha=255)
+        draw_polygon(self.getVertices(), color=self.color, width=0, alpha=255)
 
         life_ratio = max(0.0, min(1.0, self.life / max(self.fullLife, 1)))
         bar_length = max(self.width * 0.7, 28)
@@ -171,14 +161,15 @@ class Ship:
         from core.weapons.manager import WeaponManager
 
         prop = {
-            "x": wrap(x - np.sin(angle) * self.width / 2, world.width),
-            "y": wrap(y - np.cos(angle) * self.height / 2, world.height),
-            "angle": angle,
-            "speed": self.speed,
-            "ship": self,
-            "color": "#33cfff" if self.name == "Player" else "red",
-        }
-        WeaponManager.fire(self.weapon, prop)
+                "x": wrap(x - np.sin(angle) * self.width / 2, world.width),
+                "y": wrap(y - np.cos(angle) * self.height / 2, world.height),
+                "angle": angle,
+                "speed": self.speed,
+                "ship": self,
+                "color": "#33cfff" if self.name == "Player" else "red",
+            }
+        
+        WeaponManager.fire(self.weapon, **prop)
         return True
 
     def setCoolDown(self, val):

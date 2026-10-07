@@ -31,6 +31,7 @@ def init() -> None:
     WeaponManager.init()
     PerkManager.spawn()
     world.attach(player.ship)
+    world.render()
 
 
 def update_loop(now: float) -> bool:
@@ -45,7 +46,7 @@ def update_loop(now: float) -> bool:
 
     while _time_accumulator >= FIXED_DT:
         spatial.clear()
-        spatial.insertAll([player.ship], ShipManager.ships, WeaponManager.weapons, PerkManager.perks.values())
+        spatial.insertAll([player.ship], ShipManager.ships.values(), WeaponManager.weapons, PerkManager.perks.values())
 
         world.update()
 
@@ -61,7 +62,6 @@ def update_loop(now: float) -> bool:
         _time_accumulator -= FIXED_DT
 
     clear((0, 0, 0))
-    world.render()
 
     WeaponManager.render()
     PerkManager.render()

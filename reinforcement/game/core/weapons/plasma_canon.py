@@ -10,7 +10,7 @@ class PlasmaCanon(Projectile):
     def __init__(self, **options):
         options.update(name="Plasma Canon", x= options.get("x", 0), y= options.get("y", 0), speed=options.get("speed", 100), acceleration=options.get("acceleration", 25000), width=options.get("width", 10), height=options.get("height", 45), angle=options.get("angle", 0), damage=options.get("damage", 120), range=options.get("range", 45000), fireRate=options.get("fireRate", 0.25), energyCost=options.get("energyCost", 900), ship=options.get("ship"), color=options.get("color"))
         
-        super().__init__(options)
+        super().__init__(**options)
 
     def explode(self, radius=1000):
         if not self.active:
@@ -25,7 +25,7 @@ class PlasmaCanon(Projectile):
                 "range": np.random.uniform(radius * 0.2, radius * 2),
                 "color": "yellow",
             }
-            WeaponManager.fire(Minature, prop, True)
+            WeaponManager.fire(Minature, **prop)
 
     def travelEnd(self):
         self.explode()

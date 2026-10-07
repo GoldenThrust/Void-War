@@ -14,7 +14,7 @@ class WeaponManager:
 
     @staticmethod
     def fire(Weapon, **options):
-        WeaponManager.weapons.append(Weapon(options))
+        WeaponManager.weapons.append(Weapon(**options))
 
     @staticmethod
     def render():

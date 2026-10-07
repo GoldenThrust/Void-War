@@ -6,25 +6,6 @@ from dataclasses import dataclass
 import pygame
 
 
-# class NoOpContext:
-#     def __init__(self):
-#         self.fillStyle = None
-#         self.strokeStyle = None
-#         self.globalAlpha = 1
-#         self.lineWidth = 1
-#         self.font = ""
-
-#     def __getattr__(self, _name):
-#         def _noop(*_args, **_kwargs):
-#             return None
-
-#         return _noop
-
-
-# pygame.init()
-# pygame.font.init()
-
-
 @dataclass
 class Canvas:
     width: int = 1920

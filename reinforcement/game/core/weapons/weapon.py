@@ -10,7 +10,7 @@ from core.utils.constants import FIXED_DT
 
 
 class Weapon:
-    def __init__(self, options):
+    def __init__(self, **options):
         from core.weapons.shapes import shapes
 
         self.name = options.get("name")
@@ -78,7 +78,7 @@ class Weapon:
                     if element.life <= 0:
                         element.destroy()
                         weapon.ship.killScore += 1
-                else:
+                elif isinstance(element, Weapon):
                     element.destroy()
                 weapon.acceleration *= 0.8
                 weapon.range *= 0.8
