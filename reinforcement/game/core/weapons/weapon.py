@@ -1,9 +1,10 @@
 from __future__ import annotations
+from uuid import uuid4
 
 from core.ships.ship import Ship
 from core.utils.collision import isSeperatingAxes
 from core.utils.vertices import createVerticesPath, tranformVertices
-from core.world.canvas import blit_image, draw_polygon
+from core.world.canvas import draw_polygon
 from core.world.spatial_hash import spatial
 from core.world.utils import worldToScreen
 from core.utils.constants import FIXED_DT
@@ -12,7 +13,7 @@ from core.utils.constants import FIXED_DT
 class Weapon:
     def __init__(self, **options):
         from core.weapons.shapes import shapes
-
+        self.id = str(uuid4())
         self.name = options.get("name")
         self.type = options.get("type")
         base_acceleration = options.get("acceleration", 10)
@@ -55,7 +56,7 @@ class Weapon:
 
     def getVertices(self):
         screen = worldToScreen(self.x, self.y)
-        return tranformVertices(self.vertices, screen["x"], screen["y"], self.width, self.height, self.angle)
+        return tranformVertices(self.vertices, screen["x"], screen["y"], self.width, self.height, -self.angle)
 
     @staticmethod
     def nearBy(weapon, vertices, x, y):

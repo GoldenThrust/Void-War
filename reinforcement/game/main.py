@@ -7,7 +7,7 @@ from core.ships.manager import ShipManager
 from core.ships import player
 from core.perks.manager import PerkManager
 from core.utils.constants import FIXED_DT
-from core.world.canvas import clear, draw_text, get_screen, present
+from core.world.canvas import clear, draw_text, get_screen, present, resizeCanvas, restore, save
 from core.world.spatial_hash import spatial
 from core.world.world import world
 from core.weapons.manager import WeaponManager
@@ -31,8 +31,7 @@ def init() -> None:
     WeaponManager.init()
     PerkManager.spawn()
     world.attach(player.ship)
-    world.render()
-
+    resizeCanvas()
 
 def update_loop(now: float) -> bool:
     global _last_time, _time_accumulator
@@ -46,7 +45,7 @@ def update_loop(now: float) -> bool:
 
     while _time_accumulator >= FIXED_DT:
         spatial.clear()
-        spatial.insertAll([player.ship], ShipManager.ships.values(), WeaponManager.weapons, PerkManager.perks.values())
+        spatial.insertAll([player.ship], ShipManager.ships.values(), WeaponManager.weapons.values(), PerkManager.perks.values())
 
         world.update()
 
@@ -62,7 +61,8 @@ def update_loop(now: float) -> bool:
         _time_accumulator -= FIXED_DT
 
     clear((0, 0, 0))
-
+    save()
+    world.render()
     WeaponManager.render()
     PerkManager.render()
 
@@ -70,6 +70,7 @@ def update_loop(now: float) -> bool:
         player.ship.render()
 
     ShipManager.render()
+    restore()
 
     draw_text(
         (
@@ -92,8 +93,8 @@ def game_loop() -> None:
     running = True
 
     while running:
-        now = time.perf_counter()
         print(f"FPS: {int(_clock.get_fps())}")
+        now = time.perf_counter()
         playing = update_loop(now)
 
         for event in pygame.event.get():

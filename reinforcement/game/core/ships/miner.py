@@ -39,7 +39,7 @@ class Miner(Ship):
             fire=False,
         )
         if self.target is not None and tactics and tactics["distance"] <= 3200 and self.canFire():
-            print(dir(world))
+            # print(dir(world))
             mine_distance = 300
             mine_x = wrap(self.target.x - np.sin(self.target.angle) * mine_distance, world.width)
             mine_y = wrap(self.target.y - np.cos(self.target.angle) * mine_distance,  world.height)

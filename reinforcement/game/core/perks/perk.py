@@ -35,7 +35,7 @@ class Perk:
     def getVertices(self):
         screen = worldToScreen(self.x, self.y)
         return tranformVertices(
-            self.vertices, screen["x"], screen["y"], self.width, self.height, self.angle
+            self.vertices, screen["x"], screen["y"], self.width, self.height, -self.angle
         )
 
     def render(self):

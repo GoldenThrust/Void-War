@@ -83,6 +83,7 @@ class Ship:
         draw_line((bar_start_x, bar_start_y), (bar_end_x, bar_end_y), color=(50, 50, 50), width=4, alpha=180)
         fill_end_x = bar_start_x + bar_length * life_ratio
         draw_line((bar_start_x, bar_start_y), (fill_end_x, bar_end_y), color="springgreen", width=4, alpha=255)
+        print(f"Rendering ship {self.name} at ({self.x}, {self.y}) with life ratio: {life_ratio:.2f}")
 
     def update(self, t, dt, thrust=0, turn=0):
         self.lastDt = dt
@@ -188,7 +189,7 @@ class Ship:
 
     def getVertices(self):
         screen = worldToScreen(self.x, self.y)
-        return tranformVertices(self.vertices, screen["x"], screen["y"], self.width, self.height, self.angle)
+        return tranformVertices(self.vertices, screen["x"], screen["y"], self.width, self.height, -self.angle)
 
     def set_weapon(self, idx):
         WeaponManager.changeWeapon(idx)

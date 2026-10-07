@@ -4,9 +4,14 @@ from core.events.keybind import keybinds
 from core.world.manager import worldManager
 import numpy as np
 
+from core.utils.misc import is_visible
+from core.world.utils import worldToScreen
+
+# from core.weapons.weapon import Weapon
+
 
 class WeaponManager:
-    weapons: list = []
+    weapons = {}
     weaponTypes: list = []
 
     def __init__(self):
@@ -14,22 +19,27 @@ class WeaponManager:
 
     @staticmethod
     def fire(Weapon, **options):
-        WeaponManager.weapons.append(Weapon(**options))
+        weapon = Weapon(**options)
+        WeaponManager.weapons[weapon.id] = weapon
 
     @staticmethod
     def render():
-        for weapon in WeaponManager.weapons:
+        for weapon in WeaponManager.weapons.values():
+            screen = worldToScreen(weapon.x, weapon.y)
+            print(f"Rendering weapon {weapon.name} at screen coordinates ({screen['x']}, {screen['y']})")
+
+            if not is_visible(screen["x"], screen["y"], weapon.height):
+                continue
             weapon.render()
 
     @staticmethod
     def update(t, dt):
-        for weapon in list(WeaponManager.weapons):
+        for weapon in list(WeaponManager.weapons.values()):
             weapon.update(t, dt)
 
     @staticmethod
     def destroy(weapon):
-        if weapon in WeaponManager.weapons:
-            WeaponManager.weapons.remove(weapon)
+        WeaponManager.weapons.pop(weapon.id, None)
 
     def _addKeybinds(self):
         keybinds["q"] = self.previousWeapon
@@ -52,7 +62,7 @@ class WeaponManager:
             HomingMissile,
             Mine,
         ]
-    
+
     @staticmethod
     def _getWeaponTypes():
         return WeaponManager.weaponTypes
@@ -81,9 +91,7 @@ class WeaponManager:
             else -1
         )
         previousWeapon = (
-            weaponTypes[currentWeaponId]
-            if currentWeaponId >= 0
-            else weaponTypes[-1]
+            weaponTypes[currentWeaponId] if currentWeaponId >= 0 else weaponTypes[-1]
         )
         self.changeWeapon(previousWeapon)
 
@@ -100,6 +108,7 @@ class WeaponManager:
             target_weapon = weaponTypes[int(np.clip(idx, 0, len(weaponTypes) - 1))]
 
         from core.world.manager import worldManager
+
         ship = worldManager.findAttachedShip()
         if ship is not None:
             ship.weapon = target_weapon

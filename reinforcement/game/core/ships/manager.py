@@ -13,6 +13,9 @@ from core.utils.constants import sizeOf
 from core.world.world import world
 import numpy as np
 
+from core.utils.misc import is_visible
+from core.world.utils import worldToScreen
+
 
 class ShipManager:
     ships: dict[str, Ship] = {}
@@ -61,6 +64,10 @@ class ShipManager:
     @staticmethod
     def render():
         for ship in ShipManager.ships.values():
+            screen = worldToScreen(ship.x, ship.y)
+
+            if not is_visible(screen["x"], screen["y"], ship.height):
+                continue
             ship.render()
 
     @staticmethod

@@ -34,7 +34,7 @@ class Mine(Weapon):
                 "range": np.random.uniform(radius * 0.1, radius / 2),
                 "color": "yellow",
             }
-            WeaponManager.fire(Minature, prop, True)
+            WeaponManager.fire(Minature, **prop)
 
     def colide(self):
         self.explode()
