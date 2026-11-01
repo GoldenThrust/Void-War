@@ -4,7 +4,6 @@ from core.utils.constants import sizeOf
 from core.utils.random import randomNum, randomPick
 from core.world.world import world
 from core.utils.misc import is_visible
-from core.world.utils import worldToScreen
 
 from .overdrive import Overdrive
 from .repairNanites import RepairNanites
@@ -36,9 +35,7 @@ class PerkManager:
     @classmethod
     def render(cls):
         for perk in cls.perks.values():
-            screen = worldToScreen(perk.x, perk.y)
-
-            if not is_visible(screen["x"], screen["y"], perk.height):
+            if not is_visible(perk.x, perk.y, perk.height):
                 continue
             perk.render()
 

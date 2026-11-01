@@ -25,7 +25,9 @@ _font_cache: dict[tuple[str, int], pygame.font.Font] = {}
 # Canvas transform state
 _transform = {
     "x": 0.0,
-    "y": 0.0
+    "y": 0.0,
+    "scale_x": 1.0,
+    "scale_y": 1.0,
 }
 
 _transform_stack = []
@@ -81,6 +83,19 @@ def translate(x, y):
 def reset_transform():
     _transform["x"] = 0
     _transform["y"] = 0
+    _transform["scale_x"] = 1.0
+    _transform["scale_y"] = 1.0
+
+
+def scaleTo(scale_x: float, scale_y: float | None = None):
+    """Set the canvas transform scale used by subsequent drawing calls."""
+    if scale_y is None:
+        scale_y = scale_x
+    if scale_x <= 0 or scale_y <= 0:
+        raise ValueError("Canvas scale values must be greater than zero")
+
+    _transform["scale_x"] = float(scale_x)
+    _transform["scale_y"] = float(scale_y)
 
 
 def save():
@@ -91,7 +106,9 @@ def save():
     _transform_stack.append(
         (
             _transform["x"],
-            _transform["y"]
+            _transform["y"],
+            _transform["scale_x"],
+            _transform["scale_y"],
         )
     )
 
@@ -102,18 +119,29 @@ def restore():
         ctx.restore()
     """
     if _transform_stack:
-        x, y = _transform_stack.pop()
+        x, y, scale_x, scale_y = _transform_stack.pop()
         _transform["x"] = x
         _transform["y"] = y
+        _transform["scale_x"] = scale_x
+        _transform["scale_y"] = scale_y
 
 
 def _apply_transform(point):
     x, y = _point_xy(point)
 
     return (
-        x + _transform["x"],
-        y + _transform["y"]
+        x * _transform["scale_x"] + _transform["x"],
+        y * _transform["scale_y"] + _transform["y"]
     )
+
+
+def _scale_size(size):
+    if isinstance(size, (tuple, list)):
+        return (
+            int(round(size[0] * _transform["scale_x"])),
+            int(round(size[1] * _transform["scale_y"])),
+        )
+    return int(round(size * min(_transform["scale_x"], _transform["scale_y"])))
 
 
 def _apply_points(points):
@@ -163,7 +191,7 @@ def draw_line(start, end, color="white", width=1, alpha=255):
         _with_alpha(color, alpha),
         _apply_transform(start),
         _apply_transform(end),
-        max(1, int(width))
+        max(1, _scale_size(width))
     )
 
 
@@ -174,8 +202,8 @@ def draw_circle(center, radius, color="white", width=0, alpha=255):
         screen,
         _with_alpha(color, alpha),
         _apply_transform(center),
-        max(1, int(radius)),
-        width
+        max(1, _scale_size(radius)),
+        max(0, _scale_size(width)) if width else 0
     )
 
 
@@ -197,12 +225,13 @@ def draw_text(text, pos, color="white", size=20,
               font_name="monospace",
               anchor="topleft"):
 
-    key = (font_name, size)
+    scaled_size = max(1, _scale_size(size))
+    key = (font_name, scaled_size)
 
     font = _font_cache.get(key)
 
     if font is None:
-        font = pygame.font.SysFont(font_name, size)
+        font = pygame.font.SysFont(font_name, scaled_size)
         _font_cache[key] = font
 
     surface = font.render(
@@ -235,10 +264,7 @@ def blit_image(image, center, size=None, angle=0, alpha=255):
     if size is not None:
         surface = pygame.transform.smoothscale(
             surface,
-            (
-                int(size[0]),
-                int(size[1])
-            )
+            _scale_size(size)
         )
 
 

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from sympy import Shi
-
 from core.ships.bomber import Bomber
 from core.ships.fleet import FleetDrone
 from core.ships.miner import Miner
@@ -14,7 +12,6 @@ from core.world.world import world
 import numpy as np
 
 from core.utils.misc import is_visible
-from core.world.utils import worldToScreen
 
 
 class ShipManager:
@@ -25,10 +22,14 @@ class ShipManager:
     friendsAlive = 0
 
     @staticmethod
-    def init():
+    def init(enemy_count=None):
         ShipManager.ships.clear()
         destroyedShips.clear()
-        ShipManager.enemiesAlive = getattr(sizeOf, "enemy_ship", 0)
+        ShipManager.enemiesAlive = (
+            getattr(sizeOf, "enemy_ship", 0)
+            if enemy_count is None
+            else max(0, int(enemy_count))
+        )
         ShipManager.friendsAlive = getattr(sizeOf, "friend_ship", 0)
 
         for _ in range(ShipManager.enemiesAlive):
@@ -64,9 +65,7 @@ class ShipManager:
     @staticmethod
     def render():
         for ship in ShipManager.ships.values():
-            screen = worldToScreen(ship.x, ship.y)
-
-            if not is_visible(screen["x"], screen["y"], ship.height):
+            if not is_visible(ship.x, ship.y, ship.height):
                 continue
             ship.render()
 

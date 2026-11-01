@@ -4,6 +4,6 @@ from types import SimpleNamespace
 
 
 
-sizeOf = SimpleNamespace(enemy_ship=1, friend_ship=1)
-worldSize = SimpleNamespace(width=10000, height=10000)
+sizeOf = SimpleNamespace(enemy_ship=10, friend_ship=10)
+worldSize = SimpleNamespace(width=30000, height=30000)
 FIXED_DT = 1 / 240

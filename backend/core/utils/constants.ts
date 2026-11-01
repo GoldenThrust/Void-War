@@ -1,5 +1,5 @@
 export const sizeOf = {
-    enemyShip: 1,
+    enemyShip: 10,
     friendShip: 1,
     star: 100,
     asteroid: 10,

@@ -5,7 +5,6 @@ from core.world.manager import worldManager
 import numpy as np
 
 from core.utils.misc import is_visible
-from core.world.utils import worldToScreen
 
 # from core.weapons.weapon import Weapon
 
@@ -25,10 +24,7 @@ class WeaponManager:
     @staticmethod
     def render():
         for weapon in WeaponManager.weapons.values():
-            screen = worldToScreen(weapon.x, weapon.y)
-            print(f"Rendering weapon {weapon.name} at screen coordinates ({screen['x']}, {screen['y']})")
-
-            if not is_visible(screen["x"], screen["y"], weapon.height):
+            if not is_visible(weapon.x, weapon.y, weapon.height):
                 continue
             weapon.render()
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from collections.abc import Mapping
 
 from core.world.utils import wrap
 from core.world.world import world
@@ -37,6 +38,8 @@ class SpatialHash:
 
     def insertAll(self, *object_groups):
         for elements in object_groups:
+            if isinstance(elements, Mapping):
+                elements = elements.values()
             for element in elements:
                 if element != "Minature":
                     self.insert(element)

@@ -11,16 +11,17 @@ GAME_DIR = os.path.join(os.path.dirname(__file__), "game")
 if GAME_DIR not in sys.path:
     sys.path.insert(0, GAME_DIR)
 
-from core.ships.manager import ShipManager
-from core.weapons.manager import WeaponManager
-from core.world.canvas import clear, draw_text, get_screen
-from core.world.utils import toroidalDelta, toroidalDistance, wrap
-from core.world.spatial_hash import spatial
-from core.world.world import world
+from game.core.ships.manager import ShipManager
+from game.core.weapons.manager import WeaponManager
+from game.core.world.canvas import clear, draw_text, get_screen
+from game.core.world.utils import toroidalDelta, toroidalDistance, wrap
+from game.core.world.spatial_hash import spatial
+from game.core.world.world import world
+from game.core.utils.numba_kernels import build_entity_rows
 
 
-from core.ships import player
-from core.world.world import world as game_world
+from game.core.ships import player
+from game.core.world.world import world as game_world
 
 
 class VoidFrontEnv(gym.Env):
@@ -428,42 +429,36 @@ class VoidFrontEnv(gym.Env):
     # RELATIVE ENTITY ROW (shared by enemies / weapons)
     # =============================================================
 
-    def _relative_entity_row(
-        self, ship, ship_vx, ship_vy, ship_angle, entity, type_norm
-    ):
-        dx = toroidalDelta(entity.x, ship.x, self.world_width)
-        dy = toroidalDelta(entity.y, ship.y, self.world_height)
+    def _relative_entity_rows(self, ship, ship_vx, ship_vy, ship_angle, entities, type_norms):
+        count = len(entities)
+        if count == 0:
+            return np.zeros((0, 7), dtype=np.float32)
 
-        entity_angle = float(getattr(entity, "angle", 0.0))
-        entity_speed = float(getattr(entity, "speed", 0.0))
-        entity_vx = -np.sin(entity_angle) * entity_speed
-        entity_vy = -np.cos(entity_angle) * entity_speed
-
-        relative_vx = (entity_vx - ship_vx) / max(self.max_speed * 2.0, 1.0)
-        relative_vy = (entity_vy - ship_vy) / max(self.max_speed * 2.0, 1.0)
-
-        dist = np.linalg.norm(np.array([dx, dy], dtype=np.float32))
-
-        target_dir = np.array([dx, dy], dtype=np.float32)
-        if np.linalg.norm(target_dir) > 1e-6:
-            target_dir = target_dir / np.linalg.norm(target_dir)
-
-        heading_vec = np.array(
-            [-np.sin(ship_angle), -np.cos(ship_angle)], dtype=np.float32
+        entity_x = np.asarray([entity.x for entity in entities], dtype=np.float64)
+        entity_y = np.asarray([entity.y for entity in entities], dtype=np.float64)
+        entity_angle = np.asarray(
+            [float(getattr(entity, "angle", 0.0)) for entity in entities],
+            dtype=np.float64,
         )
-        alignment = float(np.clip(np.dot(heading_vec, target_dir), -1.0, 1.0))
-
-        return np.array(
-            [
-                np.clip(dx / (self.world_width / 2.0), -1.0, 1.0),
-                np.clip(dy / (self.world_height / 2.0), -1.0, 1.0),
-                np.clip(relative_vx, -1.0, 1.0),
-                np.clip(relative_vy, -1.0, 1.0),
-                np.clip(dist / max(self._longest_distance(), 1.0), 0.0, 1.0),
-                alignment,
-                type_norm,
-            ],
-            dtype=np.float32,
+        entity_speed = np.asarray(
+            [float(getattr(entity, "speed", 0.0)) for entity in entities],
+            dtype=np.float64,
+        )
+        return build_entity_rows(
+            entity_x,
+            entity_y,
+            entity_angle,
+            entity_speed,
+            np.asarray(type_norms, dtype=np.float64),
+            float(ship.x),
+            float(ship.y),
+            float(ship_vx),
+            float(ship_vy),
+            float(ship_angle),
+            self.world_width,
+            self.world_height,
+            self.max_speed,
+            self._longest_distance(),
         )
 
     def _get_obs(self):
@@ -512,13 +507,13 @@ class VoidFrontEnv(gym.Env):
         )
         near_enemies = near_enemies[: self.K_enemies]
         enemies_mat = np.zeros((self.K_enemies, 7), dtype=np.float32)
-        for i, enemy in enumerate(near_enemies):
-            enemy_type_norm = self.ship_names.get(enemy.name, 0) / max(
-                len(self.ship_names) - 1, 1
-            )
-            enemies_mat[i] = self._relative_entity_row(
-                ship, ship_vx, ship_vy, ship_angle, enemy, enemy_type_norm
-            )
+        enemy_types = [
+            self.ship_names.get(enemy.name, 0) / max(len(self.ship_names) - 1, 1)
+            for enemy in near_enemies
+        ]
+        enemies_mat[: len(near_enemies)] = self._relative_entity_rows(
+            ship, ship_vx, ship_vy, ship_angle, near_enemies, enemy_types
+        )
 
         # ----------------------------------------------------------
         # Weapons: same idea, but sourced from the spatial hash of
@@ -536,13 +531,13 @@ class VoidFrontEnv(gym.Env):
         )
         near_weapons = near_weapons[: self.K_weapons]
         weapons_mat = np.zeros((self.K_weapons, 7), dtype=np.float32)
-        for i, weapon in enumerate(near_weapons):
-            weapon_type_norm = self.weapon_names.get(weapon.name, 0) / max(
-                len(self.weapon_names) - 1, 1
-            )
-            weapons_mat[i] = self._relative_entity_row(
-                ship, ship_vx, ship_vy, ship_angle, weapon, weapon_type_norm
-            )
+        weapon_types = [
+            self.weapon_names.get(weapon.name, 0) / max(len(self.weapon_names) - 1, 1)
+            for weapon in near_weapons
+        ]
+        weapons_mat[: len(near_weapons)] = self._relative_entity_rows(
+            ship, ship_vx, ship_vy, ship_angle, near_weapons, weapon_types
+        )
 
         return {
             "self": self_vec,

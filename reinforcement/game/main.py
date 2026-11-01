@@ -93,7 +93,6 @@ def game_loop() -> None:
     running = True
 
     while running:
-        print(f"FPS: {int(_clock.get_fps())}")
         now = time.perf_counter()
         playing = update_loop(now)
 
