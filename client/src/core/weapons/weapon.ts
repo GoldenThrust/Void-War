@@ -138,6 +138,8 @@ export default class Weapon implements WeaponI {
   }
 
   destroy() {
+    if (!this.active) return;
+    this.active = false;
     WeaponManager.destroy(this);
   }
 
@@ -165,9 +167,11 @@ export default class Weapon implements WeaponI {
     y: number,
     radius?: number,
   ) {
+    if (!weapon.active) return;
     const object = spatial.query(x, y, radius);
 
     for (const element of object) {
+      if (!weapon.active) break;
       if (
         (element instanceof Ship &&
           // weapon.ship === element
@@ -188,9 +192,8 @@ export default class Weapon implements WeaponI {
         gameType === "offline"
       ) {
         if (element instanceof Ship) {
-          element.life = Math.max(0, element.life - weapon.damage);
+          element.hit(weapon.damage);
           if (element.life <= 0) {
-            element.destroy();
             // Todo: check if it is friendly fire
             weapon.ship.killScore++;
           }
@@ -204,6 +207,7 @@ export default class Weapon implements WeaponI {
         if (--weapon.penetration <= 0) {
           weapon.colide();
           weapon.destroy();
+          break;
         }
       }
     }

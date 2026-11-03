@@ -16,12 +16,14 @@ export default class SuperDash extends Perk {
   colide(ship: Ship): void {
     super.colide(ship);
 
+    if (!this.ship) return;
     this.previousSpeed = ship.speed;
     ship.speed *= this.multiplier;
   }
 
   finishedRunning() {
-    if (this.ship) this.ship.speed = this.previousSpeed;
+    if (this.ship) this.ship.speed = Math.min(this.ship.speed, this.previousSpeed);
+;
 
     super.finishedRunning();
   }

@@ -48,6 +48,7 @@ export default class Projectile extends Weapon {
     if (this.distanceTraveled >= this.range) {
       this.travelEnd();
       this.destroy();
+      return;
     }
 
     this.colliding();

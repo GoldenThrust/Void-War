@@ -17,7 +17,7 @@ export default class HeavyRailGun extends Projectile {
             damage: 450,
             range: 30000,
             fireRate: 0.08,
-            energyCost: 1000,
+            energyCost: 30,
             penetration: 2,
             ship: prop.ship,
             color: prop.color,

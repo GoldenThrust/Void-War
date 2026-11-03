@@ -22,7 +22,7 @@ export default class Mine extends Weapon {
             damage: 300,
             range: 1400,
             fireRate: 0.15,
-            energyCost: 400,
+            energyCost: 100,
             ship: prop.ship,
             color: prop.color,
             vertices: shapes[1],
@@ -35,14 +35,14 @@ export default class Mine extends Weapon {
     update() {
         this.colliding();
         if (!(--this.duration)) {
-            this.destroy()
-            this.explode(10, 1000)
+            this.destroy();
         };
     }
 
     destroy() {
-        super.destroy();
+        if (!this.active) return;
         this.explode(10)
+        super.destroy();
     }
 
 

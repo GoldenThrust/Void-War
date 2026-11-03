@@ -8,8 +8,13 @@ import Weapon from "./weapons/weapon.ts";
 import WeaponManager from "./weapons/manager.ts";
 import { lerp, shortestAngleDist } from "./utils/math.ts";
 import { worldSize } from "./utils/constants.ts";
+import { world } from "./world/world.ts";
 
 type Snapshot = {
+  worldSize: {
+    width: number;
+    height: number;
+  };
   ships: Array<ShipC & { id: string; speed: number; state: string }>;
   weapons: Array<{
     id: string;
@@ -163,6 +168,11 @@ export default class Websocket {
   }
 
   private applyInitSnapshot(state: Snapshot) {
+    worldSize.width = state.worldSize.width;
+    worldSize.height = state.worldSize.height;
+    world.width = state.worldSize.width;
+    world.height = state.worldSize.height;
+
     const localShip = ShipManager.ships.get("player");
     this.playerId = localShip?.id ?? state.playerId ?? this.playerId;
     this.resyncRequested = false;

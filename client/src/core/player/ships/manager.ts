@@ -51,7 +51,9 @@ export default class ShipManager {
         angle: randomNum(-Math.PI * 2, Math.PI * 2),
       };
 
-      const ship = new this.types[Math.floor(randomNum(0, this.types.length))]!(
+      const ship = new this.types[
+        Math.floor(randomNum(0, this.types.length))
+      ]!(
         { ...prop, friend: true },
       );
 
@@ -60,6 +62,7 @@ export default class ShipManager {
   }
 
   static destroy(ship: Ship) {
+    if (ship.state === "dead" || !ShipManager.ships.has(ship.id)) return;
     ship.state = "dead";
     ShipManager.ships.delete(ship.id);
     // destroyedShips.push(ship);

@@ -2,7 +2,7 @@ import Asteroid from "./world/object/asteroid/asteroid.ts";
 import ShipManager from "./ships/manager.ts";
 import WeaponManager from "./weapons/manager.ts";
 import Minature from "./weapons/minature.ts";
-import { FIXED_DT } from "./utils/constants.ts";
+import { FIXED_DT, worldSize } from "./utils/constants.ts";
 import { spatial } from "./world/spatialHash.ts";
 import PerkManager from "./perks/manager.ts";
 
@@ -38,6 +38,10 @@ export function step(t = performance.now(), dt = FIXED_DT) {
 
 export function initSnapShot() {
   return {
+    worldSize: {
+      width: worldSize.width,
+      height: worldSize.height,
+    },
     ships: Array.from(ShipManager.ships.values(), (ship) => ({
       id: ship.id,
       name: ship.name,

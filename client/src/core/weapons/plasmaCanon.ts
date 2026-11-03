@@ -15,8 +15,8 @@ export default class PlasmaCanon extends Projectile {
       height: prop.height ?? 45,
       damage: prop.damage ?? 120,
       range: prop.range ?? 45000,
-      fireRate: prop.fireRate ?? 0.15,
-      energyCost: prop.energyCost ?? 600,
+      fireRate: prop.fireRate ?? 0.1,
+      energyCost: prop.energyCost ?? 50,
       img: prop.img ?? assets?.images?.plasma,
     });
   }

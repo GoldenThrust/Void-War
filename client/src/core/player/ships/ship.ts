@@ -68,6 +68,8 @@ export default class Ship {
   private threatScanTimer = 0;
   private currentThreat?: Threat;
   private static squadTargets = new Map<boolean, Ship>();
+  private hitIntervalID?: number;
+  private prevColor: string = "white";
 
   constructor({
     id = uuid(),
@@ -80,12 +82,12 @@ export default class Ship {
     flameImg,
     weapon = PulseCanon,
     acceleration = 3500,
-    life = 100,
+    life = 10000,
     vertices = shapes[0],
     color = "red",
     name = "Player",
     controllable = false,
-    maxWeaponHeat = 10000,
+    maxWeaponHeat = 1000,
     friend = false,
   }: ShipC) {
     this.id = id;
@@ -97,6 +99,7 @@ export default class Ship {
     this.height = height;
     this.angle = angle;
     this.color = color;
+    this.prevColor = color;
     this.turnRate = 2;
 
     this.name = name;
@@ -142,7 +145,7 @@ export default class Ship {
   }
 
   get maxSpeed() {
-    return (DAMPSPEED * this.acceleration * FIXED_DT) / (1 - DAMPSPEED)
+    return (DAMPSPEED * this.acceleration * FIXED_DT) / (1 - DAMPSPEED);
   }
 
   get maxLife() {
@@ -167,7 +170,8 @@ export default class Ship {
         ctx.fillRect(-this.width / 2, -this.height - 5, this.width, 5);
         for (let index = 0; index < segments; index++) {
           const segmentStart = index / segments;
-          ctx.fillStyle = segmentStart < lifeRatio ? color : "rgba(111, 128, 132, 0.25)";
+          ctx.fillStyle =
+            segmentStart < lifeRatio ? color : "rgba(111, 128, 132, 0.25)";
           ctx.fillRect(
             -this.width / 2 + index * (segmentWidth + gap),
             -this.height - 5,
@@ -244,11 +248,17 @@ export default class Ship {
         this.speed = Math.max(this.speed, 0);
       }
 
-      if (keys[" "] || keys["Enter"] || keys["Space"] || touchDetected["touch"] || touchDetected["mouse"]) {
+      if (
+        keys[" "] ||
+        keys["Enter"] ||
+        keys["Space"] ||
+        touchDetected["touch"] ||
+        touchDetected["mouse"]
+      ) {
         this.fire();
       }
       // console.log(
-        // orientation)
+      // orientation)
     } else if (this.state !== "idle") {
       this.speed += thrusting * this.acceleration * dt;
       this.speed = Math.max(this.speed, 0);
@@ -281,7 +291,7 @@ export default class Ship {
       this.cooldown -= dt * 1000;
     }
 
-    this.heat = clamp(this.heat - this.maxHeat * 0.001, 0, this.maxHeat * 5);
+    this.heat = clamp(this.heat - this.maxHeat * 0.003, 0, this.maxHeat * 2);
 
     if (this.weaponState === "cool" && this.heat >= this.maxHeat) {
       this.weaponState = "hot";
@@ -356,8 +366,28 @@ export default class Ship {
   }
 
   destroy() {
+    if (this.state === "dead") return;
+
     ShipManager.destroy(this);
     // this.engineSound.clean();
+  }
+
+  hit(damage: number) {
+    this.life = Math.max(0, this.life - damage);
+
+    clearInterval(this.hitIntervalID);
+    let i = 0;
+
+    this.hitIntervalID = setInterval(() => {
+      this.color = this.color === "red" ? this.prevColor : "red";
+      if (++i > 10) {
+        this.color = this.prevColor;
+        clearInterval(this.hitIntervalID);
+      }
+    }, 50);
+    if (this.life <= 0) {
+      this.destroy();
+    }
   }
 
   follow(ship: Ship) {

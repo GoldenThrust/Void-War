@@ -8,7 +8,6 @@ import { FIXED_DT } from "../core/utils/constants.ts";
 import ShipManager from "../core/ships/manager.ts";
 import Ship from "../core/ships/ship.ts";
 import WeaponManager from "../core/weapons/manager.ts";
-// const SNAPSHOT_INTERVAL_MS = 1000 / 30;
 
 type PlayerUpdateData = {
   ship: {

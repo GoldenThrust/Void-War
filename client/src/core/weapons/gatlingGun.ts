@@ -18,7 +18,7 @@ export default class GatlingGun extends Projectile {
             damage: 10,
             range: 8000,
             fireRate: 1,
-            energyCost: 70,
+            energyCost: 4,
             ship: prop.ship,
             color: prop.color,
             img: assets?.images?.projectile,

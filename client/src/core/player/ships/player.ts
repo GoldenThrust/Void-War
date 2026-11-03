@@ -11,7 +11,7 @@ export let ship: PlayerShip;
 
 export default class PlayerShip extends Ship {
     constructor(prop: ShipC) {
-        super({ ...prop, img: assets?.images?.mainship, flameImg: assets?.images?.flame1, color: prop.color ?? "red", name: "Player", maxWeaponHeat: prop.maxWeaponHeat ?? 10000, controllable: true, life: 1000, vertices: shapes[0], weapon: PulseCanon, friend: true });
+        super({ ...prop, img: assets?.images?.mainship, flameImg: assets?.images?.flame1, color: prop.color ?? "red", name: "Player", maxWeaponHeat: prop.maxWeaponHeat ?? 1000, controllable: true, life: 10000, vertices: shapes[0], weapon: PulseCanon, friend: true });
 
         // this.audioPlayer = throtlePlayAudio(assets?.audios?.engine, this.audioGain);
 
@@ -32,7 +32,7 @@ export default class PlayerShip extends Ship {
         const spawnDistance = 200000;
         const spawnX = randomNum(x - spawnDistance, x + spawnDistance);
         const spawnY = randomNum(y - spawnDistance, y + spawnDistance);
-        ship = new PlayerShip({ x: spawnX, y: spawnY, angle, width: 50, height: 50, color: "#84d0ff", acceleration: 600, maxWeaponHeat: 10000  });
+        ship = new PlayerShip({ x: spawnX, y: spawnY, angle, width: 50, height: 50, color: "#84d0ff", acceleration: 600, maxWeaponHeat: 1000  });
         ShipManager.ships.set("player", ship)
     }
 }    

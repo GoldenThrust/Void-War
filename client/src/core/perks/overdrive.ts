@@ -16,6 +16,9 @@ export default class Overdrive extends Perk {
 
   colide(ship: Ship) {
     super.colide(ship);
+
+    if (!this.ship) return;
+
     this.previousAcceleration = ship.acceleration;
     this.previousSpeed = ship.speed;
     ship.acceleration *= 1.7;

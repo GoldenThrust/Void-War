@@ -17,7 +17,7 @@ export default class Bomber extends Ship {
       vertices: shapes[4],
       name: "Bomber Drone",
       maxWeaponHeat: 1800,
-      life: 240,
+      life: 2400,
       weapon: PlasmaCanon,
       img: assets?.images?.bombership,
       flameImg: assets?.images?.flame2,
