@@ -1,21 +1,12 @@
-import { ctx } from "../../world/canvas.ts";
+import { tranformVertices } from "../../utils/vertices.ts";
 import {
-
-  drawVerticesPath,
-  tranformVertices,
-} from "../../utils/vertices.ts";
-import {
-  drawWrapped,
   toroidalDirection,
   toroidalDistance,
   toroidalDelta,
-  worldToScreen,
   wrap,
 } from "../../world/utils.ts";
 import { world } from "../../world/world.ts";
-import Trail from "../prop/trail.ts";
 import { clamp, lerp } from "../../utils/math.ts";
-import { keys, orientation, touchDetected } from "../../events/keys.ts";
 import { DAMPSPEED, FIXED_DT } from "../../utils/constants.ts";
 
 import WeaponManager from "../../weapons/manager.ts";
@@ -24,8 +15,6 @@ import PulseCanon from "../../weapons/pulseCanon.ts";
 import Weapon from "../../weapons/weapon.ts";
 import { spatial } from "../../world/spatialHash.ts";
 import ShipManager from "./manager.ts";
-// import EngineSound from "../../assets/audio/engine.ts";
-// import AudioManager from "../../assets/audio/manager.ts";
 import { v4 as uuid } from "uuid";
 
 export default class Ship {
@@ -40,22 +29,18 @@ export default class Ship {
   public angle: number;
   public color: string;
   protected turnRate: number;
-  protected img;
-  protected flameImg;
   // protected dt;
   protected controllable;
   protected lastTime;
   public weapon;
   public killScore;
   protected vertices;
-  protected path2D;
   public life;
   protected fullLife;
   protected cooldown;
   protected heat;
   protected maxHeat;
   protected weaponState;
-  protected trail;
   protected speedFactor;
   public state;
   public friend;
@@ -68,7 +53,7 @@ export default class Ship {
   private threatScanTimer = 0;
   private currentThreat?: Threat;
   private static squadTargets = new Map<boolean, Ship>();
-  private hitIntervalID?: number;
+  private hitIntervalID?: ReturnType<typeof setInterval>;
   private prevColor: string = "white";
 
   constructor({
@@ -78,8 +63,6 @@ export default class Ship {
     width = 40,
     height = 40,
     angle,
-    img,
-    flameImg,
     weapon = PulseCanon,
     acceleration = 3500,
     life = 10000,
@@ -105,8 +88,6 @@ export default class Ship {
     this.name = name;
     this.friend = friend;
 
-    this.img = img;
-    this.flameImg = flameImg;
     // this.dt = FIXED_DT;
 
     this.controllable = controllable;
@@ -118,10 +99,6 @@ export default class Ship {
 
     this.vertices = vertices;
 
-    this.path2D = createVerticesPath(
-      tranformVertices(this.vertices, 0, 0, this.width, this.height, 0),
-    );
-
     this.life = life;
     this.fullLife = life;
 
@@ -130,12 +107,6 @@ export default class Ship {
     this.maxHeat = maxWeaponHeat;
     this.weaponState = "cool";
     // console.log(this.maxSpeed, this.acceleration, DAMPSPEED, FIXED_DT)
-    this.trail = new Trail(
-      Math.max(Math.ceil(this.maxSpeed / this.acceleration) * 5, 1),
-      "white",
-    );
-    // console.log("Trail created", this.trail.length)
-
     this.speedFactor = Math.sqrt(this.speed / (this.maxSpeed || 1));
     this.state = "idle";
     // this.engineSound = new EngineSound(this);
@@ -152,95 +123,6 @@ export default class Ship {
     return this.fullLife;
   }
 
-  render() {
-    ctx.translate(world.width / 2, world.height / 2);
-    this.trail.render();
-    ctx.translate(-world.width / 2, -world.height / 2);
-
-    drawWrapped({
-      fn: () => {
-        // draw lifej
-        const lifeRatio = clamp(this.life / this.fullLife, 0, 1);
-        const color = this.friend ? "#d2ff52" : "#ff526b";
-        const segments = 8;
-        const gap = 2;
-        const segmentWidth = (this.width - gap * (segments - 1)) / segments;
-
-        ctx.fillStyle = "rgba(10, 18, 22, 0.9)";
-        ctx.fillRect(-this.width / 2, -this.height - 5, this.width, 5);
-        for (let index = 0; index < segments; index++) {
-          const segmentStart = index / segments;
-          ctx.fillStyle =
-            segmentStart < lifeRatio ? color : "rgba(111, 128, 132, 0.25)";
-          ctx.fillRect(
-            -this.width / 2 + index * (segmentWidth + gap),
-            -this.height - 5,
-            segmentWidth,
-            3,
-          );
-        }
-        // ctx.save();
-        // ctx.globalAlpha = 0.35 + (1 - lifeRatio) * 0.25;
-        // ctx.strokeStyle = color;
-        // ctx.shadowColor = color;
-        // ctx.shadowBlur = 14;
-        // ctx.lineWidth = 1;
-        // ctx.beginPath();
-        // ctx.arc(0, 0, Math.max(this.width, this.height) * 0.67, 0, Math.PI * 2);
-        // ctx.stroke();
-        // ctx.restore();
-        ctx.rotate(-this.angle);
-
-        if (this.img && this.flameImg) {
-          ctx.shadowColor = this.friend ? "#d2ff52" : "#ff526b";
-          ctx.shadowBlur = 12;
-          if (this.speed > 50) {
-            ctx.globalAlpha = clamp(this.speed / 200, 0, 1);
-            ctx.drawImage(
-              this.flameImg,
-              -this.width / 2,
-              0,
-              this.width,
-              this.height,
-            );
-            ctx.globalAlpha = 1;
-          }
-          ctx.drawImage(
-            this.img,
-            -this.width / 2,
-            -this.height / 2,
-            this.width,
-            this.height,
-          );
-          ctx.shadowBlur = 0;
-        } else {
-          drawVerticesPath(this.path2D, this.color);
-        }
-
-        // ctx.save();
-        // ctx.rotate(-this.angle);
-        // ctx.globalAlpha = 0.7;
-        // ctx.strokeStyle = color;
-        // ctx.lineWidth = 1;
-        // ctx.shadowColor = color;
-        // ctx.shadowBlur = 8;
-        // ctx.beginPath();
-        // ctx.moveTo(0, -this.height * 0.46);
-        // ctx.lineTo(-this.width * 0.18, this.height * 0.1);
-        // ctx.moveTo(0, -this.height * 0.46);
-        // ctx.lineTo(this.width * 0.18, this.height * 0.1);
-        // ctx.stroke();
-        // ctx.restore();
-      },
-      x: this.x,
-      y: this.y,
-      margin: {
-        width: 200,
-        height: 200,
-      },
-    });
-  }
-
   update(_t: number, dt: number, thrust = 0, turn = 0) {
     this.lastDt = dt;
     let steering = turn;
@@ -251,40 +133,7 @@ export default class Ship {
       1,
     );
 
-    if (this.controllable) {
-      if (keys["ArrowLeft"] || orientation["beta"] < -0.01) {
-        // this.angle = wrap(this.angle + 0.01, Math.PI * 2);
-        steering = 1;
-      }
-
-      if (keys["ArrowRight"] || orientation["beta"] > 0.01) {
-        // this.angle = wrap(this.angle - 0.01, Math.PI * 2);
-        steering = -1;
-      }
-
-      if (keys["ArrowUp"] || orientation["gamma"] > -0.13) {
-        this.speed += this.acceleration * dt;
-      }
-
-      // console.log("Orientation:", orientation, "Keys:", keys, "Touch:", touchDetected);
-
-      if (keys["ArrowDown"] || orientation["gamma"] < -0.15) {
-        this.speed -= this.acceleration * dt;
-        this.speed = Math.max(this.speed, 0);
-      }
-
-      if (
-        keys[" "] ||
-        keys["Enter"] ||
-        keys["Space"] ||
-        touchDetected["touch"] ||
-        touchDetected["mouse"]
-      ) {
-        this.fire();
-      }
-      // console.log(
-      // orientation)
-    } else if (this.state !== "idle") {
+    if (this.controllable || this.state !== "idle") {
       this.speed += thrusting * this.acceleration * dt;
       this.speed = Math.max(this.speed, 0);
     } else {
@@ -308,8 +157,6 @@ export default class Ship {
       this.y - Math.cos(this.angle) * (this.speed * dt),
       world.height,
     );
-
-    this.trail.update(this.x, this.y, this.speed);
 
     // weapon update
     if (this.cooldown >= 0) {
@@ -377,11 +224,10 @@ export default class Ship {
   }
 
   getVertices() {
-    const world = worldToScreen(this.x, this.y);
     const vertices = tranformVertices(
-      this.vertices,
-      world.x,
-      world.y,
+      this.vertices!,
+      this.x,
+      this.y,
       this.width,
       this.height,
       this.angle,

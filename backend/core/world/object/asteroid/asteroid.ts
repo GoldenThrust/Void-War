@@ -1,9 +1,7 @@
 import { randomNum } from "../../../utils/random.ts";
 import { world } from "../../world.ts";
-import { worldToScreen, wrap } from "../../utils.ts";
-import {
-  tranformVertices,
-} from "../../../utils/vertices.ts";
+import { wrap } from "../../utils.ts";
+import { tranformVertices } from "../../../utils/vertices.ts";
 import { shapes } from "./shapes.ts";
 import { FIXED_DT, sizeOf } from "../../../utils/constants.ts";
 import { v4 as uuid } from "uuid";
@@ -62,7 +60,6 @@ export default class Asteroid {
     this.rotationSpeed = rotationSpeed;
     this.angle = angle;
     this.vertices = vertices;
-
   }
 
   static init() {
@@ -90,11 +87,10 @@ export default class Asteroid {
   }
 
   getVertices() {
-    const world = worldToScreen(this.x, this.y);
     const vertices = tranformVertices(
-      (this.vertices as Vertices),
-      world.x,
-      world.y,
+      this.vertices!,
+      this.x,
+      this.y,
       this.width,
       this.height,
       this.angle,

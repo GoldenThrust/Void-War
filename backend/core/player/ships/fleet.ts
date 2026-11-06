@@ -1,4 +1,3 @@
-import { assets } from "../../assets/main.ts";
 import PulseCanon from "../../weapons/pulseCanon.ts";
 import { shapes } from "./shapes.ts";
 import Ship from "./ship.ts";
@@ -22,8 +21,6 @@ export default class FleetDrone extends Ship {
       maxWeaponHeat: 900,
       life: 2000,
       weapon: PulseCanon,
-      img: assets?.images?.fleetship,
-      flameImg: assets?.images?.flame3,
       friend: prop.friend ?? false,
     });
     this.formationSlot = FleetDrone.nextFormationSlot.get(this.friend) ?? 0;
@@ -32,7 +29,7 @@ export default class FleetDrone extends Ship {
     this.fleeAcceleration = this.acceleration * 0.9;
   }
 
-  update(t: number, dt: number) {
+  override update(t: number, dt: number) {
     super.update(t, dt);
     const squadTarget = FleetDrone.getSquadTarget(this.friend);
     if (squadTarget) this.target = squadTarget;

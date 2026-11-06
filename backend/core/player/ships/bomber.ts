@@ -1,4 +1,3 @@
-import { assets } from "../../assets/main.ts";
 import PlasmaCanon from "../../weapons/plasmaCanon.ts";
 import { shapes } from "./shapes.ts";
 import Ship from "./ship.ts";
@@ -19,14 +18,12 @@ export default class Bomber extends Ship {
       maxWeaponHeat: 1800,
       life: 2400,
       weapon: PlasmaCanon,
-      img: assets?.images?.bombership,
-      flameImg: assets?.images?.flame2,
     });
     this.seekAcceleration = this.acceleration;
     this.fleeAcceleration = this.acceleration * 0.9;
   }
 
-  update(t: number, dt: number) {
+  override update(t: number, dt: number) {
     super.update(t, dt);
     this.tacticalUpdate({
       idealRange: 1800,

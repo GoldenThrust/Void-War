@@ -5,5 +5,5 @@ export default class OnlineShip extends Ship {
         super(prop);
     }
 
-    update(_t: number, _dt: number): void {}
+    override update(_t: number, _dt: number): void {}
 }

@@ -1,5 +1,4 @@
 
-import { assets } from "../assets/main.ts";
 import { randomNum } from "../utils/random.ts";
 import Projectile from "./projectile.ts";
 
@@ -21,11 +20,10 @@ export default class GatlingGun extends Projectile {
             energyCost: 5,
             ship: prop.ship,
             color: prop.color,
-            img: assets?.images?.projectile,
         });
     }
 
-    update(t: number, dt: number) {
+    override update(t: number, dt: number) {
         this.angle += randomNum(-0.005, 0.005)
         super.update(t, dt);
     }

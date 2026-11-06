@@ -1,4 +1,3 @@
-import { assets } from "../../assets/main.ts";
 import GatlingGun from "../../weapons/gatlingGun.ts";
 import { shapes } from "./shapes.ts";
 import Ship from "./ship.ts";
@@ -19,15 +18,13 @@ export default class Tormenter extends Ship {
       maxWeaponHeat: 1200,
       life: 1400,
       weapon: GatlingGun,
-      img: assets?.images?.tormentership,
-      flameImg: assets?.images?.flame6,
       friend: prop.friend ?? false,
     });
     this.seekAcceleration = this.acceleration;
     this.fleeAcceleration = this.acceleration * 0.9;
   }
 
-  update(t: number, dt: number) {
+  override update(t: number, dt: number) {
     super.update(t, dt);
     this.tacticalUpdate({
       idealRange: 950,

@@ -1,5 +1,3 @@
-import { worldToScreen } from "../world/utils.ts";
-
 export function tranformVertices(
   vertices: Vertices,
   cx: number,
@@ -30,25 +28,4 @@ export function tranformVertices(
   }
 
   return result;
-}
-
-export function getVertices(
-  vertices: Vertices,
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  angle: number,
-) {
-  const world = worldToScreen(x, y);
-  const transformedVertices = tranformVertices(
-    vertices,
-    world.x,
-    world.y,
-    width,
-    height,
-    angle,
-  );
-
-  return transformedVertices;
 }

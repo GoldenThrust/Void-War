@@ -1,7 +1,6 @@
 
 interface WeaponI {
 
-  render: () => void;
   destroy: () => void;
   getVertices: () => void;
   // static nearBy: (
@@ -43,6 +42,5 @@ type WeaponC = {
         y: number;
       }[];
   color?: string;
-  img?: HTMLImageElement;
   penetration?: number;
 };

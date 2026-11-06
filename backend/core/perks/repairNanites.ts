@@ -1,6 +1,6 @@
-import type Ship from "../player/ships/ship";
-import Perk from "./perk";
-import shapes from "./shapes";
+import type Ship from "../player/ships/ship.ts";
+import Perk from "./perk.ts";
+import shapes from "./shapes.ts";
 
 export default class RepairNanites extends Perk {
   constructor(prop: PerkC) {
@@ -11,7 +11,7 @@ export default class RepairNanites extends Perk {
     super(prop);
   }
 
-  colide(ship: Ship) {
+  override colide(ship: Ship) {
     super.colide(ship);
     ship.life = Math.min(ship.maxLife, ship.life + ship.maxLife * 0.35);
   }

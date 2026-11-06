@@ -1,17 +1,11 @@
 import { v4 as uuid } from "uuid";
-import shapes from "./shapes";
-import {
-
-  drawVerticesPath,
-  tranformVertices,
-} from "../utils/vertices";
-import { drawWrapped, worldToScreen } from "../world/utils";
-import { ctx } from "../world/canvas";
-import { spatial } from "../world/spatialHash";
-import Ship from "../player/ships/ship";
-import { isSeperatingAxes } from "../utils/collision";
-import { gameType } from "../main";
-import PerkManager from "./manager";
+import shapes from "./shapes.ts";
+import { tranformVertices } from "../utils/vertices.ts";
+import { spatial } from "../world/spatialHash.ts";
+import Ship from "../player/ships/ship.ts";
+import { isSeperatingAxes } from "../utils/collision.ts";
+import { gameType } from "../main.ts";
+import PerkManager from "./manager.ts";
 
 export default class Perk {
   public id: string;
@@ -23,7 +17,6 @@ export default class Perk {
   public height: number;
   public color: string;
   protected vertices;
-  private path2D;
   protected ship: Ship | null = null;
   private duration;
   private startTime?: number;
@@ -48,52 +41,20 @@ export default class Perk {
     this.width = width;
     this.height = height;
     this.color = color;
-    this.path2D = createVerticesPath(
-      tranformVertices(this.vertices, 0, 0, this.width, this.height, 0),
-    );
     this.duration = duration;
   }
 
   getVertices() {
-    const world = worldToScreen(this.x, this.y);
     const vertices = tranformVertices(
-      this.vertices,
-      world.x,
-      world.y,
+      this.vertices!,
+      this.x,
+      this.y,
       this.width,
       this.height,
       this.angle,
     );
 
     return vertices;
-  }
-
-  render() {
-    if (this.ship) return;
-    drawWrapped({
-      fn: () => {
-        const pulse = 0.75 + Math.sin(performance.now() * 0.004) * 0.25;
-        ctx.save();
-        ctx.rotate(-this.angle);
-        ctx.globalCompositeOperation = "lighter";
-        ctx.shadowColor = this.color;
-        ctx.shadowBlur = 18 * pulse;
-        ctx.globalAlpha = 0.3;
-        ctx.beginPath();
-        ctx.arc(0, 0, Math.max(this.width, this.height) * pulse, 0, Math.PI * 2);
-        ctx.fillStyle = this.color;
-        ctx.fill();
-        ctx.globalAlpha = 1;
-        drawVerticesPath(this.path2D, this.color);
-        ctx.strokeStyle = "#ffffff";
-        ctx.lineWidth = 1;
-        ctx.globalAlpha = 0.7;
-        ctx.stroke(this.path2D);
-        ctx.restore();
-      },
-      x: this.x,
-      y: this.y,
-    });
   }
 
   update(t: number) {

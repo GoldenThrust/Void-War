@@ -1,5 +1,4 @@
 
-import { assets } from "../assets/main.ts";
 import Projectile from "./projectile.ts";
 
 export default class HeavyRailGun extends Projectile {
@@ -21,7 +20,6 @@ export default class HeavyRailGun extends Projectile {
             penetration: 2,
             ship: prop.ship,
             color: prop.color,
-            img: assets?.images?.heavyrailgun
         });
     }
 

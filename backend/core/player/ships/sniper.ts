@@ -1,4 +1,3 @@
-import { assets } from "../../assets/main.ts";
 import HeavyRailGun from "../../weapons/heavyRailGun.ts";
 import { shapes } from "./shapes.ts";
 import Ship from "./ship.ts";
@@ -19,15 +18,13 @@ export default class Sniper extends Ship {
       maxWeaponHeat: 2200,
       life: 1800,
       weapon: HeavyRailGun,
-      img: assets?.images?.snipership,
-      flameImg: assets?.images?.flame1,
       friend: prop.friend ?? false,
     });
     this.seekAcceleration = this.acceleration;
     this.fleeAcceleration = this.acceleration * 0.9;
   }
 
-  update(t: number, dt: number) {
+  override update(t: number, dt: number) {
     super.update(t, dt);
     this.tacticalUpdate({
       idealRange: 14000,

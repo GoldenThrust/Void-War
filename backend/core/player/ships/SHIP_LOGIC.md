@@ -48,10 +48,9 @@ It sets:
 - Position and orientation: `x`, `y`, and `angle`.
 - Physical values: `speed`, `acceleration`, `width`, and `height`.
 - Identity: `name`, `color`, and `friend`.
-- Rendering assets and collision vertices.
+- Collision vertices.
 - The assigned weapon constructor.
 - Life, heat, cooldown, and weapon lockout state.
-- A speed-dependent trail.
 - Two acceleration values used by AI:
   - `seekAcceleration` for normal pursuit and positioning.
   - `fleeAcceleration` for emergency movement.
@@ -60,14 +59,6 @@ It sets:
 - The private squad-target map used by Fleet drones.
 
 The ship starts in the `idle` state. AI changes that state to `seek`, `orbit`, `flee`, or `evade`.
-
-## `render()`
-
-Draws the ship's engine trail, health bar, flame image, and ship image or fallback polygon.
-
-The health bar is green for friendly ships and red for enemy ships. Rendering uses `drawWrapped()` so a ship near a world boundary can still appear correctly on screen.
-
-This function does not make AI decisions.
 
 ## `update(_t, dt, thrust = 0, turn = 0)`
 
@@ -501,11 +492,7 @@ Each ship receives a random heading and faction flag.
 
 ## `destroy(ship)`
 
-Removes a ship from the active collection, marks it as dead, creates an explosion, and records it in `destroyedShips`.
-
-## `render()`
-
-Calls `render()` for every active ship.
+Removes a ship from the active collection and marks it as dead.
 
 ## `update(t, dt)`
 

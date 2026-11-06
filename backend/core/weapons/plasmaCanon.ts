@@ -1,5 +1,4 @@
 import Projectile from "./projectile.ts";
-import { assets } from "../assets/main.ts";
 
 export default class PlasmaCanon extends Projectile {
   constructor(prop: WeaponC) {
@@ -14,7 +13,6 @@ export default class PlasmaCanon extends Projectile {
       range: prop.range ?? 45000,
       fireRate: prop.fireRate ?? 0.1,
       energyCost: prop.energyCost ?? 50,
-      img: prop.img ?? assets?.images?.plasma,
     });
   }
 

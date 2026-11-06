@@ -1,4 +1,3 @@
-import { assets } from "../../assets/main.ts";
 import { shapes } from "./shapes.ts";
 import Ship from "./ship.ts";
 import HomingMissile from "../../weapons/homingMissile.ts";
@@ -19,15 +18,13 @@ export default class MissileLaucher extends Ship {
       maxWeaponHeat: 1800,
       life: 1700,
       weapon: HomingMissile,
-      img: assets?.images?.missilelauchership,
-      flameImg: assets?.images?.flame5,
       friend: prop.friend ?? false,
     });
     this.seekAcceleration = this.acceleration;
     this.fleeAcceleration = this.acceleration * 0.9;
   }
 
-  update(t: number, dt: number) {
+  override update(t: number, dt: number) {
     super.update(t, dt);
     this.tacticalUpdate({
       idealRange: 4200,

@@ -1,5 +1,4 @@
 
-import { assets } from "../../assets/main.ts";
 import { randomNum } from "../../utils/random.ts";
 import PulseCanon from "../../weapons/pulseCanon.ts";
 import ShipManager from "./manager.ts";
@@ -11,9 +10,7 @@ export let ship: PlayerShip;
 
 export default class PlayerShip extends Ship {
     constructor(prop: ShipC) {
-        super({ ...prop, img: assets?.images?.mainship, flameImg: assets?.images?.flame1, color: prop.color ?? "red", name: "Player", maxWeaponHeat: prop.maxWeaponHeat ?? 1000, controllable: true, life: 10000, vertices: shapes[0], weapon: PulseCanon, friend: true });
-
-        // this.audioPlayer = throtlePlayAudio(assets?.audios?.engine, this.audioGain);
+        super({ ...prop, color: prop.color ?? "red", name: "Player", maxWeaponHeat: prop.maxWeaponHeat ?? 1000, controllable: true, life: 10000, vertices: shapes[0], weapon: PulseCanon, friend: true });
 
         if (this.controllable === false)
             this.state = "idle";

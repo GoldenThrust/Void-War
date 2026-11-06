@@ -1,11 +1,9 @@
-import { assets } from "../assets/main.ts";
 import { gameType } from "../main.ts";
 import Ship from "../player/ships/ship.ts";
-import { drawWrapped, toroidalDistance } from "../world/utils.ts";
+import { toroidalDistance } from "../world/utils.ts";
 import { spatial } from "../world/spatialHash.ts";
 import { shapes } from "./shapes.ts";
 import Weapon from "./weapon.ts";
-import { ctx } from "../world/canvas.ts";
 
 export default class Mine extends Weapon {
   private duration: number;
@@ -31,7 +29,6 @@ export default class Mine extends Weapon {
       ship: prop.ship,
       color: prop.color,
       vertices: shapes[1],
-      img: assets?.images?.mine,
     });
 
     this.duration = 1000;
@@ -40,99 +37,7 @@ export default class Mine extends Weapon {
     this.explosionMaxRadius = 500;
   }
 
-  render() {
-    if (this.exploding) {
-      this.renderExplosion();
-    } else {
-      super.render();
-      this.renderArmedGlow();
-    }
-  }
-
-  private renderArmedGlow() {
-    const pulse = 0.5 + Math.sin(performance.now() * 0.006) * 0.5;
-
-    drawWrapped({
-      x: this.x,
-      y: this.y,
-      margin: { width: 120, height: 120 },
-      fn: () => {
-        const gradient = ctx.createRadialGradient(0, 0, 4, 0, 0, 48);
-        gradient.addColorStop(0, `rgba(255, 244, 180, ${0.28 + pulse * 0.2})`);
-        gradient.addColorStop(0.35, `rgba(255, 110, 40, ${0.14 + pulse * 0.1})`);
-        gradient.addColorStop(1, "rgba(255, 35, 20, 0)");
-
-        ctx.save();
-        ctx.globalCompositeOperation = "lighter";
-        ctx.fillStyle = gradient;
-        ctx.beginPath();
-        ctx.arc(0, 0, 48, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = `rgba(255, 185, 80, ${0.35 + pulse * 0.25})`;
-        ctx.lineWidth = 1.5;
-        ctx.setLineDash([3, 5]);
-        ctx.beginPath();
-        ctx.arc(0, 0, 30 + pulse * 5, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.restore();
-      },
-    });
-  }
-
-  private renderExplosion() {
-    const progress = this.explosionRadius / this.explosionMaxRadius;
-    const alpha = 1 - progress;
-
-    drawWrapped({
-      x: this.x,
-      y: this.y,
-      margin: { width: this.explosionMaxRadius, height: this.explosionMaxRadius },
-      fn: () => {
-        ctx.save();
-        ctx.globalCompositeOperation = "lighter";
-
-        const glow = ctx.createRadialGradient(
-          0,
-          0,
-          Math.max(2, this.explosionRadius * 0.12),
-          0,
-          0,
-          this.explosionRadius,
-        );
-        glow.addColorStop(0, `rgba(255, 255, 220, ${0.9 * alpha})`);
-        glow.addColorStop(0.18, `rgba(255, 180, 55, ${0.65 * alpha})`);
-        glow.addColorStop(0.72, `rgba(255, 55, 20, ${0.22 * alpha})`);
-        glow.addColorStop(1, "rgba(255, 20, 0, 0)");
-
-        ctx.fillStyle = glow;
-        ctx.beginPath();
-        ctx.arc(0, 0, this.explosionRadius, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.strokeStyle = `rgba(255, 235, 160, ${0.9 * alpha})`;
-        ctx.lineWidth = 3 + alpha * 3;
-        ctx.beginPath();
-        ctx.arc(0, 0, this.explosionRadius, 0, Math.PI * 2);
-        ctx.stroke();
-
-        ctx.strokeStyle = `rgba(255, 90, 30, ${0.55 * alpha})`;
-        ctx.lineWidth = 1.5;
-        for (let index = 0; index < 12; index++) {
-          const angle = (index / 12) * Math.PI * 2;
-          const inner = this.explosionRadius * 0.72;
-          const outer = this.explosionRadius * (0.95 + (index % 2) * 0.08);
-          ctx.beginPath();
-          ctx.moveTo(Math.cos(angle) * inner, Math.sin(angle) * inner);
-          ctx.lineTo(Math.cos(angle) * outer, Math.sin(angle) * outer);
-          ctx.stroke();
-        }
-
-        ctx.restore();
-      },
-    });
-  }
-
-  update() {
+  override update() {
     if (this.exploding) {
       this.explode();
     } else {
@@ -143,9 +48,16 @@ export default class Mine extends Weapon {
     }
   }
 
-  destroy() {
+  override destroy() {
     if (!this.active) return;
     this.exploding = true;
+  }
+
+  protected override onRecycle() {
+    this.duration = 1000;
+    this.explosionRadius = 0;
+    this.exploding = false;
+    this.damagedShips.clear();
   }
 
   checkExplosionCollision() {
@@ -184,7 +96,7 @@ export default class Mine extends Weapon {
     }
   }
 
-  colide() {
+  override colide() {
     this.explode();
   }
 }

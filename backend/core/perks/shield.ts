@@ -1,9 +1,8 @@
-import Weapon from "../weapons/weapon";
-import { ctx } from "../world/canvas";
-import { spatial } from "../world/spatialHash";
-import { drawWrapped, toroidalDistance } from "../world/utils";
-import Perk from "./perk";
-import shapes from "./shapes";
+import Weapon from "../weapons/weapon.ts";
+import { spatial } from "../world/spatialHash.ts";
+import { toroidalDistance } from "../world/utils.ts";
+import Perk from "./perk.ts";
+import shapes from "./shapes.ts";
 
 export default class Shield extends Perk {
   private radius = 300;
@@ -37,25 +36,7 @@ export default class Shield extends Perk {
     }
   }
 
-  render(): void {
-    if (this.ship) {
-      drawWrapped({
-        fn: () => {
-          ctx.fillStyle = "#ffffff10";
-          ctx.strokeStyle = this.color;
-          ctx.beginPath();
-          ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.stroke();
-        },
-        x: this.ship.x,
-        y: this.ship.y,
-      });
-    }
-    super.render();
-  }
-
-  update(t: number) {
+  override update(t: number) {
     super.update(t);
     this.checkWeaponColision();
   }

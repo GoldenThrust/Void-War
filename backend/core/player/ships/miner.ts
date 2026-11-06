@@ -1,4 +1,3 @@
-import { assets } from "../../assets/main.ts";
 import Mine from "../../weapons/mine.ts";
 import { wrap } from "../../world/utils.ts";
 import { world } from "../../world/world.ts";
@@ -21,15 +20,13 @@ export default class Miner extends Ship {
       maxWeaponHeat: 900,
       life: 2200,
       weapon: Mine,
-      img: assets?.images?.minership,
-      flameImg: assets?.images?.flame4,
       friend: prop.friend ?? false,
     });
     this.seekAcceleration = this.acceleration;
     this.fleeAcceleration = this.acceleration * 0.9;
   }
 
-  update(t: number, dt: number) {
+  override update(t: number, dt: number) {
     super.update(t, dt);
     const tactics = this.tacticalUpdate({
       idealRange: 1700,

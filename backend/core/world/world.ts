@@ -20,6 +20,7 @@ export default class World {
     this.ship = ship;
     this.angle = 0;
   }
+
   update() {
     if (!this.ship) return;
     this.x = wrap(
@@ -30,12 +31,11 @@ export default class World {
       this.y + toroidalDelta(this.y, this.ship.y, this.height) * 0.15,
       this.height,
     );
-
     this.angle = this.ship.angle;
   }
 
   zoom(f = 1) {
-    this.scale = this.scale * f;
+    this.scale *= f;
   }
 
   attach(obj: Ship) {

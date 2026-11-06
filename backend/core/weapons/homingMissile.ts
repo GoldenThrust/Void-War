@@ -3,7 +3,6 @@ import { toroidalDelta, toroidalDistance } from "../world/utils.ts";
 import { world } from "../world/world.ts";
 import PlasmaCanon from "./plasmaCanon.ts";
 import Asteroid from "../world/object/asteroid/asteroid.ts";
-import { assets } from "../assets/main.ts";
 import Ship from "../player/ships/ship.ts";
 import Weapon from "./weapon.ts";
 
@@ -27,11 +26,14 @@ export default class HomingMissile extends PlasmaCanon {
       energyCost: 200,
       ship: prop.ship,
       color: prop.color,
-      img: assets?.images?.homingmissile,
     });
 
     this.target = null;
     this.turnRate = 2;
+  }
+
+  protected override onRecycle() {
+    this.target = null;
   }
 
   trackEnemy(dt: number) {
@@ -49,12 +51,12 @@ export default class HomingMissile extends PlasmaCanon {
     this.angle += clamp(diff, -this.turnRate * dt, this.turnRate * dt);
   }
 
-  update(t: number, dt: number) {
+  override update(t: number, dt: number) {
     this.trackEnemy(dt);
     super.update(t, dt);
   }
 
-  closeObject(obj: any) {
+  override closeObject(obj: any) {
     if (
       obj instanceof Asteroid ||
       (obj instanceof Ship && obj.friend === this.ship.friend) ||

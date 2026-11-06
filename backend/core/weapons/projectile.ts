@@ -24,12 +24,11 @@ export default class Projectile extends Weapon {
       ship: prop.ship,
       vertices: prop.vertices ?? shapes[0],
       color: prop.color ?? "red",
-      img: prop.img,
       penetration: prop.penetration ?? 1,
     });
   }
 
-  update(_: number, dt: number) {
+  override update(_: number, dt: number) {
     this.speed += this.acceleration * dt;
 
     this.speed = Math.max(this.speed * DAMPSPEED, 0);

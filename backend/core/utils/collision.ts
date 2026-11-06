@@ -1,5 +1,4 @@
 
-// // import { ctx } from "../core/canvas.ts";
 
 type ShipProp = {
   x: number;
@@ -31,10 +30,6 @@ export function circleCollision(a: ShipProp, b: ShipProp) {
 //   const closestX = Math.max(box.x, Math.min(circle.x, box.x + box.w));
 //   const closestY = Math.max(box.y, Math.min(circle.y, box.y + box.h));
 
-//   // ctx.fillStyle = "gold";
-//   // ctx.beginPath();
-//   // ctx.arc(closestX, closestY, 5, 0, Math.PI * 2)
-//   // ctx.fill();
 
 //   const dx = circle.x - closestX;
 //   const dy = circle.y - closestY;
@@ -110,8 +105,8 @@ function getAxes(vertices: Vertices) {
   for (let i = 0; i < vertices.length; i++) {
     const next = (i + 1) % vertices.length;
     const edge = {
-      x: vertices[next].x - vertices[i].x,
-      y: vertices[next].y - vertices[i].y
+      x: vertices[next]!.x - vertices[i]!.x,
+      y: vertices[next]!.y - vertices[i]!.y
     };
 
     const length = Math.hypot(edge.x, edge.y);
@@ -152,4 +147,3 @@ export function isSeperatingAxes(poly1: Vertices, poly2: Vertices) {
     smallestAxis
   };
 }
-

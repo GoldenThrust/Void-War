@@ -1,5 +1,4 @@
 
-import { assets } from "../assets/main.ts";
 import Projectile from "./projectile.ts";
 
 export default class Minature extends Projectile {
@@ -20,7 +19,6 @@ export default class Minature extends Projectile {
             energyCost: 0,
             ship: prop.ship,
             color: prop.color,
-            img: assets?.images?.explosionflame
         });
     }
 }

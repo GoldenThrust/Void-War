@@ -12,8 +12,6 @@ type ShipC = {
     x: number;
     y: number;
   }[];
-  img?: HTMLImageElement;
-  flameImg?: HTMLImageElement;
   weapon?: typeof import("../core/weapons/weapon.ts").default;
   color?: string;
   controllable?: boolean;

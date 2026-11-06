@@ -8,15 +8,13 @@ class SpatialHash {
   public cols;
   public rows;
   public map;
+
   constructor(worldWidth: number, worldHeight: number, cellSize: number) {
     this.worldWidth = worldWidth;
     this.worldHeight = worldHeight;
-
     this.cellSize = cellSize;
-
     this.cols = Math.ceil(worldWidth / cellSize);
     this.rows = Math.ceil(worldHeight / cellSize);
-
     this.map = new Map<number, any[]>();
   }
 
@@ -37,57 +35,37 @@ class SpatialHash {
   }
 
   insert(obj: any) {
-    let cx = Math.floor(obj.x / this.cellSize);
-    let cy = Math.floor(obj.y / this.cellSize);
-
-    cx = this.wrapCellX(cx);
-    cy = this.wrapCellY(cy);
-
+    const cx = this.wrapCellX(Math.floor(obj.x / this.cellSize));
+    const cy = this.wrapCellY(Math.floor(obj.y / this.cellSize));
     const key = this.hash(cx, cy);
-
-    if (!this.map.has(key)) {
-      this.map.set(key, []);
-    }
-
-    this.map.get(key)!.push(obj);
+    const bucket = this.map.get(key) ?? [];
+    bucket.push(obj);
+    this.map.set(key, bucket);
   }
 
-  insertAll(...object: any) {
-    for (const elements of object) {
+  insertAll(...objects: any[]) {
+    for (const elements of objects) {
       for (const element of elements) {
-        if (element !== "Minature") {
-          this.insert(element);
-        }
+        if (element !== "Minature") this.insert(element);
       }
     }
   }
 
   query(x: number, y: number, radius = this.cellSize * 2) {
     const results: any[] = [];
-
     const minX = Math.floor((x - radius) / this.cellSize);
     const maxX = Math.floor((x + radius) / this.cellSize);
-
     const minY = Math.floor((y - radius) / this.cellSize);
     const maxY = Math.floor((y + radius) / this.cellSize);
 
     for (let cy = minY; cy <= maxY; cy++) {
       for (let cx = minX; cx <= maxX; cx++) {
-        const wrappedX = this.wrapCellX(cx);
-        const wrappedY = this.wrapCellY(cy);
-
-        const key = this.hash(wrappedX, wrappedY);
-
-        const bucket = this.map.get(key);
-
-        if (!bucket) continue;
-
-        for (const obj of bucket) {
-          results.push(obj);
-        }
+        const bucket = this.map.get(
+          this.hash(this.wrapCellX(cx), this.wrapCellY(cy)),
+        );
+        if (bucket) results.push(...bucket);
       }
     }
-
     return results;
   }
 }

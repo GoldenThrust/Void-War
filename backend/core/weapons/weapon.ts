@@ -6,16 +6,9 @@ import {
   FIXED_DT,
   WEAPON_FIRE_RATE_MULTIPLIER,
 } from "../utils/constants.ts";
-import {
-
-  drawVerticesPath,
-  tranformVertices,
-} from "../utils/vertices.ts";
-import { ctx } from "../world/canvas.ts";
+import { tranformVertices } from "../utils/vertices.ts";
 import Asteroid from "../world/object/asteroid/asteroid.ts";
 import { spatial } from "../world/spatialHash.ts";
-import { drawWrapped, worldToScreen } from "../world/utils.ts";
-import Explosion, { explosions } from "../player/prop/explosion.ts";
 import WeaponManager from "./manager.ts";
 
 import { shapes } from "./shapes.ts";
@@ -42,9 +35,12 @@ export default class Weapon implements WeaponI {
   public distanceTraveled: number;
 
   protected color: string;
-  protected img;
   protected vertices;
-  protected path2D;
+  private readonly speedBonus: number;
+  private readonly accelerationBonus: number;
+  private readonly initialDamage: number;
+  private readonly initialRange: number;
+  private readonly initialPenetration: number;
 
   constructor({
     id = uuid(),
@@ -64,7 +60,6 @@ export default class Weapon implements WeaponI {
     fireRate = 1,
     vertices = shapes[0],
     color = "rgb(122,0,0)",
-    img,
     penetration = 0,
   }: WeaponC) {
     const currentSheepAcceleration =
@@ -74,15 +69,18 @@ export default class Weapon implements WeaponI {
     this.type = type;
     this.acceleration = currentSheepAcceleration + acceleration;
     this.speed = ship.speed + speed;
+    this.speedBonus = speed;
+    this.accelerationBonus = acceleration;
     this.x = x;
     this.y = y;
     this.width = width;
     this.height = height;
     this.angle = angle;
     this.damage = damage;
-    this.img = img;
+    this.initialDamage = damage;
 
     this.range = range;
+    this.initialRange = range;
     this.fireRate = fireRate;
     this.energyCost = energyCost;
 
@@ -91,19 +89,9 @@ export default class Weapon implements WeaponI {
     this.color = color;
     this.ship = ship;
 
-    this.path2D = createVerticesPath(
-      tranformVertices(
-        this.vertices,
-        0,
-        -this.height / 2,
-        this.width,
-        this.height,
-        0,
-      ),
-    );
-
     this.active = true;
     this.penetration = penetration;
+    this.initialPenetration = penetration;
     this.distanceTraveled = 0;
 
     if (true) {
@@ -112,56 +100,41 @@ export default class Weapon implements WeaponI {
     }
   }
 
-  render() {
-    drawWrapped({
-      fn: () => {
-        const color = this.ship.friend ? "#54d9ff" : "#ff6938";
-        ctx.rotate(-this.angle);
-        ctx.save();
-        ctx.globalCompositeOperation = "lighter";
-        ctx.shadowColor = color;
-        ctx.shadowBlur = 16;
-        // ctx.shadowColor = this.color;
-        // ctx.shadowBlur = 10;
-        if (this.img) {
-          ctx.drawImage(
-            this.img,
-            -this.width / 2,
-            -this.height / 2,
-            this.width,
-            this.height,
-          );
-        } else {
-          drawVerticesPath(this.path2D, color);
-        }
-        ctx.globalAlpha = 0.7;
-        ctx.fillStyle = "#ffffff";
-        ctx.beginPath();
-        ctx.ellipse(0, -this.height * 0.46, this.width * 0.16, this.height * 0.28, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      },
-      x: this.x,
-      y: this.y,
-      margin: {
-        width: 200,
-        height: 200,
-      },
-    });
-  }
-
   destroy() {
     if (!this.active) return;
     this.active = false;
     WeaponManager.destroy(this);
   }
 
+  reactivate({ x, y, angle, ship, color }: WeaponC) {
+    const currentShipAcceleration =
+      (ship.maxSpeed * (1 - DAMPSPEED)) / (DAMPSPEED * FIXED_DT);
+
+    this.x = x;
+    this.y = y;
+    this.angle = angle;
+    this.ship = ship;
+    this.color = color ?? this.color;
+    this.acceleration = currentShipAcceleration + this.accelerationBonus;
+    this.speed = ship.speed + this.speedBonus;
+    this.damage = this.initialDamage;
+    this.range = this.initialRange;
+    this.penetration = this.initialPenetration;
+    this.distanceTraveled = 0;
+    this.active = true;
+    this.onRecycle();
+
+    ship.increaseHeat(this.energyCost);
+    ship.setCoolDown(1 / (this.fireRate * WEAPON_FIRE_RATE_MULTIPLIER));
+  }
+
+  protected onRecycle() {}
+
   getVertices() {
-    const world = worldToScreen(this.x, this.y);
     const vertices = tranformVertices(
-      this.vertices,
-      world.x,
-      world.y,
+      this.vertices!,
+      this.x,
+      this.y,
       this.width,
       this.height,
       this.angle,
@@ -206,16 +179,6 @@ export default class Weapon implements WeaponI {
          &&
         gameType === "offline"
       ) {
-        explosions.push(
-          new Explosion(
-            element.x,
-            element.y,
-            element instanceof Ship ? 34 : 24,
-            weapon.ship.friend ? "#54d9ff" : "#ff6938",
-            true,
-          ),
-        );
-
         if (element instanceof Ship) {
           element.hit(weapon.damage);
           if (element.life <= 0) {

@@ -1,5 +1,4 @@
 
-import { assets } from "../assets/main.ts";
 import Projectile from "./projectile.ts";
 
 export default class PulseCanon extends Projectile {
@@ -20,7 +19,6 @@ export default class PulseCanon extends Projectile {
             energyCost: 5,
             ship: prop.ship,
             color: prop.color,
-            img: assets?.images?.projectile
         });
     }
 }
