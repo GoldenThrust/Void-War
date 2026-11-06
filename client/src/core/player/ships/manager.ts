@@ -38,6 +38,7 @@ export default class ShipManager {
 
       const ship = new ShipManager.types[
         Math.floor(randomNum(0, this.types.length))
+        // 4
       ]!({ ...prop, friend: false });
 
       ShipManager.ships.set(ship.id, ship);
@@ -53,6 +54,7 @@ export default class ShipManager {
 
       const ship = new this.types[
         Math.floor(randomNum(0, this.types.length))
+        // 4
       ]!(
         { ...prop, friend: true },
       );
@@ -66,7 +68,14 @@ export default class ShipManager {
     ship.state = "dead";
     ShipManager.ships.delete(ship.id);
     // destroyedShips.push(ship);
-    explosions.push(new Explosion(ship.x, ship.y));
+    explosions.push(
+      new Explosion(
+        ship.x,
+        ship.y,
+        ship.friend ? 120 : 150,
+        ship.friend ? "#54d9ff" : "#ff526b",
+      ),
+    );
 
     if (ship.friend) --ShipManager.friendsAlive;
     else --ShipManager.enemiesAlive;

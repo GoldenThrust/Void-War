@@ -179,6 +179,16 @@ export default class Ship {
             3,
           );
         }
+        // ctx.save();
+        // ctx.globalAlpha = 0.35 + (1 - lifeRatio) * 0.25;
+        // ctx.strokeStyle = color;
+        // ctx.shadowColor = color;
+        // ctx.shadowBlur = 14;
+        // ctx.lineWidth = 1;
+        // ctx.beginPath();
+        // ctx.arc(0, 0, Math.max(this.width, this.height) * 0.67, 0, Math.PI * 2);
+        // ctx.stroke();
+        // ctx.restore();
         ctx.rotate(-this.angle);
 
         if (this.img && this.flameImg) {
@@ -206,6 +216,21 @@ export default class Ship {
         } else {
           drawVerticesPath(this.path2D, this.color);
         }
+
+        // ctx.save();
+        // ctx.rotate(-this.angle);
+        // ctx.globalAlpha = 0.7;
+        // ctx.strokeStyle = color;
+        // ctx.lineWidth = 1;
+        // ctx.shadowColor = color;
+        // ctx.shadowBlur = 8;
+        // ctx.beginPath();
+        // ctx.moveTo(0, -this.height * 0.46);
+        // ctx.lineTo(-this.width * 0.18, this.height * 0.1);
+        // ctx.moveTo(0, -this.height * 0.46);
+        // ctx.lineTo(this.width * 0.18, this.height * 0.1);
+        // ctx.stroke();
+        // ctx.restore();
       },
       x: this.x,
       y: this.y,
@@ -291,7 +316,7 @@ export default class Ship {
       this.cooldown -= dt * 1000;
     }
 
-    this.heat = clamp(this.heat - this.maxHeat * 0.003, 0, this.maxHeat * 2);
+    this.heat = clamp(this.heat - this.maxHeat * 0.001, 0, this.maxHeat * 2);
 
     if (this.weaponState === "cool" && this.heat >= this.maxHeat) {
       this.weaponState = "hot";

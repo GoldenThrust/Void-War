@@ -16,8 +16,8 @@ export default class PulseCanon extends Projectile {
             angle: prop.angle,
             damage: 30,
             range: 10000,
-            fireRate: 1,
-            energyCost: 3.5,
+            fireRate: 0.1,
+            energyCost: 5,
             ship: prop.ship,
             color: prop.color,
             img: assets?.images?.projectile

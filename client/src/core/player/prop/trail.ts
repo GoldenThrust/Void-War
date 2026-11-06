@@ -41,12 +41,18 @@ export default class Trail {
             ctx.beginPath();
             ctx.moveTo(adx, ady);
             ctx.lineTo(bdx, bdy);
-            ctx.strokeStyle = this.color;
+            const gradient = ctx.createLinearGradient(adx, ady, bdx, bdy);
+            gradient.addColorStop(0, "rgba(255,255,255,0)");
+            gradient.addColorStop(1, this.color);
+            ctx.strokeStyle = gradient;
 
             ctx.globalAlpha = t * 0.1;
-            ctx.lineWidth = t * 2;
+            ctx.shadowColor = this.color;
+            ctx.shadowBlur = t * 5;
+            ctx.lineWidth = t * 3;
             ctx.stroke();
             ctx.globalAlpha = 1;
+            ctx.shadowBlur = 0;
         }
     }
 }

@@ -39,10 +39,16 @@ class Star {
             fn: () => {
                 this.twinkle = wrap(this.twinkle + this.speed, Math.PI * 2);
                 const alpha = this.bright * (Math.sin(this.twinkle));
-        
+                const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, this.radius * 5);
+                glow.addColorStop(0, `rgba(180, 225, 255, ${Math.max(0.08, alpha * 0.45)})`);
+                glow.addColorStop(1, "rgba(80, 150, 255, 0)");
+                ctx.fillStyle = glow;
+                ctx.beginPath();
+                ctx.arc(0, 0, this.radius * 5, 0, Math.PI * 2);
+                ctx.fill();
                 ctx.beginPath();
                 ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(200,215,255, ${alpha})`;
+                ctx.fillStyle = `rgba(220,240,255, ${Math.max(0.12, alpha)})`;
                 ctx.fill();
             }, x: this.x, y: this.y
         })

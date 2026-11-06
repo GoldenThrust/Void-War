@@ -1,14 +1,22 @@
 
 // // import { ctx } from "../core/canvas.ts";
 
-// function circleCollision(a: ShipProp, b: ShipProp) {
-//   const dx = a.x - b.x;
-//   const dy = a.y - b.y;
-//   const dist = dx * dx + dy * dy;
-//   const sizeSq = a.r * a.r + b.r * b.r
+type ShipProp = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
 
-//   return dist < sizeSq;
-// }
+export function circleCollision(a: ShipProp, b: ShipProp) {
+  console.log("circleCollision", a.width, b.width);
+  const dx = a.x - b.x;
+  const dy = a.y - b.y;
+  const dist = dx * dx + dy * dy;
+  const sizeSq = a.width * a.width + b.width * b.width;
+
+  return dist < sizeSq;
+}
 
 // function boxCollision(a, b) {
 //   return (

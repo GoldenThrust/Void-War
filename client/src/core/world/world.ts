@@ -51,6 +51,33 @@ export default class World {
         horizon.addColorStop(1, "rgba(18, 96, 116, 0.08)");
         ctx.fillStyle = horizon;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // const grid = Math.max(48, canvas.width / 14);
+        // ctx.strokeStyle = "rgba(91, 157, 202, 0.045)";
+        // ctx.lineWidth = 1;
+        // ctx.beginPath();
+        // for (let x = 0; x < canvas.width; x += grid) {
+        //     ctx.moveTo(x, 0);
+        //     ctx.lineTo(x, canvas.height);
+        // }
+        // for (let y = 0; y < canvas.height; y += grid) {
+        //     ctx.moveTo(0, y);
+        //     ctx.lineTo(canvas.width, y);
+        // }
+        // ctx.stroke();
+
+        // const vignette = ctx.createRadialGradient(
+        //     canvas.width / 2,
+        //     canvas.height / 2,
+        //     Math.min(canvas.width, canvas.height) * 0.18,
+        //     canvas.width / 2,
+        //     canvas.height / 2,
+        //     Math.max(canvas.width, canvas.height) * 0.72,
+        // );
+        // vignette.addColorStop(0, "rgba(0, 0, 0, 0)");
+        // vignette.addColorStop(1, "rgba(0, 0, 0, 0.48)");
+        // ctx.fillStyle = vignette;
+        // ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.restore();
 
         ctx.translate((canvas.width - this.width) / 2, (canvas.height - this.height) / 2);

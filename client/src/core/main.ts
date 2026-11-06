@@ -67,7 +67,13 @@ let lastTime = performance.now();
 let timeAccumulator = 0;
 
 async function animate(t: number) {
+  if (gameType !== "online") {
   const deltaTime = clamp((t - lastTime) / 1000, 0, 1);
+
+  const dt = t - lastTime;
+  const fps = 1000 / dt;
+
+  console.log(fps.toFixed(1));
   lastTime = t;
 
   timeAccumulator += deltaTime;
@@ -85,27 +91,26 @@ async function animate(t: number) {
       spatial.insert(weapon);
     }
 
-    world.update();
 
-    WeaponManager.update(t, FIXED_DT);
-    if (gameType !== "online") {
+    world.update();
+      WeaponManager.update(t, FIXED_DT);
       ShipManager.update(t, FIXED_DT);
       // ship.update(t, FIXED_DT);
       // AudioManager.update(ship.x, ship.y, ship.angle);
 
       Asteroid.update();
       PerkManager.update(t);
-    } else {
-      ship.update(t, FIXED_DT);
-      websocket?.update();
+
+      timeAccumulator -= FIXED_DT;
+      simulationSteps++;
     }
 
-    timeAccumulator -= FIXED_DT;
-    simulationSteps++;
+    // Avoid a catch-up spiral after a slow frame or a blocked browser tab.
+    if (simulationSteps === maxSimulationSteps) timeAccumulator = 0;
+  } else {
+    ship.update(t, FIXED_DT);
+    websocket?.update();
   }
-
-  // Avoid a catch-up spiral after a slow frame or a blocked browser tab.
-  if (simulationSteps === maxSimulationSteps) timeAccumulator = 0;
 
   // console.log("Out loop");
 
@@ -132,7 +137,12 @@ async function animate(t: number) {
   // spatial.renderCellRadius(ship.x, ship.y, 600);
 
   // ctx.resetTransform();
-  
+
+  // ctx.beginPath();
+  // ctx.fillStyle = "white";
+  // ctx.font = "14px monospace";
+  // ctx.fillText(`FPS: ${fps.toFixed(1)}`, ship.x,ship.y - 50);
+  // ctx.fill();
 
   if (
     (ShipManager.friendsAlive > 0 &&
@@ -171,8 +181,7 @@ async function animate(t: number) {
     ctx.textAlign = "start";
   }
 }
-
-// if (AudioManager.ctx.state !== "running") {
+  // if (AudioManager.ctx.state !== "running") {
 //   AudioManager.ctx.resume();
 // }
 addEventListener(

@@ -106,7 +106,15 @@ export default class Asteroid {
     drawWrapped({
       fn: () => {
         ctx.rotate(-this.angle);
+        ctx.save();
+        ctx.shadowColor = "rgba(92, 176, 202, 0.45)";
+        ctx.shadowBlur = Math.max(8, this.width * 0.35);
         drawVerticesPath(this.path2D, "#65727a");
+        ctx.globalAlpha = 0.28;
+        ctx.strokeStyle = "#d6f1ee";
+        ctx.lineWidth = 0.7;
+        ctx.stroke(this.path2D);
+        ctx.restore();
       },
       x: this.x,
       y: this.y,

@@ -1,7 +1,11 @@
 import { gameType } from "../main.ts";
 import Ship from "../player/ships/ship.ts";
-import { isSeperatingAxes } from "../utils/collision.ts";
-import { DAMPSPEED, FIXED_DT } from "../utils/constants.ts";
+import { circleCollision, isSeperatingAxes } from "../utils/collision.ts";
+import {
+  DAMPSPEED,
+  FIXED_DT,
+  WEAPON_FIRE_RATE_MULTIPLIER,
+} from "../utils/constants.ts";
 import {
   createVerticesPath,
   drawVerticesPath,
@@ -11,6 +15,7 @@ import { ctx } from "../world/canvas.ts";
 import Asteroid from "../world/object/asteroid/asteroid.ts";
 import { spatial } from "../world/spatialHash.ts";
 import { drawWrapped, worldToScreen } from "../world/utils.ts";
+import Explosion, { explosions } from "../player/prop/explosion.ts";
 import WeaponManager from "./manager.ts";
 
 import { shapes } from "./shapes.ts";
@@ -103,16 +108,19 @@ export default class Weapon implements WeaponI {
 
     if (true) {
       ship.increaseHeat(this.energyCost);
-      ship.setCoolDown(1 / this.fireRate);
+      ship.setCoolDown(1 / (this.fireRate * WEAPON_FIRE_RATE_MULTIPLIER));
     }
   }
 
   render() {
     drawWrapped({
       fn: () => {
+        const color = this.ship.friend ? "#54d9ff" : "#ff6938";
         ctx.rotate(-this.angle);
-        ctx.shadowColor = this.ship.friend ? "#d2ff52" : "#ffb347";
-        ctx.shadowBlur = 10;
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 16;
         // ctx.shadowColor = this.color;
         // ctx.shadowBlur = 10;
         if (this.img) {
@@ -124,9 +132,14 @@ export default class Weapon implements WeaponI {
             this.height,
           );
         } else {
-          drawVerticesPath(this.path2D, this.ship.friend ? "green" : "yellow");
+          drawVerticesPath(this.path2D, color);
         }
-        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 0.7;
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.ellipse(0, -this.height * 0.46, this.width * 0.16, this.height * 0.28, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
       },
       x: this.x,
       y: this.y,
@@ -188,9 +201,21 @@ export default class Weapon implements WeaponI {
 
       weapon.closeObject(element);
       if (
-        isSeperatingAxes(element.getVertices(), vertices).collision &&
+        isSeperatingAxes(element.getVertices(), vertices).collision
+        // circleCollision(this as any, element)
+         &&
         gameType === "offline"
       ) {
+        explosions.push(
+          new Explosion(
+            element.x,
+            element.y,
+            element instanceof Ship ? 34 : 24,
+            weapon.ship.friend ? "#54d9ff" : "#ff6938",
+            true,
+          ),
+        );
+
         if (element instanceof Ship) {
           element.hit(weapon.damage);
           if (element.life <= 0) {

@@ -72,8 +72,24 @@ export default class Perk {
     if (this.ship) return;
     drawWrapped({
       fn: () => {
+        const pulse = 0.75 + Math.sin(performance.now() * 0.004) * 0.25;
+        ctx.save();
         ctx.rotate(-this.angle);
+        ctx.globalCompositeOperation = "lighter";
+        ctx.shadowColor = this.color;
+        ctx.shadowBlur = 18 * pulse;
+        ctx.globalAlpha = 0.3;
+        ctx.beginPath();
+        ctx.arc(0, 0, Math.max(this.width, this.height) * pulse, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        ctx.globalAlpha = 1;
         drawVerticesPath(this.path2D, this.color);
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 1;
+        ctx.globalAlpha = 0.7;
+        ctx.stroke(this.path2D);
+        ctx.restore();
       },
       x: this.x,
       y: this.y,
