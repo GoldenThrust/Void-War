@@ -148,6 +148,13 @@ export default class Mine extends Weapon {
     this.exploding = true;
   }
 
+  protected onRecycle() {
+    this.duration = 1000;
+    this.explosionRadius = 0;
+    this.exploding = false;
+    this.damagedShips.clear();
+  }
+
   checkExplosionCollision() {
     if (gameType !== "offline") return;
 

@@ -15,7 +15,7 @@ import { ctx } from "../world/canvas.ts";
 import Asteroid from "../world/object/asteroid/asteroid.ts";
 import { spatial } from "../world/spatialHash.ts";
 import { drawWrapped, worldToScreen } from "../world/utils.ts";
-import Explosion, { explosions } from "../player/prop/explosion.ts";
+import Explosion from "../player/prop/explosion.ts";
 import WeaponManager from "./manager.ts";
 
 import { shapes } from "./shapes.ts";
@@ -45,6 +45,11 @@ export default class Weapon implements WeaponI {
   protected img;
   protected vertices;
   protected path2D;
+  private readonly speedBonus: number;
+  private readonly accelerationBonus: number;
+  private readonly initialDamage: number;
+  private readonly initialRange: number;
+  private readonly initialPenetration: number;
 
   constructor({
     id = uuid(),
@@ -74,15 +79,19 @@ export default class Weapon implements WeaponI {
     this.type = type;
     this.acceleration = currentSheepAcceleration + acceleration;
     this.speed = ship.speed + speed;
+    this.speedBonus = speed;
+    this.accelerationBonus = acceleration;
     this.x = x;
     this.y = y;
     this.width = width;
     this.height = height;
     this.angle = angle;
     this.damage = damage;
+    this.initialDamage = damage;
     this.img = img;
 
     this.range = range;
+    this.initialRange = range;
     this.fireRate = fireRate;
     this.energyCost = energyCost;
 
@@ -104,6 +113,7 @@ export default class Weapon implements WeaponI {
 
     this.active = true;
     this.penetration = penetration;
+    this.initialPenetration = penetration;
     this.distanceTraveled = 0;
 
     if (true) {
@@ -156,6 +166,30 @@ export default class Weapon implements WeaponI {
     WeaponManager.destroy(this);
   }
 
+  reactivate({ x, y, angle, ship, color }: WeaponC) {
+    const currentShipAcceleration =
+      (ship.maxSpeed * (1 - DAMPSPEED)) / (DAMPSPEED * FIXED_DT);
+
+    this.x = x;
+    this.y = y;
+    this.angle = angle;
+    this.ship = ship;
+    this.color = color ?? this.color;
+    this.acceleration = currentShipAcceleration + this.accelerationBonus;
+    this.speed = ship.speed + this.speedBonus;
+    this.damage = this.initialDamage;
+    this.range = this.initialRange;
+    this.penetration = this.initialPenetration;
+    this.distanceTraveled = 0;
+    this.active = true;
+    this.onRecycle();
+
+    ship.increaseHeat(this.energyCost);
+    ship.setCoolDown(1 / (this.fireRate * WEAPON_FIRE_RATE_MULTIPLIER));
+  }
+
+  protected onRecycle() {}
+
   getVertices() {
     const world = worldToScreen(this.x, this.y);
     const vertices = tranformVertices(
@@ -206,14 +240,12 @@ export default class Weapon implements WeaponI {
          &&
         gameType === "offline"
       ) {
-        explosions.push(
-          new Explosion(
-            element.x,
-            element.y,
-            element instanceof Ship ? 34 : 24,
-            weapon.ship.friend ? "#54d9ff" : "#ff6938",
-            true,
-          ),
+        Explosion.acquire(
+          element.x,
+          element.y,
+          element instanceof Ship ? 34 : 24,
+          weapon.ship.friend ? "#54d9ff" : "#ff6938",
+          true,
         );
 
         if (element instanceof Ship) {

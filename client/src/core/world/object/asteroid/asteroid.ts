@@ -3,7 +3,7 @@ import { world } from "../../world.ts";
 import { ctx } from "../../canvas.ts";
 import { drawWrapped, worldToScreen, wrap } from "../../utils.ts";
 import {
-
+  createVerticesPath,
   drawVerticesPath,
   tranformVertices,
 } from "../../../utils/vertices.ts";
@@ -34,7 +34,16 @@ export default class Asteroid {
     this.rotationSpeed = randomNum(-0.001, 0.001);
     this.angle = randomNum(-Math.PI, Math.PI);
     this.vertices = shapes[Math.floor(Math.random() * shapes.length)];
-
+    this.path2D = createVerticesPath(
+      tranformVertices(
+        this.vertices,
+        0,
+        0,
+        this.width,
+        this.height,
+        this.angle,
+      ),
+    );
   }
 
   init({
@@ -67,7 +76,16 @@ export default class Asteroid {
     this.rotationSpeed = rotationSpeed;
     this.angle = angle;
     this.vertices = vertices;
-
+    this.path2D = createVerticesPath(
+      tranformVertices(
+        this.vertices,
+        0,
+        0,
+        this.width,
+        this.height,
+        this.angle,
+      ),
+    );
   }
 
   static init() {

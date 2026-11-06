@@ -23,9 +23,16 @@ export default class WeaponManager {
   ];
 
   static weapons: Map<string, Weapon> = new Map();
+  private static readonly pools = new Map<Function, Weapon[]>();
+  private static readonly maxPoolSize = 128;
 
   static fire(weapon: typeof Weapon, options: WeaponC) {
-    const newWeapon = new weapon(options);
+    const pool = WeaponManager.pools.get(weapon);
+    const pooledWeapon = pool?.pop();
+    const newWeapon = pooledWeapon ?? new weapon(options);
+    if (pooledWeapon) {
+      newWeapon.reactivate(options);
+    }
     WeaponManager.weapons.set(newWeapon.id, newWeapon);
   }
 
@@ -50,7 +57,14 @@ export default class WeaponManager {
   }
 
   static destroy(weapon: Weapon) {
-    WeaponManager.weapons.delete(weapon.id);
+    if (!WeaponManager.weapons.delete(weapon.id)) return;
+
+    const type = weapon.constructor;
+    const pool = WeaponManager.pools.get(type) ?? [];
+    if (pool.length < WeaponManager.maxPoolSize) {
+      pool.push(weapon);
+      WeaponManager.pools.set(type, pool);
+    }
   }
 
   #addKeybinds() {
@@ -98,5 +112,4 @@ export default class WeaponManager {
   }
 }
 
-// Todo: createWeapon pool
 export const weaponManager = new WeaponManager();

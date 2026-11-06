@@ -1,7 +1,7 @@
 import { sizeOf } from "../../utils/constants.ts";
 import { randomNum } from "../../utils/random.ts";
 import { world } from "../../world/world.ts";
-import Explosion, { explosions } from "../prop/explosion.ts";
+import Explosion from "../prop/explosion.ts";
 import  "./ship.ts";
 import Bomber from "./bomber.ts";
 import FleetDrone from "./fleet.ts";
@@ -68,13 +68,11 @@ export default class ShipManager {
     ship.state = "dead";
     ShipManager.ships.delete(ship.id);
     // destroyedShips.push(ship);
-    explosions.push(
-      new Explosion(
-        ship.x,
-        ship.y,
-        ship.friend ? 120 : 150,
-        ship.friend ? "#54d9ff" : "#ff526b",
-      ),
+    Explosion.acquire(
+      ship.x,
+      ship.y,
+      ship.friend ? 120 : 150,
+      ship.friend ? "#54d9ff" : "#ff526b",
     );
 
     if (ship.friend) --ShipManager.friendsAlive;

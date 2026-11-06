@@ -4,21 +4,51 @@ import { drawWrapped, wrap } from "../../world/utils.ts";
 import { world } from "../../world/world.ts";
 
 export default class Explosion {
-    private particles: { x: number; y: number; vx: number; vy: number; radius: number; life: number; }[];
-    private life: number;
-    private readonly maxLife: number;
-    private readonly color: string;
-    private readonly impact: boolean;
-    private readonly x: number;
-    private readonly y: number;
+    private static readonly pool: Explosion[] = [];
+    private static readonly maxParticles = 84;
+    private static readonly maxPoolSize = 64;
+    private particles: { x: number; y: number; vx: number; vy: number; radius: number; life: number; }[] = [];
+    private particleCount = 0;
+    private life = 0;
+    private maxLife = 0;
+    private color = "#ff6938";
+    private impact = false;
+    private x = 0;
+    private y = 0;
     private radius = 0;
 
-    constructor(
+    private constructor() {
+        for (let index = 0; index < Explosion.maxParticles; index++) {
+            this.particles.push({
+                x: 0,
+                y: 0,
+                vx: 0,
+                vy: 0,
+                radius: 0,
+                life: 0,
+            });
+        }
+    }
+
+    static acquire(
         x: number,
         y: number,
         intensity = 500,
         color = "#ff6938",
         impact = false,
+    ) {
+        const explosion = this.pool.pop() ?? new Explosion();
+        explosion.reset(x, y, intensity, color, impact);
+        explosions.push(explosion);
+        return explosion;
+    }
+
+    private reset(
+        x: number,
+        y: number,
+        intensity: number,
+        color: string,
+        impact: boolean,
     ) {
         this.x = x;
         this.y = y;
@@ -26,14 +56,19 @@ export default class Explosion {
         this.impact = impact;
         this.maxLife = impact ? 18 : 50;
         this.life = this.maxLife;
-        this.particles = Array.from(new Array(Math.ceil(intensity / 6))).map(() => ({
-            x,
-            y,
-            vx: randomNum(-intensity, intensity) / 10,
-            vy: randomNum(-intensity, intensity) / 10,
-            radius: randomNum(0.8, impact ? 2.8 : 4),
-            life: randomNum(0.65, 1),
-        }));
+        this.particleCount = Math.min(
+            Math.ceil(intensity / 6),
+            Explosion.maxParticles,
+        );
+        for (let index = 0; index < this.particleCount; index++) {
+            const particle = this.particles[index];
+            particle.x = x;
+            particle.y = y;
+            particle.vx = randomNum(-intensity, intensity) / 10;
+            particle.vy = randomNum(-intensity, intensity) / 10;
+            particle.radius = randomNum(0.8, impact ? 2.8 : 4);
+            particle.life = randomNum(0.65, 1);
+        }
     }
 
     render() {
@@ -66,7 +101,8 @@ export default class Explosion {
             },
         });
 
-        for (const p of this.particles) {
+        for (let index = 0; index < this.particleCount; index++) {
+            const p = this.particles[index];
             drawWrapped({
                 fn: () => {
                     ctx.save();
@@ -95,6 +131,11 @@ export default class Explosion {
         const index = explosions.indexOf(this);
         if (index > -1) {
             explosions.splice(index, 1);
+            this.life = 0;
+            this.particleCount = 0;
+            if (Explosion.pool.length < Explosion.maxPoolSize) {
+                Explosion.pool.push(this);
+            }
         }
     }
 }

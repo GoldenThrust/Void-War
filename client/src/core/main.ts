@@ -123,8 +123,8 @@ async function animate(t: number) {
 
   Asteroid.render();
 
-  for (const exp of explosions) {
-    exp.render();
+  for (let index = explosions.length - 1; index >= 0; index--) {
+    explosions[index].render();
   }
 
   minimap.render();

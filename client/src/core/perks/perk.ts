@@ -2,6 +2,7 @@ import { v4 as uuid } from "uuid";
 import shapes from "./shapes";
 import {
 
+  createVerticesPath,
   drawVerticesPath,
   tranformVertices,
 } from "../utils/vertices";

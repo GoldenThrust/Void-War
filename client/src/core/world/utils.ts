@@ -1,5 +1,6 @@
 
 import { world } from "./world.ts";
+import { canvas, ctx } from "./canvas.ts";
 import { clamp } from "../utils/math.ts";
 
 type World = { x: number; y: number; width: number; height: number; }

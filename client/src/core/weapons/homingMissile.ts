@@ -34,6 +34,10 @@ export default class HomingMissile extends PlasmaCanon {
     this.turnRate = 2;
   }
 
+  protected onRecycle() {
+    this.target = null;
+  }
+
   trackEnemy(dt: number) {
     if (!this.target || this.target.state === "dead" || this.target.life <= 0)
       return;

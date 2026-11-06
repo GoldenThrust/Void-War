@@ -55,6 +55,7 @@
     "socket.io": "^4.8.4",
     "superjson": "^2.2.6",
     "uuid": "^14.0.2",
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.70.0",
     "zod": "^4.6.5"
   },
   "devDependencies": {
