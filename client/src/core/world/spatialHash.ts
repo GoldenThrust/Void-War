@@ -1,4 +1,4 @@
-import { ctx } from "./canvas.ts";
+
 import { worldToScreen, wrap } from "./utils.ts";
 import { world } from "./world.ts";
 

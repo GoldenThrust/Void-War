@@ -3,10 +3,10 @@ type ShipC = {
   name?: string;
   x: number;
   y: number;
-  width: number;
-  height: number;
-  acceleration: number;
   angle: number;
+  width?: number;
+  height?: number;
+  acceleration?: number;
   life?: number;
   vertices?: {
     x: number;
@@ -14,7 +14,7 @@ type ShipC = {
   }[];
   img?: HTMLImageElement;
   flameImg?: HTMLImageElement;
-  weapon?: typeof Weapon;
+  weapon?: typeof import("../core/weapons/weapon.ts").default;
   color?: string;
   controllable?: boolean;
   maxWeaponHeat?: number;

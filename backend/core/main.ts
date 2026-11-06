@@ -1,158 +1,77 @@
-import Asteroid from "./world/object/asteroid/asteroid.ts";
-import ShipManager from "./ships/manager.ts";
+import { world } from "./world/world.ts";
 import WeaponManager from "./weapons/manager.ts";
-import Minature from "./weapons/minature.ts";
-import { FIXED_DT, worldSize } from "./utils/constants.ts";
+
+import Asteroid from "./world/object/asteroid/asteroid.ts";
+import { clamp } from "./utils/math.ts";
+
+import PlayerShip, { ship } from "./player/ships/player.ts";
+import ShipManager from "./player/ships/manager.ts";
+
 import { spatial } from "./world/spatialHash.ts";
+import Minature from "./weapons/minature.ts";
+import { FIXED_DT } from "./utils/constants.ts";
+
 import PerkManager from "./perks/manager.ts";
 
-let initialized = false;
+let initPromise: Promise<void> | undefined;
 
-export function initialize() {
-  if (initialized) return;
+export function init() {
+  if (!initPromise) {
+    initPromise = initialize();
+  }
+
+  return initPromise;
+}
+
+async function initialize() {
+  await import("./world/manager.js");
 
   Asteroid.init();
   ShipManager.init();
   PerkManager.spawn();
-  initialized = true;
+  PlayerShip.spawn(world.x, world.y);
+
+  world.attach(ship);
 }
 
-export function step(t = performance.now(), dt = FIXED_DT) {
-  initialize();
+export let attachWorld = -1;
+let lastTime = performance.now();
+let timeAccumulator = 0;
 
-  spatial.clear();
-  spatial.insertAll(ShipManager.ships.values(), Asteroid.asteroids.values());
+export async function animate(t: number) {
+  const deltaTime = clamp((t - lastTime) / 1000, 0, 1);
 
-  for (const weapon of WeaponManager.weapons.values()) {
-    if (weapon instanceof Minature) continue;
-    spatial.insert(weapon);
+  const dt = t - lastTime;
+  const fps = 1000 / dt;
+
+  lastTime = t;
+
+  timeAccumulator += deltaTime;
+  let simulationSteps = 0;
+  const maxSimulationSteps = 8;
+  while (timeAccumulator >= FIXED_DT && simulationSteps < maxSimulationSteps) {
+    spatial.clear();
+    spatial.insertAll(ShipManager.ships.values(), Asteroid.asteroids.values());
+
+    for (const weapon of WeaponManager.weapons.values()) {
+      if (weapon instanceof Minature) continue;
+      spatial.insert(weapon);
+    }
+
+    world.update();
+    WeaponManager.update(t, FIXED_DT);
+    ShipManager.update(t, FIXED_DT);
+
+    Asteroid.update();
+    PerkManager.update(t);
+
+    timeAccumulator -= FIXED_DT;
+    simulationSteps++;
   }
 
-  WeaponManager.update(t, dt);
-  ShipManager.update(t, dt);
-  for (const asteroid of Asteroid.asteroids.values()) {
-    asteroid.update(dt);
-  }
-  PerkManager.update(t);
-}
+  if (simulationSteps === maxSimulationSteps) timeAccumulator = 0;
 
-export function initSnapShot() {
-  return {
-    worldSize: {
-      width: worldSize.width,
-      height: worldSize.height,
-    },
-    ships: Array.from(ShipManager.ships.values(), (ship) => ({
-      id: ship.id,
-      name: ship.name,
-      x: ship.x,
-      y: ship.y,
-      angle: ship.angle,
-      speed: ship.speed,
-      life: ship.life,
-      friend: ship.friend,
-      vertices: ship.vertices,
-      width: ship.width,
-      height: ship.height,
-      color: ship.color,
-    })),
-    weapons: Array.from(WeaponManager.weapons.values(), (weapon) => ({
-      id: weapon.id,
-      name: weapon.name,
-      type: weapon.type,
-      x: weapon.x,
-      y: weapon.y,
-      angle: weapon.angle,
-      width: weapon.width,
-      height: weapon.height,
-      vertices: weapon.vertices,
-      color: weapon.color,
-      penetration: weapon.penetration,
-      ship: weapon.ship.id,
-      acceleration: weapon.acceleration,
-      speed: weapon.speed,
-      damage: weapon.damage,
-      range: weapon.range,
-      fireRate: weapon.fireRate,
-      energyCost: weapon.energyCost,
-    })),
-    asteroids: Array.from(Asteroid.asteroids.values(), (asteroid) => ({
-      id: asteroid.id,
-      x: asteroid.x,
-      y: asteroid.y,
-      angle: asteroid.angle,
-      vertices: asteroid.vertices,
-      width: asteroid.width,
-      height: asteroid.height,
-      speed: asteroid.speed,
-      rotationSpeed: asteroid.rotationSpeed,
-    })),
-    perks: Array.from(PerkManager.perks.values(), (perk) => ({
-      id: perk.id,
-      name: perk.name,
-      x: perk.x,
-      y: perk.y,
-      angle: perk.angle,
-      width: perk.width,
-      height: perk.height,
-      duration: perk.duration,
-      color: perk.color,
-      vertices: perk.vertices,
-      collectedBy: perk.getShip()?.id ?? null,
-    })),
-    counts: {
-      friendsAlive: ShipManager.friendsAlive,
-      enemiesAlive: ShipManager.enemiesAlive,
-    },
-    time: performance.now(),
-  };
-}
-
-export function updateSnapShot() {
-  return {
-    ships: Array.from(ShipManager.ships.values(), (ship) => ({
-      id: ship.id,
-      x: ship.x,
-      y: ship.y,
-      angle: ship.angle,
-      life: ship.life,
-    })),
-    weapons: Array.from(WeaponManager.weapons.values(), (weapon) => ({
-      id: weapon.id,
-      name: weapon.name,
-      type: weapon.type,
-      x: weapon.x,
-      y: weapon.y,
-      angle: weapon.angle,
-      ship: weapon.ship.id,
-      width: weapon.width,
-      height: weapon.height,
-      acceleration: weapon.acceleration,
-      speed: weapon.speed,
-      damage: weapon.damage,
-      range: weapon.range,
-      fireRate: weapon.fireRate,
-      energyCost: weapon.energyCost,
-      penetration: weapon.penetration,
-      distanceTraveled: weapon.distanceTraveled,
-      active: weapon.active,
-    })),
-    asteroids: Array.from(Asteroid.asteroids.values(), (asteroid) => ({
-      id: asteroid.id,
-      x: asteroid.x,
-      y: asteroid.y,
-      angle: asteroid.angle,
-    })),
-    perks: Array.from(PerkManager.perks.values(), (perk) => ({
-      id: perk.id,
-      x: perk.x,
-      y: perk.y,
-      angle: perk.angle,
-    })),
-    counts: {
-      friendsAlive: ShipManager.friendsAlive,
-      enemiesAlive: ShipManager.enemiesAlive,
-    },
-    time: performance.now(),
-  };
+  console.log(
+    `FPS: ${fps.toFixed(1)} | Simulation Steps: ${simulationSteps} | Time Accumulator: ${timeAccumulator.toFixed(3)}`,
+  );
 }

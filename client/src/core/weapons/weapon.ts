@@ -1,6 +1,6 @@
 import { gameType } from "../main.ts";
 import Ship from "../player/ships/ship.ts";
-import { circleCollision, isSeperatingAxes } from "../utils/collision.ts";
+import { isSeperatingAxes } from "../utils/collision.ts";
 import {
   DAMPSPEED,
   FIXED_DT,

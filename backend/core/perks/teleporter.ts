@@ -1,17 +1,21 @@
-import { randomNum } from "../utils/random.ts";
-import { world } from "../world/world.ts";
-import Ship from "../ships/ship.ts";
-import Perk from "./perk.ts";
-import shapes from "./shapes.ts";
+import type Ship from "../player/ships/ship";
+import { randomNum } from "../utils/random";
+import { world } from "../world/world";
+import Perk from "./perk";
+import shapes from "./shapes";
 
 export default class Teleporter extends Perk {
-  constructor(prop: PerkC) {
-    super({ ...prop, name: "Teleporter", vertices: shapes[2]! });
+  constructor(prop: SuperDashC) {
+    prop.name = "Teleporter";
+    prop.vertices = shapes[2];
+    prop.color = "#ffb347";
+    super(prop as PerkC);
   }
 
-  protected override colide(ship: Ship) {
+  colide(ship: Ship): void {
     super.colide(ship);
     ship.x = randomNum(0, world.width);
     ship.y = randomNum(0, world.height);
+    ship.angle = randomNum(-Math.PI * 2, Math.PI * 2);
   }
 }

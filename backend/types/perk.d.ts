@@ -1,4 +1,5 @@
 type PerkC = {
+  id?: string;
   name?: string;
   x: number;
   y: number;
@@ -11,7 +12,6 @@ type PerkC = {
     y: number;
   }[];
   duration?: number;
-  multiplier?: number;
 };
 
 type SuperDashC = PerkC & {

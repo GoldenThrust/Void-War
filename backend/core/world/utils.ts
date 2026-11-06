@@ -48,4 +48,3 @@ export function worldToScreen(wx: number, wy: number, space: World = world) {
         y: dy + space.height / 2
     }
 }
-

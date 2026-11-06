@@ -1,24 +1,30 @@
-import Ship from "../ships/ship.ts";
-import Perk from "./perk.ts";
-import shapes from "./shapes.ts";
+import type Ship from "../player/ships/ship";
+import Perk from "./perk";
+import shapes from "./shapes";
 
 export default class SuperDash extends Perk {
-  private previousSpeed = 0;
-  private multiplier: number;
-
-  constructor(prop: PerkC) {
-    super({ ...prop, name: "Super Dash", vertices: shapes[0]! });
-    this.multiplier = prop.multiplier ?? 1;
+  private previousSpeed: number = 0;
+  private multiplier;
+  constructor(prop: SuperDashC) {
+    prop.name = "Super Dash";
+    prop.vertices = shapes[0];
+    prop.color = "#65a7ff";
+    super(prop as PerkC);
+    this.multiplier = prop.multiplier;
   }
 
-  protected override colide(ship: Ship) {
+  colide(ship: Ship): void {
     super.colide(ship);
+
+    if (!this.ship) return;
     this.previousSpeed = ship.speed;
     ship.speed *= this.multiplier;
   }
 
-  protected override finishedRunning() {
-    if (this.getShip()) this.getShip()!.speed = this.previousSpeed;
+  finishedRunning() {
+    if (this.ship) this.ship.speed = Math.min(this.ship.speed, this.previousSpeed);
+;
+
     super.finishedRunning();
   }
 }

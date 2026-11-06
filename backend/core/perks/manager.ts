@@ -1,12 +1,12 @@
-import { sizeOf } from "../utils/constants.ts";
-import { randomNum } from "../utils/random.ts";
-import { world } from "../world/world.ts";
-import Overdrive from "./overdrive.ts";
-import Perk from "./perk.ts";
-import RepairNanites from "./repairNanites.ts";
-import Shield from "./shield.ts";
-import SuperDash from "./superDash.ts";
-import Teleporter from "./teleporter.ts";
+import { sizeOf } from "../utils/constants";
+import { randomNum } from "../utils/random";
+import { world } from "../world/world";
+import type Perk from "./perk";
+import Shield from "./shield";
+import SuperDash from "./superDash";
+import Teleporter from "./teleporter";
+import RepairNanites from "./repairNanites";
+import Overdrive from "./overdrive";
 
 export default class PerkManager {
   static perks: Map<string, Perk> = new Map();
@@ -25,6 +25,12 @@ export default class PerkManager {
         multiplier: randomNum(1.5, 5),
       });
       PerkManager.perks.set(perk.id, perk);
+    }
+  }
+
+  static render() {
+    for (const perk of PerkManager.perks.values()) {
+      perk.render();
     }
   }
 

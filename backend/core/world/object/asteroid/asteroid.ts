@@ -1,9 +1,12 @@
 import { randomNum } from "../../../utils/random.ts";
 import { world } from "../../world.ts";
-import { wrap } from "../../utils.ts";
-import { sizeOf } from "../../../utils/constants.ts";
+import { worldToScreen, wrap } from "../../utils.ts";
+import {
+  tranformVertices,
+} from "../../../utils/vertices.ts";
 import { shapes } from "./shapes.ts";
-import { tranformVertices } from "../../../utils/vertices.ts";
+import { FIXED_DT, sizeOf } from "../../../utils/constants.ts";
+import { v4 as uuid } from "uuid";
 
 export default class Asteroid {
   public id;
@@ -14,13 +17,11 @@ export default class Asteroid {
   public speed;
   public angle;
   public rotationSpeed;
-  public vertices;
-  
+  private vertices;
   static asteroids: Map<string, Asteroid> = new Map();
 
-
   constructor() {
-    this.id = crypto.randomUUID();
+    this.id = uuid();
     this.x = randomNum(0, world.width);
     this.y = randomNum(0, world.height);
     this.width = randomNum(1, 50);
@@ -28,7 +29,40 @@ export default class Asteroid {
     this.speed = randomNum(-8, 8);
     this.rotationSpeed = randomNum(-0.001, 0.001);
     this.angle = randomNum(-Math.PI, Math.PI);
-    this.vertices = shapes[Math.floor(Math.random() * shapes.length)]!;
+    this.vertices = shapes[Math.floor(Math.random() * shapes.length)];
+  }
+
+  init({
+    x,
+    y,
+    angle,
+    width,
+    height,
+    speed,
+    rotationSpeed,
+    vertices,
+  }: {
+    x: number;
+    y: number;
+    angle: number;
+    width: number;
+    height: number;
+    speed: number;
+    rotationSpeed: number;
+    vertices: {
+      x: number;
+      y: number;
+    }[];
+  }) {
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+    this.speed = speed;
+    this.rotationSpeed = rotationSpeed;
+    this.angle = angle;
+    this.vertices = vertices;
+
   }
 
   static init() {
@@ -38,7 +72,6 @@ export default class Asteroid {
     }
   }
 
-
   update(dt: number) {
     this.x = wrap(this.x + this.speed * dt, world.width);
     this.y = wrap(this.y + this.speed * dt, world.height);
@@ -46,18 +79,27 @@ export default class Asteroid {
     this.angle = wrap(this.angle + this.rotationSpeed, Math.PI * 2);
   }
 
+  static update() {
+    for (const asteroid of Asteroid.asteroids.values()) {
+      asteroid.update(FIXED_DT);
+    }
+  }
+
   destroy() {
     Asteroid.asteroids.delete(this.id);
   }
 
   getVertices() {
-    return tranformVertices(
-      this.vertices,
-      this.x,
-      this.y,
+    const world = worldToScreen(this.x, this.y);
+    const vertices = tranformVertices(
+      (this.vertices as Vertices),
+      world.x,
+      world.y,
       this.width,
       this.height,
       this.angle,
     );
+
+    return vertices;
   }
 }

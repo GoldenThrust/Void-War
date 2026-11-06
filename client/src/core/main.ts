@@ -18,13 +18,13 @@ import { FIXED_DT } from "./utils/constants.ts";
 // import { applyAIResults } from "./ai/init.ts";
 import { canvas, ctx } from "./world/canvas.ts";
 import PerkManager from "./perks/manager.ts";
-import Websocket from "./websocket.ts";
+
 
 let initPromise: Promise<void> | undefined;
 export let gameType = "offline";
-const backendUrl = import.meta.env.VITE_BACKEND_URL ?? "http://localhost:3000";
+// const backendUrl = import.meta.env.VITE_BACKEND_URL ?? "http://localhost:3000";
 
-let websocket: Websocket | undefined;
+
 export function init(gameType: string) {
   if (!initPromise) {
     initPromise = initialize(gameType);
@@ -44,10 +44,6 @@ async function initialize(type: string) {
     Asteroid.init();
     ShipManager.init();
     PerkManager.spawn();
-  } else {
-    websocket = new Websocket(backendUrl);
-
-    websocket.init();
   }
   PlayerShip.spawn(world.x, world.y);
 
@@ -109,7 +105,6 @@ async function animate(t: number) {
     if (simulationSteps === maxSimulationSteps) timeAccumulator = 0;
   } else {
     ship.update(t, FIXED_DT);
-    websocket?.update();
   }
 
   // console.log("Out loop");

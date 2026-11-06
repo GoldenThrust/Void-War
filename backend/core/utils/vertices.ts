@@ -32,7 +32,6 @@ export function tranformVertices(
   return result;
 }
 
-
 export function getVertices(
   vertices: Vertices,
   x: number,

@@ -1,3 +1,96 @@
+
+// // import { ctx } from "../core/canvas.ts";
+
+type ShipProp = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+export function circleCollision(a: ShipProp, b: ShipProp) {
+  console.log("circleCollision", a.width, b.width);
+  const dx = a.x - b.x;
+  const dy = a.y - b.y;
+  const dist = dx * dx + dy * dy;
+  const sizeSq = a.width * a.width + b.width * b.width;
+
+  return dist < sizeSq;
+}
+
+// function boxCollision(a, b) {
+//   return (
+//     a.x < b.x + b.w &&
+//     a.x + a.w > b.x &&
+//     a.y < b.y + b.h &&
+//     a.y + a.h > b.y
+//   );
+// }
+
+// export function boxCircleCollision(box, circle) {
+//   const closestX = Math.max(box.x, Math.min(circle.x, box.x + box.w));
+//   const closestY = Math.max(box.y, Math.min(circle.y, box.y + box.h));
+
+//   // ctx.fillStyle = "gold";
+//   // ctx.beginPath();
+//   // ctx.arc(closestX, closestY, 5, 0, Math.PI * 2)
+//   // ctx.fill();
+
+//   const dx = circle.x - closestX;
+//   const dy = circle.y - closestY;
+
+//   return (dx * dx + dy * dy) < (circle.r * circle.r);
+// }
+
+// export function checkCollision(a, b) {
+//   if (a.shape === "box" && b.shape === "box") {
+//     return boxCollision(a, b);
+//   }
+
+//   if (a.shape === "circle" && b.shape === "circle") {
+//     return circleCollision(a, b);
+//   }
+
+//   if (a.shape === "box" && b.shape === "circle") {
+//     return boxCircleCollision(a, b);
+//   }
+
+//   if (a.shape === "circle" && b.shape === "box") {
+//     return boxCircleCollision(b, a);
+//   }
+
+//   return false;
+// }
+
+
+// function projectPolygon(axis, vertices) {
+//   const projections = vertices.map(v => (v.x * axis.x + v.y * axis.y));
+//   return {
+//     min: Math.min(...projections),
+//     max: Math.max(...projections)
+//   };
+// }
+
+// function isSeparatingAxis(axis, vertices1, vertices2) {
+//   const proj1 = projectPolygon(axis, vertices1);
+//   const proj2 = projectPolygon(axis, vertices2);
+
+//   return proj1.max < proj2.min || proj2.max < proj1.min;
+// }
+
+// function getEdges(vertices) {
+//   let edges = [];
+//   for (let i = 0; i < vertices.length; i++) {
+//     const next = (i + 1) % vertices.length;
+//     edges.push({
+//       x: vertices[next].x - vertices[i].x,
+//       y: vertices[next].y - vertices[i].y
+//     });
+//   }
+//   return edges;
+// }
+
+
 function project(vertices: Vertices, axis: Vertice) {
   let min = Infinity;
   let max = -Infinity;
@@ -17,8 +110,8 @@ function getAxes(vertices: Vertices) {
   for (let i = 0; i < vertices.length; i++) {
     const next = (i + 1) % vertices.length;
     const edge = {
-      x: vertices[next]!.x - vertices[i]!.x,
-      y: vertices[next]!.y - vertices[i]!.y
+      x: vertices[next].x - vertices[i].x,
+      y: vertices[next].y - vertices[i].y
     };
 
     const length = Math.hypot(edge.x, edge.y);

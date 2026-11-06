@@ -1,6 +1,18 @@
+
 interface WeaponI {
+
+  render: () => void;
   destroy: () => void;
   getVertices: () => void;
+  // static nearBy: (
+  //   weapon: Weapon,
+  //   vertices: {
+  //     x: number;
+  //     y: number;
+  //   }[],
+  //   x: number,
+  //   y: number,
+  // ) => void;
   getNearPlayers: (radius: number) => Ship[];
   getNearWeapons: (radius: number) => Weapon[];
   colliding: () => void;
@@ -13,7 +25,7 @@ interface WeaponI {
 type WeaponC = {
   id?: string;
   name?: string;
-  type?: string;
+  type?: "projectile" | "utility" | string;
   x: number;
   y: number;
   width?: number;
@@ -32,6 +44,5 @@ type WeaponC = {
       }[];
   color?: string;
   img?: HTMLImageElement;
-  penetration?: number
-  controllable?: boolean;
+  penetration?: number;
 };
