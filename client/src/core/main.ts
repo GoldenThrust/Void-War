@@ -18,12 +18,11 @@ import { FIXED_DT } from "./utils/constants.ts";
 // import { applyAIResults } from "./ai/init.ts";
 import { canvas, ctx } from "./world/canvas.ts";
 import PerkManager from "./perks/manager.ts";
-
+import("./websocket.ts");
 
 let initPromise: Promise<void> | undefined;
 export let gameType = "offline";
 // const backendUrl = import.meta.env.VITE_BACKEND_URL ?? "http://localhost:3000";
-
 
 export function init(gameType: string) {
   if (!initPromise) {

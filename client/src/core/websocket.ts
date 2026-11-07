@@ -1,5 +1,5 @@
 import { io } from "socket.io-client";
-
+import { wsServerUrl } from "../utils/constants";
 
 // function toroidalLerp(
 //   current: number,
@@ -21,12 +21,26 @@ export default class Websocket {
   constructor(url: string) {
     this.socket = io(url, {
       withCredentials: true,
-      autoConnect: false,
+      autoConnect: true,
       reconnection: true,
       reconnectionAttempts: Infinity,
       reconnectionDelay: 500,
       reconnectionDelayMax: 5000,
       randomizationFactor: 0.25,
     });
+
+    this.socket.on("connect", () => {
+      console.log("Connected to WebSocket server");
+    });
+
+    this.socket.on("disconnect", (reason) => {
+      console.log("Disconnected from WebSocket server:", reason);
+    });
+    this.socket.on("connect_error", (error) => {
+      console.error("WebSocket connection failed:", error.message);
+    });
+    console.log("WebSocket initialized");
   }
 }
+
+export const ws = new Websocket(wsServerUrl);

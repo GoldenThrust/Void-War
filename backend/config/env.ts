@@ -22,6 +22,7 @@ export const env = {
   NODE_ENV: getEnv("NODE_ENV", "development"),
   HOST: getEnv("HOST", "0.0.0.0"),
   PORT: Number(getEnv("PORT", "3000")),
+  WS_PORT: Number(getEnv("WS_PORT", "3001")),
 
   HOST_URL: getEnv("HOST_URL"),
   CLIENT_URL: getEnv("CLIENT_URL"),

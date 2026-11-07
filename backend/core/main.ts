@@ -10,21 +10,16 @@ import WeaponManager from "./weapons/manager.ts";
 import { clamp } from "./utils/math.ts";
 
 let initPromise: Promise<void> | undefined;
-export let gameType = "offline";
 
-export function init(type: string) {
-  if (!initPromise) initPromise = initialize(type);
+export function init() {
+  if (!initPromise) initPromise = initialize();
   return initPromise;
 }
 
-async function initialize(type: string) {
-  gameType = type;
-
-  if (gameType !== "online") {
-    Asteroid.init();
-    ShipManager.init();
-    PerkManager.spawn();
-  }
+async function initialize() {
+  Asteroid.init();
+  ShipManager.init();
+  PerkManager.spawn();
 
   PlayerShip.spawn(world.x, world.y);
   world.attach(ship);
