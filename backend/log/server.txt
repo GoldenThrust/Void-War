@@ -4805,3 +4805,13 @@
 {"level":30,"time":1794086226609,"pid":34452,"hostname":"DESKTOP-QUSRQHA","msg":"Server listening at http://192.168.1.100:3000"}
 {"level":30,"time":1794086226609,"pid":34452,"hostname":"DESKTOP-QUSRQHA","msg":"Server listening at http://192.168.32.1:3000"}
 {"level":30,"time":1794086226609,"pid":34452,"hostname":"DESKTOP-QUSRQHA","msg":"Server listening at http://172.21.176.1:3000"}
+{"level":40,"time":1794087598493,"pid":17524,"hostname":"DESKTOP-QUSRQHA","msg":"\"root\" path \"C:\\Users\\adeni\\Documents\\Void War\\backend\\public\" must exist"}
+{"level":30,"time":1794087598567,"pid":17524,"hostname":"DESKTOP-QUSRQHA","msg":"Server listening at http://127.0.0.1:3000"}
+{"level":30,"time":1794087598567,"pid":17524,"hostname":"DESKTOP-QUSRQHA","msg":"Server listening at http://192.168.1.100:3000"}
+{"level":30,"time":1794087598567,"pid":17524,"hostname":"DESKTOP-QUSRQHA","msg":"Server listening at http://192.168.32.1:3000"}
+{"level":30,"time":1794087598567,"pid":17524,"hostname":"DESKTOP-QUSRQHA","msg":"Server listening at http://172.21.176.1:3000"}
+{"level":40,"time":1794087755533,"pid":35928,"hostname":"DESKTOP-QUSRQHA","msg":"\"root\" path \"C:\\Users\\adeni\\Documents\\Void War\\backend\\public\" must exist"}
+{"level":30,"time":1794087755594,"pid":35928,"hostname":"DESKTOP-QUSRQHA","msg":"Server listening at http://127.0.0.1:3000"}
+{"level":30,"time":1794087755594,"pid":35928,"hostname":"DESKTOP-QUSRQHA","msg":"Server listening at http://192.168.1.100:3000"}
+{"level":30,"time":1794087755594,"pid":35928,"hostname":"DESKTOP-QUSRQHA","msg":"Server listening at http://192.168.32.1:3000"}
+{"level":30,"time":1794087755594,"pid":35928,"hostname":"DESKTOP-QUSRQHA","msg":"Server listening at http://172.21.176.1:3000"}

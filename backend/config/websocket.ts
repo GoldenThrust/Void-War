@@ -126,6 +126,7 @@ export default class Websocket {
     Websocket.gameLoop = setInterval(() => {
       const t = performance.now() / 1000;
       step(t);
+      Websocket.io.emit("game:update", snapShots());
     }, FIXED_DT * 1000);
   }
 }

@@ -1,13 +1,10 @@
 import { io } from "socket.io-client";
-import { wsServerUrl } from "../utils/constants";
 import type Ship from "./player/ships/ship";
 import ShipManager from "./player/ships/manager";
-import PlayerShip from "./player/ships/player";
+import PlayerShip, { ship } from "./player/ships/player";
 import Asteroid from "./world/object/asteroid/asteroid";
 import WeaponManager from "./weapons/manager";
-import Weapon from "./weapons/weapon";
 import PerkManager from "./perks/manager";
-import Perk from "./perks/perk";
 
 // function toroidalLerp(
 //   current: number,
@@ -43,6 +40,7 @@ export default class Websocket {
       ShipManager.ships.clear();
       WeaponManager.weapons.clear();
       PerkManager.perks.clear();
+      ShipManager.ships.set(ship.id, ship);
     });
 
     this.socket.on("disconnect", () => {
@@ -155,6 +153,10 @@ export default class Websocket {
         PerkManager.perks.set(newPerk.id, newPerk);
       });
     });
+
+    this.socket.on("game:update", (snapshot) => {
+      // console.log(snapshot);
+    });
     console.log("WebSocket initialized");
   }
 
@@ -172,5 +174,3 @@ export default class Websocket {
     console.log("Player initialized on server:", data);
   }
 }
-
-export const ws = new Websocket(wsServerUrl);

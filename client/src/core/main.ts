@@ -18,7 +18,8 @@ import { FIXED_DT } from "./utils/constants.ts";
 // import { applyAIResults } from "./ai/init.ts";
 import { canvas, ctx } from "./world/canvas.ts";
 import PerkManager from "./perks/manager.ts";
-import { ws } from "./websocket.ts";
+import Websocket from "./websocket.ts";
+import { wsServerUrl } from "../utils/constants.ts";
 import("./websocket.ts");
 
 let initPromise: Promise<void> | undefined;
@@ -45,11 +46,13 @@ async function initialize(type: string) {
     Asteroid.init();
     ShipManager.init();
     PerkManager.spawn();
+  } else {
+    const ws = new Websocket(wsServerUrl);
+    ws.initPlayer(ship);
   }
 
   world.attach(ship);
 
-  ws.initPlayer(ship);
   requestAnimationFrame(animate);
 }
 
@@ -57,20 +60,18 @@ export let attachWorld = -1;
 let lastTime = performance.now();
 let timeAccumulator = 0;
 
-let simulationSteps = 0;
 const maxSimulationSteps = 8;
 async function animate(t: number) {
   const elapsedSeconds = (t - lastTime) / 1000;
   lastTime = t;
   const dt = clamp(elapsedSeconds, 0, 1);
 
-  const fps = 1 / dt;
-
-  console.log(fps.toFixed(1));
+  // console.log(fps.toFixed(1));
   lastTime = t;
 
   timeAccumulator += dt;
-
+  
+  let simulationSteps = 0;
   while (timeAccumulator >= FIXED_DT && simulationSteps < maxSimulationSteps) {
     // console.log("In loop");
     spatial.clear();
@@ -93,6 +94,7 @@ async function animate(t: number) {
     timeAccumulator -= FIXED_DT;
     simulationSteps++;
   }
+  console.log("Requesting next frame");
 
   // Avoid a catch-up spiral after a slow frame or a blocked browser tab.
   if (simulationSteps === maxSimulationSteps) timeAccumulator = 0;
@@ -137,9 +139,9 @@ async function animate(t: number) {
       ShipManager.enemiesAlive > 0 &&
       gameType !== "online") ||
     gameType === "online"
-  )
+  ) {
     requestAnimationFrame(animate);
-  else {
+  } else {
     const won = ship.life > 0;
     const title = won ? "SECTOR SECURED" : "SIGNAL LOST";
     const subtitle = won
