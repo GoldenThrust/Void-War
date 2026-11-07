@@ -45,17 +45,10 @@ async function initialize(type: string) {
     Asteroid.init();
     ShipManager.init();
     PerkManager.spawn();
-
   }
-  
+
   world.attach(ship);
-  
-  console.log(
-    (ShipManager.friendsAlive > 0 &&
-      ShipManager.enemiesAlive > 0 &&
-      gameType !== "online") ||
-      gameType === "online",
-  );
+
   ws.initPlayer(ship);
   requestAnimationFrame(animate);
 }
@@ -64,21 +57,20 @@ export let attachWorld = -1;
 let lastTime = performance.now();
 let timeAccumulator = 0;
 
+let simulationSteps = 0;
+const maxSimulationSteps = 8;
 async function animate(t: number) {
-  if (gameType !== "online") {
-  const deltaTime = clamp((t - lastTime) / 1000, 0, 1);
+  const elapsedSeconds = (t - lastTime) / 1000;
+  lastTime = t;
+  const dt = clamp(elapsedSeconds, 0, 1);
 
-  const dt = t - lastTime;
-  const fps = 1000 / dt;
+  const fps = 1 / dt;
 
   console.log(fps.toFixed(1));
   lastTime = t;
 
-  timeAccumulator += deltaTime;
-  // console.log("Loop started");
+  timeAccumulator += dt;
 
-  let simulationSteps = 0;
-  const maxSimulationSteps = 8;
   while (timeAccumulator >= FIXED_DT && simulationSteps < maxSimulationSteps) {
     // console.log("In loop");
     spatial.clear();
@@ -89,25 +81,24 @@ async function animate(t: number) {
       spatial.insert(weapon);
     }
 
-
     world.update();
-      WeaponManager.update(t, FIXED_DT);
-      ShipManager.update(t, FIXED_DT);
-      // ship.update(t, FIXED_DT);
-      // AudioManager.update(ship.x, ship.y, ship.angle);
+    WeaponManager.update(t, FIXED_DT);
+    ShipManager.update(t, FIXED_DT);
+    // ship.update(t, FIXED_DT);
+    // AudioManager.update(ship.x, ship.y, ship.angle);
 
-      Asteroid.update();
-      PerkManager.update(t);
+    Asteroid.update();
+    PerkManager.update(t);
 
-      timeAccumulator -= FIXED_DT;
-      simulationSteps++;
-    }
-
-    // Avoid a catch-up spiral after a slow frame or a blocked browser tab.
-    if (simulationSteps === maxSimulationSteps) timeAccumulator = 0;
-  } else {
-    ship.update(t, FIXED_DT);
+    timeAccumulator -= FIXED_DT;
+    simulationSteps++;
   }
+
+  // Avoid a catch-up spiral after a slow frame or a blocked browser tab.
+  if (simulationSteps === maxSimulationSteps) timeAccumulator = 0;
+  // } else {
+  //   ship.update(t, FIXED_DT);
+  // }
 
   // console.log("Out loop");
 
@@ -178,7 +169,7 @@ async function animate(t: number) {
     ctx.textAlign = "start";
   }
 }
-  // if (AudioManager.ctx.state !== "running") {
+// if (AudioManager.ctx.state !== "running") {
 //   AudioManager.ctx.resume();
 // }
 addEventListener(

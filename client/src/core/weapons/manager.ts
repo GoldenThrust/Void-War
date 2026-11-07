@@ -22,6 +22,15 @@ export default class WeaponManager {
     Mine,
   ];
 
+  static weaponsByName: Record<string, typeof Weapon> = {
+    "Pulse Canon": PulseCanon,
+    "Gatling Gun": GatlingGun,
+    "Heavy RailGun": HeavyRailGun,
+    "Plasma Canon": PlasmaCanon,
+    "Homing Missile": HomingMissile,
+    "Mine": Mine,
+  }
+
   static weapons: Map<string, Weapon> = new Map();
   private static readonly pools = new Map<Function, Weapon[]>();
   private static readonly maxPoolSize = 128;

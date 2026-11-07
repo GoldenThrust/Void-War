@@ -35,7 +35,7 @@ export default class Ship {
   protected lastTime;
   public weapon;
   public killScore;
-  protected vertices;
+  public vertices;
   public life;
   protected fullLife;
   protected cooldown;

@@ -12,10 +12,11 @@ export default class Asteroid {
   public y;
   public width;
   public height;
-  public speed;
+  public vx;
+  public vy;
   public angle;
   public rotationSpeed;
-  private vertices;
+  public vertices;
   static asteroids: Map<string, Asteroid> = new Map();
 
   constructor() {
@@ -24,7 +25,8 @@ export default class Asteroid {
     this.y = randomNum(0, world.height);
     this.width = randomNum(1, 50);
     this.height = randomNum(1, 50);
-    this.speed = randomNum(-8, 8);
+    this.vx = randomNum(-8, 8);
+    this.vy = randomNum(-8, 8);
     this.rotationSpeed = randomNum(-0.001, 0.001);
     this.angle = randomNum(-Math.PI, Math.PI);
     this.vertices = shapes[Math.floor(Math.random() * shapes.length)];
@@ -56,7 +58,8 @@ export default class Asteroid {
     this.y = y;
     this.width = width;
     this.height = height;
-    this.speed = speed;
+    this.vx = speed;
+    this.vy = speed;
     this.rotationSpeed = rotationSpeed;
     this.angle = angle;
     this.vertices = vertices;
@@ -70,8 +73,8 @@ export default class Asteroid {
   }
 
   update(dt: number) {
-    this.x = wrap(this.x + this.speed * dt, world.width);
-    this.y = wrap(this.y + this.speed * dt, world.height);
+    this.x = wrap(this.x + this.vx * dt, world.width);
+    this.y = wrap(this.y + this.vy * dt, world.height);
 
     this.angle = wrap(this.angle + this.rotationSpeed, Math.PI * 2);
   }

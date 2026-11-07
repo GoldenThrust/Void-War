@@ -41,9 +41,9 @@ export default class Weapon implements WeaponI {
   public penetration: number;
   public distanceTraveled: number;
 
-  protected color: string;
+  public color: string;
   protected img;
-  protected vertices;
+  public vertices;
   protected path2D;
   private readonly speedBonus: number;
   private readonly accelerationBonus: number;

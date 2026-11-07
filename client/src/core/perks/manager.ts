@@ -12,6 +12,14 @@ export default class PerkManager {
   static perks: Map<string, Perk> = new Map();
   static types = [SuperDash, Teleporter, Shield, RepairNanites, Overdrive];
 
+  static perkByName: Record<string, typeof Perk> = {
+    "Super Dash": SuperDash,
+    "Teleporter": Teleporter,
+    "Shield": Shield,
+    "Repair Nanites": RepairNanites,
+    "Overdrive": Overdrive,
+  }
+
   static spawn() {
     if (PerkManager.perks.size > 0) return;
 

@@ -15,10 +15,10 @@ export default class Perk {
   public width: number;
   public height: number;
   public color: string;
-  protected vertices;
+  public vertices;
   protected ship: Ship | null = null;
-  private duration;
-  private startTime?: number;
+  public duration;
+  public startTime?: number;
   constructor({
     id = uuid(),
     name = "Perk",

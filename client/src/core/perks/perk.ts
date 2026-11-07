@@ -1,7 +1,6 @@
 import { v4 as uuid } from "uuid";
 import shapes from "./shapes";
 import {
-
   createVerticesPath,
   drawVerticesPath,
   tranformVertices,
@@ -23,11 +22,12 @@ export default class Perk {
   public width: number;
   public height: number;
   public color: string;
-  protected vertices;
+  public vertices;
   private path2D;
   protected ship: Ship | null = null;
-  private duration;
-  private startTime?: number;
+  public duration;
+  public startTime?: number;
+  
   constructor({
     id = uuid(),
     name = "Perk",
@@ -81,7 +81,13 @@ export default class Perk {
         ctx.shadowBlur = 18 * pulse;
         ctx.globalAlpha = 0.3;
         ctx.beginPath();
-        ctx.arc(0, 0, Math.max(this.width, this.height) * pulse, 0, Math.PI * 2);
+        ctx.arc(
+          0,
+          0,
+          Math.max(this.width, this.height) * pulse,
+          0,
+          Math.PI * 2,
+        );
         ctx.fillStyle = this.color;
         ctx.fill();
         ctx.globalAlpha = 1;
@@ -104,30 +110,28 @@ export default class Perk {
     if (t - this.startTime > this.duration) this.finishedRunning();
   }
 
-  nearBy(
-    radius?: number,
-  ) {
+  nearBy(radius?: number) {
     if (this.ship) return;
     const object = spatial.query(this.x, this.y, radius);
 
     for (const element of object) {
+      if (!(element instanceof Ship)) continue;
+
       if (
-        !(element instanceof Ship)
-      )
-        continue;
-        
-        if (
-          isSeperatingAxes(element.getVertices(), this.getVertices()).collision &&
-          gameType === "offline"
-        ) {
+        isSeperatingAxes(element.getVertices(), this.getVertices()).collision &&
+        gameType === "offline"
+      ) {
         this.colide(element);
       }
     }
-
   }
-  
-  getShip() {
+
+  get getShip() {
     return this.ship;
+  }
+
+  set setShip(ship: Ship) {
+    this.ship = ship;
   }
 
   colide(ship: Ship) {

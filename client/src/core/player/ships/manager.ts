@@ -2,7 +2,7 @@ import { sizeOf } from "../../utils/constants.ts";
 import { randomNum } from "../../utils/random.ts";
 import { world } from "../../world/world.ts";
 import Explosion from "../prop/explosion.ts";
-import  "./ship.ts";
+import "./ship.ts";
 import Bomber from "./bomber.ts";
 import FleetDrone from "./fleet.ts";
 import Miner from "./miner.ts";
@@ -11,19 +11,11 @@ import Sniper from "./sniper.ts";
 import Tormenter from "./tormenter.ts";
 import type Ship from "./ship.ts";
 
-
 export default class ShipManager {
   static ships: Map<string, Ship> = new Map();
   // static types = [AI];
   // static types = [MissileLaucher];
-  static types = [
-    FleetDrone,
-    Tormenter,
-    Bomber,
-    Sniper,
-    Miner,
-    MissileLaucher
-  ];
+  static types = [FleetDrone, Tormenter, Bomber, Sniper, Miner, MissileLaucher];
   static enemiesAlive = 0;
   static friendsAlive = 0;
 
@@ -55,9 +47,7 @@ export default class ShipManager {
       const ship = new this.types[
         Math.floor(randomNum(0, this.types.length))
         // 4
-      ]!(
-        { ...prop, friend: true },
-      );
+      ]!({ ...prop, friend: true });
 
       ShipManager.ships.set(ship.id, ship);
     }
@@ -84,6 +74,7 @@ export default class ShipManager {
       ship.update(t, dt);
     }
   }
+
   static render() {
     for (const ship of ShipManager.ships.values()) {
       ship.render();

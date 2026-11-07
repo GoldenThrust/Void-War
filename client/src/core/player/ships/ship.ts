@@ -47,7 +47,7 @@ export default class Ship {
   protected lastTime;
   public weapon;
   public killScore;
-  protected vertices;
+  public vertices;
   protected path2D;
   public life;
   protected fullLife;
