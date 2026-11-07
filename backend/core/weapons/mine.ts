@@ -1,9 +1,7 @@
-import { gameType } from "../main.ts";
-import Ship from "../player/ships/ship.ts";
 import { toroidalDistance } from "../world/utils.ts";
 import { spatial } from "../world/spatialHash.ts";
 import { shapes } from "./shapes.ts";
-import Weapon from "./weapon.ts";
+import Weapon, { isShip } from "./weapon.ts";
 
 export default class Mine extends Weapon {
   private duration: number;
@@ -61,11 +59,9 @@ export default class Mine extends Weapon {
   }
 
   checkExplosionCollision() {
-    if (gameType !== "offline") return;
-
     for (const ship of spatial.query(this.x, this.y, this.explosionRadius)) {
       if (
-        !(ship instanceof Ship) ||
+        !isShip(ship) ||
         ship.friend === this.ship.friend ||
         ship.state === "dead" ||
         this.damagedShips.has(ship.id) ||

@@ -3,10 +3,8 @@ import { spatial } from "./world/spatialHash.ts";
 import { world } from "./world/world.ts";
 import Asteroid from "./world/object/asteroid/asteroid.ts";
 import PerkManager from "./perks/manager.ts";
-import PlayerShip, { ship } from "./player/ships/player.ts";
-import ShipManager from "./player/ships/manager.ts";
-import Minature from "./weapons/minature.ts";
 import WeaponManager from "./weapons/manager.ts";
+import ShipManager from "./player/ships/manager.ts";
 import { clamp } from "./utils/math.ts";
 
 let initPromise: Promise<void> | undefined;
@@ -20,18 +18,11 @@ async function initialize() {
   Asteroid.init();
   ShipManager.init();
   PerkManager.spawn();
-
-  PlayerShip.spawn(world.x, world.y);
-  world.attach(ship);
 }
 
 export function update(t: number, dt = FIXED_DT) {
   spatial.clear();
-  spatial.insertAll(ShipManager.ships.values(), Asteroid.asteroids.values());
-
-  for (const weapon of WeaponManager.weapons.values()) {
-    if (!(weapon instanceof Minature)) spatial.insert(weapon);
-  }
+  spatial.insertAll(ShipManager.ships.values(), Asteroid.asteroids.values(), WeaponManager.weapons.values());
 
   world.update();
   WeaponManager.update(t, dt);
@@ -51,6 +42,8 @@ export function step(t: number, elapsedSeconds: number) {
     remaining -= FIXED_DT;
     steps++;
   }
+
+  console.log(`Step: ${steps}, Remaining: ${remaining.toFixed(4)}s, Elapsed: ${elapsedSeconds.toFixed(4)}s FPS: ${(1 / elapsedSeconds).toFixed(2)}`);
 
   if (steps === maxSteps) update(t, FIXED_DT);
 }

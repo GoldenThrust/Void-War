@@ -1,10 +1,14 @@
-import type Weapon from "./weapon.ts";
+import Weapon from "./weapon.ts";
 import PulseCanon from "./pulseCanon.ts";
 import GatlingGun from "./gatlingGun.ts";
 import HeavyRailGun from "./heavyRailGun.ts";
 import PlasmaCanon from "./plasmaCanon.ts";
 import Mine from "./mine.ts";
 import HomingMissile from "./homingMissile.ts";
+import {
+  registerWeaponDestroyHandler,
+  registerWeaponFireHandler,
+} from "./lifecycle.ts";
 
 export default class WeaponManager {
   static weaponTypes = [
@@ -54,3 +58,6 @@ export default class WeaponManager {
 }
 
 export const weaponManager = new WeaponManager();
+
+registerWeaponDestroyHandler((weapon) => WeaponManager.destroy(weapon));
+registerWeaponFireHandler((weapon, options) => WeaponManager.fire(weapon, options));

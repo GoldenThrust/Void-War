@@ -9,15 +9,16 @@ import { world } from "../../world/world.ts";
 import { clamp, lerp } from "../../utils/math.ts";
 import { DAMPSPEED, FIXED_DT } from "../../utils/constants.ts";
 
-import WeaponManager from "../../weapons/manager.ts";
+import { fireWeapon } from "../../weapons/lifecycle.ts";
 import { shapes } from "./shapes.ts";
 import PulseCanon from "../../weapons/pulseCanon.ts";
 import Weapon from "../../weapons/weapon.ts";
 import { spatial } from "../../world/spatialHash.ts";
-import ShipManager from "./manager.ts";
+import { destroyShip, getShips } from "./lifecycle.ts";
 import { v4 as uuid } from "uuid";
 
 export default class Ship {
+  public readonly isShip = true;
   public id: string;
   public name: string;
   public x: number;
@@ -207,7 +208,7 @@ export default class Ship {
       color: this.name === "Player" ? "#33cfff" : "red",
     };
 
-    WeaponManager.fire(this.weapon, prop);
+    fireWeapon(this.weapon, prop);
     return true;
   }
 
@@ -239,7 +240,7 @@ export default class Ship {
   destroy() {
     if (this.state === "dead") return;
 
-    ShipManager.destroy(this);
+    destroyShip(this);
     // this.engineSound.clean();
   }
 
@@ -470,7 +471,7 @@ export default class Ship {
 
     let closest: Ship | undefined;
     let closestDistance = Infinity;
-    for (const candidate of ShipManager.ships.values()) {
+    for (const candidate of getShips()) {
       if (
         candidate === this ||
         this.friend === candidate.friend ||

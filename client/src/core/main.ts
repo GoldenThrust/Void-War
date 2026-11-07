@@ -18,6 +18,7 @@ import { FIXED_DT } from "./utils/constants.ts";
 // import { applyAIResults } from "./ai/init.ts";
 import { canvas, ctx } from "./world/canvas.ts";
 import PerkManager from "./perks/manager.ts";
+import { ws } from "./websocket.ts";
 import("./websocket.ts");
 
 let initPromise: Promise<void> | undefined;
@@ -39,21 +40,23 @@ async function initialize(type: string) {
   console.log("Assets loaded", assets);
   await import("./world/manager.js");
 
+  PlayerShip.spawn(world.x, world.y);
   if (gameType !== "online") {
     Asteroid.init();
     ShipManager.init();
     PerkManager.spawn();
+
   }
-  PlayerShip.spawn(world.x, world.y);
-
+  
   world.attach(ship);
-
+  
   console.log(
     (ShipManager.friendsAlive > 0 &&
       ShipManager.enemiesAlive > 0 &&
       gameType !== "online") ||
       gameType === "online",
   );
+  ws.initPlayer(ship);
   requestAnimationFrame(animate);
 }
 

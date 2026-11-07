@@ -46,7 +46,7 @@ class SpatialHash {
   insertAll(...objects: any[]) {
     for (const elements of objects) {
       for (const element of elements) {
-        if (element !== "Minature") this.insert(element);
+        this.insert(element);
       }
     }
   }

@@ -1,4 +1,3 @@
-
 import { Server } from "socket.io";
 import uWS from "uWebSockets.js";
 import { createAdapter } from "@socket.io/redis-streams-adapter";
@@ -6,6 +5,8 @@ import { createAdapter } from "@socket.io/redis-streams-adapter";
 import { config } from "./index.ts";
 import redis from "./redis.ts";
 import { env } from "./env.ts";
+import { init, step } from "../core/main.ts";
+import { FIXED_DT } from "../core/utils/constants.ts";
 
 export default class Websocket {
   static io: Server;
@@ -26,11 +27,17 @@ export default class Websocket {
     // Attach Socket.IO to uWebSockets.js
     Websocket.io.attachApp(Websocket.uwsApp);
 
+    init();
+
     Websocket.io.on("connection", (socket) => {
       console.log("Player connected:", socket.id);
 
       socket.on("disconnect", () => {
         console.log("Player disconnected:", socket.id);
+      });
+
+      socket.on("init:player", (data) => {
+        console.log("Player initialized:", socket.id, data);
       });
     });
 
@@ -51,5 +58,14 @@ export default class Websocket {
     }
 
     Websocket.io?.close();
+  }
+
+  static update() {
+    Websocket.gameLoop = setInterval(() => {
+      const t = performance.now() / 1000;
+      const elapsedSeconds = FIXED_DT;
+      step(t, elapsedSeconds);
+      Websocket.update();
+    }, FIXED_DT * 1000);
   }
 }

@@ -3,8 +3,8 @@ import { toroidalDelta, toroidalDistance } from "../world/utils.ts";
 import { world } from "../world/world.ts";
 import PlasmaCanon from "./plasmaCanon.ts";
 import Asteroid from "../world/object/asteroid/asteroid.ts";
-import Ship from "../player/ships/ship.ts";
-import Weapon from "./weapon.ts";
+import type Ship from "../player/ships/ship.ts";
+import Weapon, { isShip } from "./weapon.ts";
 
 export default class HomingMissile extends PlasmaCanon {
   private target: Ship | null;
@@ -59,7 +59,7 @@ export default class HomingMissile extends PlasmaCanon {
   override closeObject(obj: any) {
     if (
       obj instanceof Asteroid ||
-      (obj instanceof Ship && obj.friend === this.ship.friend) ||
+      (isShip(obj) && obj.friend === this.ship.friend) ||
       (obj instanceof Weapon && obj.ship.friend === this.ship.friend)
     )
       return;

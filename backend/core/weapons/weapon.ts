@@ -1,5 +1,4 @@
-import { gameType } from "../main.ts";
-import Ship from "../player/ships/ship.ts";
+import type Ship from "../player/ships/ship.ts";
 import { isSeperatingAxes } from "../utils/collision.ts";
 import {
   DAMPSPEED,
@@ -9,7 +8,7 @@ import {
 import { tranformVertices } from "../utils/vertices.ts";
 import Asteroid from "../world/object/asteroid/asteroid.ts";
 import { spatial } from "../world/spatialHash.ts";
-import WeaponManager from "./manager.ts";
+import { destroyWeapon } from "./lifecycle.ts";
 
 import { shapes } from "./shapes.ts";
 import { v4 as uuid } from "uuid";
@@ -103,7 +102,7 @@ export default class Weapon implements WeaponI {
   destroy() {
     if (!this.active) return;
     this.active = false;
-    WeaponManager.destroy(this);
+    destroyWeapon(this);
   }
 
   reactivate({ x, y, angle, ship, color }: WeaponC) {
@@ -159,7 +158,7 @@ export default class Weapon implements WeaponI {
     for (const element of object) {
       if (!weapon.active) break;
       if (
-        (element instanceof Ship &&
+        (isShip(element) &&
           // weapon.ship === element
           //  ||
           (weapon.ship.friend === element.friend ||
@@ -176,10 +175,8 @@ export default class Weapon implements WeaponI {
       if (
         isSeperatingAxes(element.getVertices(), vertices).collision
         // circleCollision(this as any, element)
-         &&
-        gameType === "offline"
       ) {
-        if (element instanceof Ship) {
+        if (isShip(element)) {
           element.hit(weapon.damage);
           if (element.life <= 0) {
             // Todo: check if it is friendly fire
@@ -207,10 +204,7 @@ export default class Weapon implements WeaponI {
     const players: Ship[] = [];
 
     for (const obj of objects) {
-      if (
-        obj instanceof Ship
-        //  && obj !== this.ship
-      ) {
+      if (isShip(obj)) {
         players.push(obj);
       }
     }
@@ -238,4 +232,13 @@ export default class Weapon implements WeaponI {
   colide() {}
   travelEnd() {}
   closeObject(_: any) {}
+}
+
+export function isShip(element: unknown): element is Ship {
+  return (
+    typeof element === "object" &&
+    element !== null &&
+    "isShip" in element &&
+    element.isShip === true
+  );
 }

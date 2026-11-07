@@ -1,5 +1,6 @@
 import { io } from "socket.io-client";
 import { wsServerUrl } from "../utils/constants";
+import type Ship from "./player/ships/ship";
 
 // function toroidalLerp(
 //   current: number,
@@ -40,6 +41,11 @@ export default class Websocket {
       console.error("WebSocket connection failed:", error.message);
     });
     console.log("WebSocket initialized");
+  }
+
+  initPlayer(data: Ship) {
+    this.socket.emit("init:player", data);
+    console.log("Player initialized on server:", data);
   }
 }
 

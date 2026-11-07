@@ -4,7 +4,6 @@ import { tranformVertices } from "../utils/vertices.ts";
 import { spatial } from "../world/spatialHash.ts";
 import Ship from "../player/ships/ship.ts";
 import { isSeperatingAxes } from "../utils/collision.ts";
-import { gameType } from "../main.ts";
 import PerkManager from "./manager.ts";
 
 export default class Perk {
@@ -77,8 +76,7 @@ export default class Perk {
         continue;
         
         if (
-          isSeperatingAxes(element.getVertices(), this.getVertices()).collision &&
-          gameType === "offline"
+          isSeperatingAxes(element.getVertices(), this.getVertices()).collision
         ) {
         this.colide(element);
       }

@@ -1,7 +1,10 @@
 import { sizeOf } from "../../utils/constants.ts";
 import { randomNum } from "../../utils/random.ts";
 import { world } from "../../world/world.ts";
-import  "./ship.ts";
+import {
+  registerShipDestroyHandler,
+  registerShipQueryHandler,
+} from "./lifecycle.ts";
 import Bomber from "./bomber.ts";
 import FleetDrone from "./fleet.ts";
 import Miner from "./miner.ts";
@@ -42,6 +45,9 @@ export default class ShipManager {
 
       ShipManager.ships.set(ship.id, ship);
     }
+
+    registerShipDestroyHandler((ship) => ShipManager.destroy(ship));
+    registerShipQueryHandler(() => ShipManager.ships.values());
 
     ShipManager.friendsAlive = sizeOf.friendShip + 1;
     for (let i = 0; i < sizeOf.friendShip; i++) {
