@@ -2,7 +2,6 @@ import { world } from "./world.ts";
 import "../player/ships/manager.ts";
 // import ShipManager from "../player/ships/manager.ts";
 import { keybinds } from "../events/keybind.ts";
-import { ship } from "../player/ships/player.ts";
 import { minimap } from "./minimap.ts";
 
 class WorldManager {
@@ -42,13 +41,13 @@ class WorldManager {
 
   }
 
-  findAttachedShip() {
-    // if (this.attachedId === -1) {
-      return ship;
-    // } else {
-    //   return ShipManager.ships[this.attachedId];
-    // }
-  }
+  // findAttachedShip() {
+  //   // if (this.attachedId === -1) {
+  //     return ShipManager.ship;
+  //   // } else {
+  //   //   return ShipManager.ships[this.attachedId];
+  //   // }
+  // }
 
   // attachRandom() {
   //   this.attachedId = Math.floor(Math.random() * ShipManager.ships.length);
@@ -68,10 +67,10 @@ class WorldManager {
   //   world.attach(ShipManager.ships[this.attachedId]);
   // }
 
-  attachMainShip() {
-    this.attachedId = -1;
-    world.attach(ship);
-  }
+  // attachMainShip() {
+  //   this.attachedId = -1;
+  //   world.attach(ShipManager.ship);
+  // }
 }
 
 export const worldManager = new WorldManager();

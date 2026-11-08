@@ -9,10 +9,11 @@ import { init, step } from "../core/main.ts";
 import { FIXED_DT } from "../core/utils/constants.ts";
 import ShipManager from "../core/player/ships/manager.ts";
 import PlayerShip from "../core/player/ships/player.ts";
-import type Ship from "../core/player/ships/ship.ts";
+import Ship from "../core/player/ships/ship.ts";
 import Asteroid from "../core/world/object/asteroid/asteroid.ts";
 import WeaponManager from "../core/weapons/manager.ts";
 import PerkManager from "../core/perks/manager.ts";
+import { world } from "../core/world/world.ts";
 
 export default class Websocket {
   static io: Server;
@@ -42,16 +43,31 @@ export default class Websocket {
       console.log("Player connected:", socket.id);
 
       socket.on("disconnect", () => {
-        socket.broadcast.emit("player:left", socket.id);
         const ship = ShipManager.ships.get(socket.id);
-        if (ship) ShipManager.destroy(ship);
+
+        if (ship) {
+          socket.broadcast.emit(
+            "player:left",
+            socket.id,
+            shipsAliveCount(ship.friend),
+          );
+          ShipManager.destroy(ship);
+        }
       });
 
       socket.on("player:init", (data: Ship) => {
         const friend = ShipManager.ships.size % 2 === 0;
+
+        if (friend) {
+          ShipManager.friendsAlive++;
+        } else {
+          ShipManager.enemiesAlive++;
+        }
+
         ShipManager.ships.set(
           socket.id,
           new PlayerShip({
+            id: socket.id,
             x: data.x,
             y: data.y,
             angle: data.angle,
@@ -68,30 +84,34 @@ export default class Websocket {
           console.error("Ship not found for socket:", socket.id);
           return;
         }
-        ship.speed = data.speed;
+        if (typeof data.speed === "number" && Number.isFinite(data.speed)) {
+          ship.speed = data.speed;
+        }
 
-        socket.broadcast.emit("players:joined", [
-          {
-            id: socket.id,
-            x: ship.x,
-            y: ship.y,
-            angle: ship.angle,
-            speed: ship.speed,
-            acceleration: ship.acceleration,
-            width: ship.width,
-            height: ship.height,
-            color: ship.color,
-            vertices: ship.vertices,
-            friend,
-          },
-        ]);
+        socket.broadcast.emit("player:joined", {
+          id: socket.id,
+          x: ship.x,
+          y: ship.y,
+          angle: ship.angle,
+          speed: ship.speed,
+          acceleration: ship.acceleration,
+          width: ship.width,
+          height: ship.height,
+          color: ship.color,
+          vertices: ship.vertices,
+          friend,
+        });
 
         const { ships, asteroids, weapons, perks } = snapShots(ship);
 
-        socket.emit(
-          "players:joined",
-          ships.filter(({ id }) => id !== socket.id),
-        );
+        socket.emit("world:init", {
+          width: world.width,
+          height: world.height,
+        });
+        socket.emit("players:init", ships, {
+          id: socket.id,
+          ...shipsAliveCount(friend),
+        });
 
         socket.emit("asteroids:init", asteroids);
 
@@ -99,8 +119,62 @@ export default class Websocket {
 
         socket.emit("perks:init", perks);
       });
-    });
 
+      socket.on(
+        "player:changeWeapon",
+        ({ weaponName }: { weaponName?: string }) => {
+          const ship = ShipManager.ships.get(socket.id);
+          if (!ship) {
+            console.warn(
+              `Cannot change weapon for unknown player ${socket.id}`,
+            );
+            return;
+          }
+
+          const weapon = WeaponManager.weaponsByName[weaponName ?? ""];
+          if (!weapon) {
+            console.warn(`Unknown weapon requested: ${weaponName}`);
+            return;
+          }
+
+          ship.weapon = weapon;
+        },
+      );
+
+      socket.on(
+        "player:turn",
+        ({ direction }: { direction?: "left" | "right" }) => {
+          const ship = ShipManager.ships.get(socket.id);
+          if (!ship) return;
+
+          console.log("Received turn command:", direction, "for ship", socket.id, ship.angle);
+          ship.steer(direction === "left" ? 1 : -1);
+
+          console.log("Steering", direction, "for ship", socket.id, "to angle", ship.angle);
+        },
+      );
+
+      socket.on(
+        "player:thrust",
+        ({ direction }: { direction?: "forward" | "backward" }) => {
+          const ship = ShipManager.ships.get(socket.id);
+          if (!ship) return;
+
+          console.log("Received thrust command:", direction, "for ship", ship, socket.id, ship.speed);
+          ship.accelerate(direction === "forward" ? 1 : -1);
+          console.log("Accelerating", direction, "for ship", socket.id, "to speed", ship.speed);
+        },
+      );
+
+      socket.on("player:fire", () => {
+        const ship = ShipManager.ships.get(socket.id);
+        if (!ship) return;
+        console.log("Received fire command for ship", socket.id);
+        ship.fire();
+        console.log("Ship", socket.id, "fired weapon", ship.weapon.name);
+      });
+    });
+  
     Websocket.uwsApp.listen(env.HOST, Number(env.WS_PORT), (token) => {
       if (!token) {
         console.error("Failed to start uWebSockets server");
@@ -136,13 +210,16 @@ function snapShots(ship?: Ship) {
     id: id,
     x: s.x,
     y: s.y,
+    name: s.name,
     angle: s.angle,
     speed: s.speed,
     acceleration: s.acceleration,
     width: s.width,
     height: s.height,
     color: s.color,
-    vertices: s.getVertices(),
+    vertices: s.vertices,
+    life: s.life,
+    heat: s.heat,
     ...(ship && { friend: s.friend === ship.friend }),
   }));
 
@@ -207,5 +284,13 @@ function snapShots(ship?: Ship) {
     asteroids,
     weapons,
     perks,
+  };
+}
+
+function shipsAliveCount(friend: boolean) {
+  return {
+    friendsAlive: friend ? ShipManager.friendsAlive : ShipManager.enemiesAlive,
+    enemiesAlive: friend ? ShipManager.enemiesAlive : ShipManager.friendsAlive,
+    guerrilla: friend,
   };
 }

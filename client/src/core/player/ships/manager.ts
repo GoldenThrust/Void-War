@@ -10,12 +10,23 @@ import MissileLaucher from "./missileLaucher.ts";
 import Sniper from "./sniper.ts";
 import Tormenter from "./tormenter.ts";
 import type Ship from "./ship.ts";
+import PlayerShip from "./player.ts";
 
 export default class ShipManager {
+  static ship: Ship;
   static ships: Map<string, Ship> = new Map();
   // static types = [AI];
   // static types = [MissileLaucher];
   static types = [FleetDrone, Tormenter, Bomber, Sniper, Miner, MissileLaucher];
+  static shipByName: Record<string, typeof Ship> = {
+    "Bomber Drone": Bomber,
+    "Fleet Drone": FleetDrone,
+    "Tormenter Drone": Tormenter,
+    "Sniper": Sniper,
+    "Miner Drone": Miner,
+    "Missile Launcher": MissileLaucher,
+    "Player": PlayerShip,
+  };
   static enemiesAlive = 0;
   static friendsAlive = 0;
 

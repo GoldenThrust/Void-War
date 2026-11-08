@@ -21,6 +21,8 @@ export default class Trail {
             this.trails.shift();
         }
 
+        // console.log("Trail updated", x, y, speed);
+
         this.trails.push({ x, y, speed });
     }
 

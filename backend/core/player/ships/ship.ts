@@ -39,7 +39,7 @@ export default class Ship {
   public life;
   protected fullLife;
   protected cooldown;
-  protected heat;
+  public heat;
   protected maxHeat;
   protected weaponState;
   protected speedFactor;
@@ -173,6 +173,18 @@ export default class Ship {
     }
 
     // this.engineSound.update(x, y);
+  }
+
+  steer(steering: number) {
+    this.angle = wrap(
+      this.angle + steering * this.turnRate * this.speedFactor * FIXED_DT,
+      Math.PI * 2,
+    );
+  }
+
+  accelerate(thrust: number) {
+    this.speed += thrust * this.acceleration * FIXED_DT;
+    this.speed = Math.max(this.speed, 0);
   }
 
   canFire() {

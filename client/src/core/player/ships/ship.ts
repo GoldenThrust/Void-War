@@ -27,6 +27,7 @@ import ShipManager from "./manager.ts";
 // import EngineSound from "../../assets/audio/engine.ts";
 // import AudioManager from "../../assets/audio/manager.ts";
 import { v4 as uuid } from "uuid";
+import Websocket from "../../websocket.ts";
 
 export default class Ship {
   public id: string;
@@ -52,7 +53,7 @@ export default class Ship {
   public life;
   protected fullLife;
   protected cooldown;
-  protected heat;
+  public heat;
   protected maxHeat;
   protected weaponState;
   protected trail;
@@ -150,6 +151,10 @@ export default class Ship {
 
   get maxLife() {
     return this.fullLife;
+  }
+
+  get heatPercent() {
+    return Math.ceil((this.heat / this.maxHeat) * 100);
   }
 
   render() {
@@ -254,21 +259,25 @@ export default class Ship {
     if (this.controllable) {
       if (keys["ArrowLeft"] || orientation["beta"] < -0.01) {
         // this.angle = wrap(this.angle + 0.01, Math.PI * 2);
+        Websocket.socket.emit("player:turn", { direction: "left" });
         steering = 1;
       }
 
       if (keys["ArrowRight"] || orientation["beta"] > 0.01) {
         // this.angle = wrap(this.angle - 0.01, Math.PI * 2);
+        Websocket.socket.emit("player:turn", { direction: "right" });
         steering = -1;
       }
 
       if (keys["ArrowUp"] || orientation["gamma"] > -0.13) {
+        Websocket.socket.emit("player:thrust", { direction: "forward" });
         this.speed += this.acceleration * dt;
       }
 
       // console.log("Orientation:", orientation, "Keys:", keys, "Touch:", touchDetected);
 
       if (keys["ArrowDown"] || orientation["gamma"] < -0.15) {
+        Websocket.socket.emit("player:thrust", { direction: "backward" });
         this.speed -= this.acceleration * dt;
         this.speed = Math.max(this.speed, 0);
       }
@@ -280,6 +289,7 @@ export default class Ship {
         touchDetected["touch"] ||
         touchDetected["mouse"]
       ) {
+        Websocket.socket.emit("player:fire");
         this.fire();
       }
       // console.log(

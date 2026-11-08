@@ -7,11 +7,9 @@ import { shapes } from "./shapes.ts";
 import Ship from "./ship.ts";
 
 
-export let ship: PlayerShip;
-
 export default class PlayerShip extends Ship {
     constructor(prop: ShipC) {
-        super({ ...prop, img: assets?.images?.mainship, flameImg: assets?.images?.flame1, color: prop.color ?? "red", name: "Player", maxWeaponHeat: prop.maxWeaponHeat ?? 1000, controllable: true, life: 10000, vertices: shapes[0], weapon: PulseCanon, friend: true });
+        super({ ...prop, img: assets?.images?.mainship, flameImg: assets?.images?.flame1, color: prop.color ?? "red", name: "Player", maxWeaponHeat: prop.maxWeaponHeat ?? 1000, controllable: true, life: 10000, vertices: shapes[0], weapon: PulseCanon });
 
         // this.audioPlayer = throtlePlayAudio(assets?.audios?.engine, this.audioGain);
 
@@ -19,9 +17,15 @@ export default class PlayerShip extends Ship {
             this.state = "idle";
     }
 
-    get heatPercent() {
-        return Math.ceil((this.heat / this.maxHeat) * 100)
-    }
+    // render() {
+    //     console.log("Rendering PlayerShip at position:", this.x, this.y, "with angle:", this.angle);
+    //     super.render();
+    // }
+
+    // update(t: number, dt: number, thrust = 0, turn = 0) {
+    //     super.update(t, dt, thrust, turn);
+    //     console.log("Updating PlayerShip at position:", this.x, this.y, "with angle:", this.angle, "and speed:", this.speed);
+    // }
 
     // update(t: number, dt: number) {
     //     super.update(t, dt);
@@ -32,8 +36,8 @@ export default class PlayerShip extends Ship {
         const spawnDistance = 200000;
         const spawnX = randomNum(x - spawnDistance, x + spawnDistance);
         const spawnY = randomNum(y - spawnDistance, y + spawnDistance);
-        ship = new PlayerShip({ x: spawnX, y: spawnY, angle, width: 50, height: 50, color: "#84d0ff", acceleration: 600, maxWeaponHeat: 1000  });
-        ShipManager.ships.set("player", ship)
+        ShipManager.ship = new PlayerShip({ x: spawnX, y: spawnY, angle, width: 50, height: 50, color: "#84d0ff", acceleration: 600, maxWeaponHeat: 1000  });
+        ShipManager.ships.set("player", ShipManager.ship)
     }
 }    
 

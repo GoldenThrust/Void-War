@@ -2,7 +2,7 @@ import { world } from "./world.ts";
 import { canvas } from "./canvas.ts";
 import { drawWrapped } from "./utils.ts";
 import { clamp } from "../utils/math.ts";
-import PlayerShip, { ship } from "../player/ships/player.ts";
+import PlayerShip from "../player/ships/player.ts";
 import WeaponManager from "../weapons/manager.ts";
 import ShipManager from "../player/ships/manager.ts";
 import PerkManager from "../perks/manager.ts";
@@ -194,8 +194,8 @@ export default class Minimap {
       (this.canvas.height - this.world.height) / 2,
     );
 
-    const dx = this.sx * ship.x;
-    const dy = this.sy * ship.y;
+    const dx = this.sx * ShipManager.ship.x;
+    const dy = this.sy * ShipManager.ship.y;
 
     this.world.x = dx;
     this.world.y = dy;
@@ -203,7 +203,7 @@ export default class Minimap {
     for (const perk of PerkManager.perks.values()) {
       this.drawPerkMarker(perk.x, perk.y, 0.75);
     }
-    this.drawPlayerMarker(ship.x, ship.y, ship.angle, this.canvas.width / 40);
+    this.drawPlayerMarker(ShipManager.ship.x, ShipManager.ship.y, ShipManager.ship.angle, this.canvas.width / 40);
 
     this.ctx.globalAlpha = 1;
     // this.ctx.globalAlpha = Math.sin((performance.now() % captureDuration) / captureDuration * Math.PI);
@@ -224,7 +224,7 @@ export default class Minimap {
     }
 
     for (const otherShip of ShipManager.ships.values()) {
-      if (otherShip === ship) continue;
+      if (otherShip === ShipManager.ship) continue;
       this.drawShipMarker(otherShip.x, otherShip.y, 1, otherShip.friend);
     }
     this.ctx.restore();

@@ -20,6 +20,15 @@ export default class WeaponManager {
     Mine,
   ];
 
+  static weaponsByName: Record<string, typeof Weapon> = {
+    "Pulse Canon": PulseCanon,
+    "Gatling Gun": GatlingGun,
+    "Heavy RailGun": HeavyRailGun,
+    "Plasma Canon": PlasmaCanon,
+    "Homing Missile": HomingMissile,
+    Mine: Mine,
+  };
+
   static weapons: Map<string, Weapon> = new Map();
   private static readonly pools = new Map<Function, Weapon[]>();
   private static readonly maxPoolSize = 128;
@@ -54,10 +63,11 @@ export default class WeaponManager {
       WeaponManager.pools.set(type, pool);
     }
   }
-
 }
 
 export const weaponManager = new WeaponManager();
 
 registerWeaponDestroyHandler((weapon) => WeaponManager.destroy(weapon));
-registerWeaponFireHandler((weapon, options) => WeaponManager.fire(weapon, options));
+registerWeaponFireHandler((weapon, options) =>
+  WeaponManager.fire(weapon, options),
+);

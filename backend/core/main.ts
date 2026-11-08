@@ -30,22 +30,26 @@ export function update(t: number, dt = FIXED_DT) {
   Asteroid.update();
   PerkManager.update(t);
 }
-let lastTime = performance.now();
+
+const maxSteps = 8;
+let lastTime = performance.now() / 1000;
+let accumulator = 0;
 
 export function step(t: number) {
-  const elapsedSeconds = (t - lastTime) / 1000;
+  const elapsedSeconds = t - lastTime;
   lastTime = t;
-  const dt = clamp(elapsedSeconds, 0, 1);
-  let remaining = dt;
-  const maxSteps = 8;
-  let steps = 0;
+  accumulator += clamp(elapsedSeconds, 0, 1);
 
-  while (remaining >= FIXED_DT && steps < maxSteps) {
+  let steps = 0;
+  while (accumulator >= FIXED_DT && steps < maxSteps) {
     update(t, FIXED_DT);
-    remaining -= FIXED_DT;
+    accumulator -= FIXED_DT;
     steps++;
   }
-  
-  if (steps === maxSteps) update(t, FIXED_DT);
-  console.log(`Step: ${steps}, Remaining: ${remaining.toFixed(4)}s, Elapsed: ${elapsedSeconds.toFixed(4)}s FPS: ${(1 / elapsedSeconds).toFixed(2)}`);
+
+  if (steps === maxSteps) {
+    accumulator = 0;
+  }
+
+  // console.log(`Elapsed: ${elapsedSeconds.toFixed(4)}s, Steps: ${steps}, Accumulator: ${accumulator.toFixed(4)}s FPS: ${(1 / elapsedSeconds).toFixed(2)}`);
 }

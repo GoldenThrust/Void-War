@@ -130,7 +130,7 @@ export default class Perk {
     return this.ship;
   }
 
-  set setShip(ship: Ship) {
+  set setShip(ship: Ship | null) {
     this.ship = ship;
   }
 

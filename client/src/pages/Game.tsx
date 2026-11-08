@@ -45,24 +45,23 @@ function Game() {
         try {
           const { init } = await import("../core/main.ts");
           await init(type);
-          const [{ ship }, { default: ShipManager }] = await Promise.all([
-            import("../core/player/ships/player.ts"),
+          const [{ default: ShipManager }] = await Promise.all([
             import("../core/player/ships/manager.ts"),
           ]);
 
           telemetryTimer = window.setInterval(() => {
-            if (cancelled || !ship) return;
+            if (cancelled || !ShipManager.ship) return;
             setTelemetry({
-              life: ship.life,
-              maxLife: ship.maxLife,
-              heat: ship.heatPercent,
-              speed: Math.round(ship.speed),
-              kills: ship.killScore,
+              life: ShipManager.ship.life,
+              maxLife: ShipManager.ship.maxLife,
+              heat: ShipManager.ship.heatPercent,
+              speed: Math.round(ShipManager.ship.speed),
+              kills: ShipManager.ship.killScore,
               friends: ShipManager.friendsAlive,
               enemies: ShipManager.enemiesAlive,
-              weapon: ship.weapon.name,
-              x: Math.round(ship.x),
-              y: Math.round(ship.y),
+              weapon: ShipManager.ship.weapon.name,
+              x: Math.round(ShipManager.ship.x),
+              y: Math.round(ShipManager.ship.y),
             });
           }, 250);
         } catch (error) {

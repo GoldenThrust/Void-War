@@ -7,6 +7,7 @@ import HeavyRailGun from "./heavyRailGun.ts";
 import PlasmaCanon from "./plasmaCanon.ts";
 import Mine from "./mine.ts";
 import HomingMissile from "./homingMissile.ts";
+import Websocket from "../websocket.ts";
 
 export default class WeaponManager {
   constructor() {
@@ -118,6 +119,10 @@ export default class WeaponManager {
 
   changeWeapon(weapon: typeof Weapon) {
     worldManager.findAttachedShip().weapon = weapon;
+
+    Websocket.socket.emit("player:changeWeapon", {
+      weaponName: weapon.name,
+    });
   }
 }
 

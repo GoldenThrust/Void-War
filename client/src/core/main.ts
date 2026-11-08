@@ -7,7 +7,7 @@ import Asteroid from "./world/object/asteroid/asteroid.ts";
 import { clamp } from "./utils/math.ts";
 import { explosions } from "./player/prop/explosion.ts";
 
-import PlayerShip, { ship } from "./player/ships/player.ts";
+import PlayerShip from "./player/ships/player.ts";
 import ShipManager from "./player/ships/manager.ts";
 
 import { spatial } from "./world/spatialHash.ts";
@@ -48,10 +48,11 @@ async function initialize(type: string) {
     PerkManager.spawn();
   } else {
     const ws = new Websocket(wsServerUrl);
-    ws.initPlayer(ship);
+    ws.initPlayer(ShipManager.ship);
+    Websocket.socket = ws.socket;
   }
 
-  world.attach(ship);
+  world.attach(ShipManager.ship);
 
   requestAnimationFrame(animate);
 }
@@ -94,7 +95,7 @@ async function animate(t: number) {
     timeAccumulator -= FIXED_DT;
     simulationSteps++;
   }
-  console.log("Requesting next frame");
+  // console.log("Requesting next frame");
 
   // Avoid a catch-up spiral after a slow frame or a blocked browser tab.
   if (simulationSteps === maxSimulationSteps) timeAccumulator = 0;
@@ -142,7 +143,7 @@ async function animate(t: number) {
   ) {
     requestAnimationFrame(animate);
   } else {
-    const won = ship.life > 0;
+    const won = ShipManager.ship.life > 0;
     const title = won ? "SECTOR SECURED" : "SIGNAL LOST";
     const subtitle = won
       ? "The void is clear. Return to command."
