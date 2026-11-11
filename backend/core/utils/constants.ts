@@ -16,16 +16,16 @@
 // export const DAMPSPEED = 0.75 ** FIXED_DT;
 
 export const sizeOf = {
-    enemyShip: 50,
-    friendShip: 50,
-    star: 10000,
-    asteroid: 100,
-    perk: 50,
+    enemyShip: 1,
+    friendShip: 1,
+    star: 1000,
+    asteroid: 10,
+    perk: 5,
 }
 
 export const worldSize = {
-    width:  50000,
-    height: 50000,
+    width:  3000,
+    height: 3000,
 }
 export const FIXED_DT = 1 / 240;
 export const DAMPSPEED = 0.75 ** FIXED_DT;

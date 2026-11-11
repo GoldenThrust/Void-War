@@ -18,7 +18,7 @@
 export const sizeOf = {
     enemyShip: 50,
     friendShip: 50,
-    star: 10000,
+    star: 100,
     asteroid: 100,
     perk: 50,
 }

@@ -125,7 +125,7 @@ export default class Weapon implements WeaponI {
   render() {
     drawWrapped({
       fn: () => {
-        const color = this.ship.friend ? "#54d9ff" : "#ff6938";
+        const color = this.ship.friend ? "#555933" : "#ff6938";
         ctx.rotate(-this.angle);
         ctx.save();
         ctx.globalCompositeOperation = "lighter";

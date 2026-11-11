@@ -12,6 +12,7 @@ import MissileLaucher from "./missileLaucher.ts";
 import Sniper from "./sniper.ts";
 import Tormenter from "./tormenter.ts";
 import type Ship from "./ship.ts";
+import Websocket from "../../../config/websocket.ts";
 
 
 export default class ShipManager {
@@ -75,6 +76,8 @@ export default class ShipManager {
     // destroyedShips.push(ship);
     if (ship.friend) --ShipManager.friendsAlive;
     else --ShipManager.enemiesAlive;
+
+    Websocket.io.emit("ship:destroyed", ship.id);
   }
 
   static update(t: number, dt: number) {

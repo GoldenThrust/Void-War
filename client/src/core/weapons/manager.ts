@@ -120,7 +120,7 @@ export default class WeaponManager {
   changeWeapon(weapon: typeof Weapon) {
     worldManager.findAttachedShip().weapon = weapon;
 
-    Websocket.socket.emit("player:changeWeapon", {
+    Websocket.socket?.emit("player:changeWeapon", {
       weaponName: weapon.name,
     });
   }

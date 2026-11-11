@@ -9,6 +9,7 @@ import {
   registerWeaponDestroyHandler,
   registerWeaponFireHandler,
 } from "./lifecycle.ts";
+import Websocket from "../../config/websocket.ts";
 
 export default class WeaponManager {
   static weaponTypes = [
@@ -62,6 +63,8 @@ export default class WeaponManager {
       pool.push(weapon);
       WeaponManager.pools.set(type, pool);
     }
+
+    Websocket.io.emit("weapon:destroyed", weapon.id);
   }
 }
 

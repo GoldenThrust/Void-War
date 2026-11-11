@@ -71,27 +71,33 @@ async function animate(t: number) {
   lastTime = t;
 
   timeAccumulator += dt;
-  
+
   let simulationSteps = 0;
   while (timeAccumulator >= FIXED_DT && simulationSteps < maxSimulationSteps) {
-    // console.log("In loop");
-    spatial.clear();
-    spatial.insertAll(ShipManager.ships.values(), Asteroid.asteroids.values());
+    if (gameType !== "online") {
+      // console.log("In loop");
+      spatial.clear();
+      spatial.insertAll(
+        ShipManager.ships.values(),
+        Asteroid.asteroids.values(),
+      );
 
-    for (const weapon of WeaponManager.weapons.values()) {
-      if (weapon instanceof Minature) continue;
-      spatial.insert(weapon);
+      for (const weapon of WeaponManager.weapons.values()) {
+        if (weapon instanceof Minature) continue;
+        spatial.insert(weapon);
+      }
+
+      WeaponManager.update(t, FIXED_DT);
+      ShipManager.update(t, FIXED_DT);
+      // ship.update(t, FIXED_DT);
+      // AudioManager.update(ship.x, ship.y, ship.angle);
+      
+      Asteroid.update();
+      PerkManager.update(t);
+    } else {
+      world.update();
+      ShipManager.ship.update(t, FIXED_DT);
     }
-
-    world.update();
-    WeaponManager.update(t, FIXED_DT);
-    ShipManager.update(t, FIXED_DT);
-    // ship.update(t, FIXED_DT);
-    // AudioManager.update(ship.x, ship.y, ship.angle);
-
-    Asteroid.update();
-    PerkManager.update(t);
-
     timeAccumulator -= FIXED_DT;
     simulationSteps++;
   }

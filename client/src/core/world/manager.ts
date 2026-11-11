@@ -3,6 +3,7 @@ import "../player/ships/manager.ts";
 // import ShipManager from "../player/ships/manager.ts";
 import { keybinds } from "../events/keybind.ts";
 import { minimap } from "./minimap.ts";
+import ShipManager from "../player/ships/manager.ts";
 
 class WorldManager {
   public attachedId: number;
@@ -41,13 +42,13 @@ class WorldManager {
 
   }
 
-  // findAttachedShip() {
-  //   // if (this.attachedId === -1) {
-  //     return ShipManager.ship;
-  //   // } else {
-  //   //   return ShipManager.ships[this.attachedId];
-  //   // }
-  // }
+  findAttachedShip() {
+    // if (this.attachedId === -1) {
+      return ShipManager.ship;
+    // } else {
+    //   return ShipManager.ships[this.attachedId];
+    // }
+  }
 
   // attachRandom() {
   //   this.attachedId = Math.floor(Math.random() * ShipManager.ships.length);

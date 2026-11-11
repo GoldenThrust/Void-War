@@ -9,7 +9,7 @@ import Ship from "./ship.ts";
 
 export default class PlayerShip extends Ship {
     constructor(prop: ShipC) {
-        super({ ...prop, img: assets?.images?.mainship, flameImg: assets?.images?.flame1, color: prop.color ?? "red", name: "Player", maxWeaponHeat: prop.maxWeaponHeat ?? 1000, controllable: true, life: 10000, vertices: shapes[0], weapon: PulseCanon });
+        super({ ...prop, img: assets?.images?.mainship, flameImg: assets?.images?.flame1, color: prop.color ?? "red", name: "Player", maxWeaponHeat: prop.maxWeaponHeat ?? 1000, controllable: true, life: 10000, vertices: shapes[0], weapon: PulseCanon, friend: prop.friend ?? true });
 
         // this.audioPlayer = throtlePlayAudio(assets?.audios?.engine, this.audioGain);
 
