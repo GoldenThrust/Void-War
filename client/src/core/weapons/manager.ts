@@ -7,7 +7,7 @@ import HeavyRailGun from "./heavyRailGun.ts";
 import PlasmaCanon from "./plasmaCanon.ts";
 import Mine from "./mine.ts";
 import HomingMissile from "./homingMissile.ts";
-import Websocket from "../websocket.ts";
+import Websocket from "../socket/websocket.ts";
 
 export default class WeaponManager {
   constructor() {

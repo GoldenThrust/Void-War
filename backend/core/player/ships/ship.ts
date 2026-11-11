@@ -184,7 +184,7 @@ export default class Ship {
 
   accelerate(thrust: number) {
     this.speed += thrust * this.acceleration * FIXED_DT;
-    this.speed = Math.max(this.speed, 0);
+    this.speed = Math.max(this.speed * DAMPSPEED, 0);
   }
 
   canFire() {

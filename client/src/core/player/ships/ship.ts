@@ -27,7 +27,7 @@ import ShipManager from "./manager.ts";
 // import EngineSound from "../../assets/audio/engine.ts";
 // import AudioManager from "../../assets/audio/manager.ts";
 import { v4 as uuid } from "uuid";
-import Websocket from "../../websocket.ts";
+import Websocket from "../../socket/websocket.ts";
 
 export default class Ship {
   public id: string;
@@ -158,6 +158,7 @@ export default class Ship {
   }
 
   render() {
+    this.trail.update(this.x, this.y, this.speed);
     ctx.translate(world.width / 2, world.height / 2);
     this.trail.render();
     ctx.translate(-world.width / 2, -world.height / 2);
@@ -259,25 +260,25 @@ export default class Ship {
     if (this.controllable) {
       if (keys["ArrowLeft"] || orientation["beta"] < -0.01) {
         // this.angle = wrap(this.angle + 0.01, Math.PI * 2);
-        Websocket.socket?.emit("player:turn", { direction: "left" });
+        // Websocket.socket?.emit("player:turn", { direction: "left" });
         steering = 1;
       }
 
       if (keys["ArrowRight"] || orientation["beta"] > 0.01) {
         // this.angle = wrap(this.angle - 0.01, Math.PI * 2);
-        Websocket.socket?.emit("player:turn", { direction: "right" });
+        // Websocket.socket?.emit("player:turn", { direction: "right" });
         steering = -1;
       }
 
       if (keys["ArrowUp"] || orientation["gamma"] > -0.13) {
-        Websocket.socket?.emit("player:thrust", { direction: "forward" });
+        // Websocket.socket?.emit("player:thrust", { direction: "forward" });
         this.speed += this.acceleration * dt;
       }
 
       // console.log("Orientation:", orientation, "Keys:", keys, "Touch:", touchDetected);
 
       if (keys["ArrowDown"] || orientation["gamma"] < -0.15) {
-        Websocket.socket?.emit("player:thrust", { direction: "backward" });
+        // Websocket.socket?.emit("player:thrust", { direction: "backward" });
         this.speed -= this.acceleration * dt;
         this.speed = Math.max(this.speed, 0);
       }
@@ -289,9 +290,10 @@ export default class Ship {
         touchDetected["touch"] ||
         touchDetected["mouse"]
       ) {
-        Websocket.socket?.emit("player:fire");
+        // Websocket.socket?.emit("player:fire");
         this.fire();
       }
+
       // console.log(
       // orientation)
     } else if (this.state !== "idle") {
@@ -318,8 +320,6 @@ export default class Ship {
       this.y - Math.cos(this.angle) * (this.speed * dt),
       world.height,
     );
-
-    this.trail.update(this.x, this.y, this.speed);
 
     // weapon update
     if (this.cooldown >= 0) {

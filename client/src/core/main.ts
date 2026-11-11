@@ -18,9 +18,9 @@ import { FIXED_DT } from "./utils/constants.ts";
 // import { applyAIResults } from "./ai/init.ts";
 import { canvas, ctx } from "./world/canvas.ts";
 import PerkManager from "./perks/manager.ts";
-import Websocket from "./websocket.ts";
+import Websocket from "./socket/websocket.ts";
 import { wsServerUrl } from "../utils/constants.ts";
-import("./websocket.ts");
+import("./socket/websocket.ts");
 
 let initPromise: Promise<void> | undefined;
 export let gameType = "offline";
@@ -75,29 +75,28 @@ async function animate(t: number) {
   let simulationSteps = 0;
   while (timeAccumulator >= FIXED_DT && simulationSteps < maxSimulationSteps) {
     if (gameType !== "online") {
+      ShipManager.ship.update(t, FIXED_DT);
       // console.log("In loop");
       spatial.clear();
       spatial.insertAll(
         ShipManager.ships.values(),
         Asteroid.asteroids.values(),
       );
+      WeaponManager.update(t, FIXED_DT);
 
       for (const weapon of WeaponManager.weapons.values()) {
         if (weapon instanceof Minature) continue;
         spatial.insert(weapon);
       }
 
-      WeaponManager.update(t, FIXED_DT);
       ShipManager.update(t, FIXED_DT);
       // ship.update(t, FIXED_DT);
       // AudioManager.update(ship.x, ship.y, ship.angle);
-      
+
       Asteroid.update();
       PerkManager.update(t);
-    } else {
-      world.update();
-      ShipManager.ship.update(t, FIXED_DT);
     }
+
     timeAccumulator -= FIXED_DT;
     simulationSteps++;
   }

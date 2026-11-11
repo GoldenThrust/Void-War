@@ -83,12 +83,14 @@ export default class World {
         ctx.translate((canvas.width - this.width) / 2, (canvas.height - this.height) / 2);
     }
 
-    update() {
+    update(dt = 1) {
         if (!this.ship) return;
-        this.x = wrap(this.x + toroidalDelta(this.x, this.ship.x, this.width) * 0.15, this.width);
-        this.y = wrap(this.y + toroidalDelta(this.y, this.ship.y, this.height) * 0.15, this.height);
+        this.x = wrap(this.x + toroidalDelta(this.x, this.ship.x, this.width) * 0.15 * dt, this.width);
+        this.y = wrap(this.y + toroidalDelta(this.y, this.ship.y, this.height) * 0.15 * dt, this.height);
+        
 
-
+        console.log("World update", toroidalDelta(this.x, this.ship.x, this.width), toroidalDelta(this.y, this.ship.y, this.height)
+    );
         this.angle = this.ship.angle;
     }
 
