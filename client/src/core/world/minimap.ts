@@ -46,6 +46,31 @@ export default class Minimap {
     this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
 
     this.lastTime = 0;
+    world.onResize = () => this.reInit(this.scale);
+  }
+
+  reInit(scale: number) {
+    const { width, height } = this.canvas.getBoundingClientRect();
+
+    const minScale = Math.max(
+      canvas.width / world.width,
+      canvas.height / world.height,
+    );
+
+    this.minScale = minScale;
+    this.scale = clamp(scale, minScale, 1);
+
+    this.world = {
+      x: 0,
+      y: 0,
+      width: width / this.scale,
+      height: height / this.scale,
+    };
+
+    this.sx = this.world.width / world.width;
+    this.sy = this.world.height / world.height;
+
+    this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
   }
 
   clear() {
@@ -203,7 +228,12 @@ export default class Minimap {
     for (const perk of PerkManager.perks.values()) {
       this.drawPerkMarker(perk.x, perk.y, 0.75);
     }
-    this.drawPlayerMarker(ShipManager.ship.x, ShipManager.ship.y, ShipManager.ship.angle, this.canvas.width / 40);
+    this.drawPlayerMarker(
+      ShipManager.ship.x,
+      ShipManager.ship.y,
+      ShipManager.ship.angle,
+      this.canvas.width / 40,
+    );
 
     this.ctx.globalAlpha = 1;
     // this.ctx.globalAlpha = Math.sin((performance.now() % captureDuration) / captureDuration * Math.PI);

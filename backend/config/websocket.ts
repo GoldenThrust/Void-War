@@ -39,6 +39,7 @@ const announced = {
 
 export default class Websocket {
   static io: Server;
+  private static playerSequence = 0;
   private static gameLoop?: NodeJS.Timeout;
   private static running = false;
   private static uwsApp: ReturnType<typeof uWS.App>;
@@ -85,7 +86,7 @@ export default class Websocket {
         // double-increment the alive counters).
         if (ShipManager.ships.has(socket.id)) return;
 
-        const friend = ShipManager.ships.size % 2 === 0;
+        const friend = Websocket.playerSequence++ % 2 === 0;
 
         if (friend) {
           ShipManager.friendsAlive++;
@@ -142,7 +143,7 @@ export default class Websocket {
           t,
         );
 
-        const { ships, asteroids, weapons, perks } = snapShots(ship);
+        const { ships, asteroids, weapons, perks } = snapShots();
 
         socket.emit("world:init", {
           width: world.width,
@@ -341,7 +342,7 @@ function buildFrame() {
 
 /* ---------------------- full state (join / first sight) ------------------- */
 
-function fullShip(id: string, s: Ship, viewer?: Ship) {
+function fullShip(id: string, s: Ship) {
   return {
     id,
     x: s.x,
@@ -357,7 +358,7 @@ function fullShip(id: string, s: Ship, viewer?: Ship) {
     vertices: s.vertices,
     life: s.life,
     heat: s.heat,
-    ...(viewer && { friend: s.friend === viewer.friend }),
+    friend: s.friend,
   };
 }
 
@@ -491,10 +492,10 @@ function getWeaponName(weapon: typeof Weapon) {
 }
 
 /** Full world state, used for the join-time init events. */
-function snapShots(ship?: Ship) {
+function snapShots() {
   return {
     ships: Array.from(ShipManager.ships.entries()).map(([id, s]) =>
-      fullShip(id, s, ship),
+      fullShip(id, s),
     ),
     asteroids: Array.from(Asteroid.asteroids.values()).map(fullAsteroid),
     weapons: activeWeapons().map(fullWeapon),

@@ -50,7 +50,7 @@ export default class ShipManager {
     registerShipDestroyHandler((ship) => ShipManager.destroy(ship));
     registerShipQueryHandler(() => ShipManager.ships.values());
 
-    ShipManager.friendsAlive = sizeOf.friendShip + 1;
+    ShipManager.friendsAlive = sizeOf.friendShip;
     for (let i = 0; i < sizeOf.friendShip; i++) {
       const prop = {
         x: randomNum(0, world.width),

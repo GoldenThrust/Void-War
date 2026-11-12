@@ -5,8 +5,7 @@ import Asteroid from "../world/object/asteroid/asteroid";
 import WeaponManager from "../weapons/manager";
 import PerkManager from "../perks/manager";
 import { world } from "../world/world";
-import { keybinds } from "../events/keybind";
-import { FIXED_DT } from "../utils/constants";
+
 
 type AdditionalData = {
   friendsAlive: number;
@@ -138,8 +137,7 @@ export default class Websocket {
     );
 
     this.socket.on("world:init", (worldData) => {
-      world.width = worldData.width;
-      world.height = worldData.height;
+      world.reSize(worldData.width, worldData.height);
     });
 
     this.socket.on("asteroids:init", (asteroids: any[]) => {

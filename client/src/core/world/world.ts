@@ -1,3 +1,4 @@
+// import { minimap } from "./minimap.ts";
 import { canvas, ctx, resizeCanvas } from "./canvas.ts";
 import { toroidalDelta, wrap } from "./utils.ts";
 import { worldSize } from "../utils/constants.ts";
@@ -12,6 +13,7 @@ export default class World {
   public scale: number;
   public ship: Ship | null;
   public angle: number;
+  public onResize?: () => void;
 
   constructor({ x, y, width, height, scale = 1, ship = null }: WorldC) {
     this.x = x;
@@ -21,6 +23,12 @@ export default class World {
     this.scale = scale;
     this.ship = ship;
     this.angle = 0;
+  }
+
+  reSize(width: number, height: number) {
+    this.width = width;
+    this.height = height;
+    this.onResize?.();
   }
 
   render() {
