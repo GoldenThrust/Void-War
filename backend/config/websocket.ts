@@ -12,6 +12,7 @@ import PlayerShip from "../core/player/ships/player.ts";
 import Ship from "../core/player/ships/ship.ts";
 import Asteroid from "../core/world/object/asteroid/asteroid.ts";
 import WeaponManager from "../core/weapons/manager.ts";
+import type Weapon from "../core/weapons/weapon.ts";
 import PerkManager from "../core/perks/manager.ts";
 import { world } from "../core/world/world.ts";
 
@@ -133,6 +134,7 @@ export default class Websocket {
             acceleration: ship.acceleration,
             width: ship.width,
             height: ship.height,
+            weaponName: getWeaponName(ship.weapon),
             color: ship.color,
             vertices: ship.vertices,
             friend,
@@ -168,9 +170,14 @@ export default class Websocket {
             return;
           }
 
-          const weapon = WeaponManager.weaponsByName[weaponName ?? ""];
+          const requestedName = weaponName ?? "";
+          const weapon =
+            WeaponManager.weaponsByName[requestedName] ??
+            Object.values(WeaponManager.weaponsByName).find(
+              (weaponType) => weaponType.name === requestedName,
+            );
           if (!weapon) {
-            console.warn(`Unknown weapon requested: ${weaponName}`);
+            console.warn(`Unknown weapon requested: ${requestedName}`);
             return;
           }
 
@@ -345,6 +352,7 @@ function fullShip(id: string, s: Ship, viewer?: Ship) {
     acceleration: s.acceleration,
     width: s.width,
     height: s.height,
+    weaponName: getWeaponName(s.weapon),
     color: s.color,
     vertices: s.vertices,
     life: s.life,
@@ -389,6 +397,8 @@ function fullWeapon(w: WeaponT) {
     vertices: w.vertices,
     penetration: w.penetration,
     distanceTraveled: w.distanceTraveled,
+    exploding: w.exploding,
+    explosionRadius: w.explosionRadius,
   };
 }
 
@@ -423,6 +433,7 @@ function dynShip(id: string, s: Ship) {
     acceleration: s.acceleration,
     life: s.life,
     heat: s.heat,
+    weaponName: getWeaponName(s.weapon),
   };
 }
 
@@ -447,6 +458,8 @@ function dynWeapon(w: WeaponT) {
     speed: w.speed,
     acceleration: w.acceleration,
     distanceTraveled: w.distanceTraveled,
+    exploding: w.exploding,
+    explosionRadius: w.explosionRadius,
   };
 }
 
@@ -467,6 +480,14 @@ function dynPerk(p: PerkT) {
 
 function activeWeapons() {
   return Array.from(WeaponManager.weapons.values()).filter((w) => w.active);
+}
+
+function getWeaponName(weapon: typeof Weapon) {
+  return (
+    Object.entries(WeaponManager.weaponsByName).find(
+      ([, weaponType]) => weaponType === weapon,
+    )?.[0] ?? weapon.name
+  );
 }
 
 /** Full world state, used for the join-time init events. */

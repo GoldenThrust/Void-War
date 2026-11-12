@@ -5,8 +5,8 @@ import Weapon, { isShip } from "./weapon.ts";
 
 export default class Mine extends Weapon {
   private duration: number;
-  private explosionRadius: number;
-  private exploding: boolean;
+  public override explosionRadius: number;
+  public override exploding: boolean;
   private explosionMaxRadius: number;
   private readonly damagedShips = new Set<string>();
   constructor(prop: WeaponC) {

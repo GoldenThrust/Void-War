@@ -45,6 +45,8 @@ export default class Weapon implements WeaponI {
   public active: boolean;
   public penetration: number;
   public distanceTraveled: number;
+  public exploding = false;
+  public explosionRadius = 0;
   public lastUpdate: Record<string, unknown> | null = null;
   public lastUpdateTime = 0;
   public readonly updateHistory: ServerUpdateRecord[] = [];

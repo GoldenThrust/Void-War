@@ -121,8 +121,16 @@ export default class WeaponManager {
     worldManager.findAttachedShip().weapon = weapon;
 
     Websocket.socket?.emit("player:changeWeapon", {
-      weaponName: weapon.name,
+      weaponName: this.getWeaponName(weapon),
     });
+  }
+
+  private getWeaponName(weapon: typeof Weapon) {
+    return (
+      Object.entries(WeaponManager.weaponsByName).find(
+        ([, weaponType]) => weaponType === weapon,
+      )?.[0] ?? weapon.name
+    );
   }
 }
 

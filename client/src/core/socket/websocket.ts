@@ -198,7 +198,7 @@ export default class Websocket {
         return;
       }
 
-      weapon.destroy();
+      WeaponManager.destroy(weapon);
     });
 
     console.log("WebSocket initialized");
@@ -255,6 +255,8 @@ function upsertShip(s: any) {
   });
 
   playerShip.updateFromServer(s, Websocket.serverTime);
+  const weapon = WeaponManager.weaponsByName[s.weaponName];
+  if (weapon) playerShip.weapon = weapon;
   ShipManager.ships.set(s.id, playerShip);
 }
 
@@ -284,6 +286,8 @@ function updatePlayers(ships: any[], t: number) {
     // If you add client-side prediction later, skip or reconcile
     // `ShipManager.ship.id` here instead of assigning x / y / angle.
     existing.updateFromServer(s, t);
+    const weapon = WeaponManager.weaponsByName[s.weaponName];
+    if (weapon) existing.weapon = weapon;
   }
 }
 
@@ -320,11 +324,7 @@ function updateAsteroids(asteroids: any[], t = Websocket.serverTime) {
   for (const a of asteroids) {
     const existing = Asteroid.asteroids.get(a.id);
     if (!existing) continue;
-    const rest = { ...a };
-    delete rest.x;
-    delete rest.y;
-    delete rest.angle;
-    existing.updateFromServer(rest, t);
+    existing.updateFromServer(a, t);
   }
 }
 
@@ -381,11 +381,7 @@ function setWeapons(weapons: any[]) {
     if (existing && existing.name === weapon.name) {
       const ship = ShipManager.ships.get(weapon.shipId);
       if (!ship) continue;
-      const rest = { ...weapon };
-      delete rest.x;
-      delete rest.y;
-      delete rest.angle;
-      existing.updateFromServer(rest, Websocket.serverTime);
+      existing.updateFromServer(weapon, Websocket.serverTime);
       existing.ship = ship;
     } else {
       createWeapon(weapon);
@@ -405,11 +401,7 @@ function updateWeapons(weapons: any[], t = Websocket.serverTime) {
   for (const w of weapons) {
     const existing = WeaponManager.weapons.get(w.id);
     if (!existing) continue;
-    const rest = { ...w };
-    delete rest.x;
-    delete rest.y;
-    delete rest.angle;
-    existing.updateFromServer(rest, t);
+    existing.updateFromServer(w, t);
   }
 }
 
@@ -450,9 +442,8 @@ function setPerks(perks: any[]) {
   for (const perk of perks) {
     const existing = PerkManager.perks.get(perk.id);
     if (existing && existing.name === perk.name) {
-      const { x, y, angle, shipId, ...rest } = perk;
-      existing.updateFromServer(rest, Websocket.serverTime);
-      existing.setShip = (shipId && ShipManager.ships.get(shipId)) || null;
+      existing.updateFromServer(perk, Websocket.serverTime);
+      existing.setShip = (perk.shipId && ShipManager.ships.get(perk.shipId)) || null;
     } else {
       createPerk(perk);
     }

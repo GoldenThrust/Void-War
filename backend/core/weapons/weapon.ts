@@ -32,6 +32,8 @@ export default class Weapon implements WeaponI {
   public active: boolean;
   public penetration: number;
   public distanceTraveled: number;
+  public exploding = false;
+  public explosionRadius = 0;
 
   public color: string;
   public vertices;
