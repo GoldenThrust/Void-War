@@ -20,6 +20,11 @@ import WeaponManager from "./manager.ts";
 
 import { shapes } from "./shapes.ts";
 import { v4 as uuid } from "uuid";
+import {
+  interpolateServerUpdate,
+  recordServerUpdate,
+  type ServerUpdateRecord,
+} from "../utils/serverUpdate.ts";
 
 export default class Weapon implements WeaponI {
   public id: string;
@@ -40,6 +45,9 @@ export default class Weapon implements WeaponI {
   public active: boolean;
   public penetration: number;
   public distanceTraveled: number;
+  public lastUpdate: Record<string, unknown> | null = null;
+  public lastUpdateTime = 0;
+  public readonly updateHistory: ServerUpdateRecord[] = [];
 
   public color: string;
   protected img;
@@ -120,6 +128,16 @@ export default class Weapon implements WeaponI {
       ship.increaseHeat(this.energyCost);
       ship.setCoolDown(1 / (this.fireRate * WEAPON_FIRE_RATE_MULTIPLIER));
     }
+  }
+
+  updateFromServer(update: Record<string, unknown>, time?: number) {
+    recordServerUpdate(this, update, time);
+    const { shipId: _shipId, ...state } = update;
+    Object.assign(this, state);
+  }
+
+  interpolateFromServer(renderTime: number) {
+    Object.assign(this, interpolateServerUpdate(this, renderTime));
   }
 
   render() {

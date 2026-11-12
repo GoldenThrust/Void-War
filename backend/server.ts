@@ -5,7 +5,8 @@ import { buildApp } from "./app.ts";
 import Websocket from "./config/websocket.ts";
 
 const start = async () => {
-  console.clear();
+  // console.clear();
+  
   const app = buildApp();
 
   try {

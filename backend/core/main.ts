@@ -52,4 +52,6 @@ export function step(t: number) {
   }
 
   // console.log(`Elapsed: ${elapsedSeconds.toFixed(4)}s, Steps: ${steps}, Accumulator: ${accumulator.toFixed(4)}s FPS: ${(1 / elapsedSeconds).toFixed(2)}`);
+
+  return 1 / elapsedSeconds;
 }

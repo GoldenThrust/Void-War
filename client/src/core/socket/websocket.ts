@@ -6,7 +6,7 @@ import WeaponManager from "../weapons/manager";
 import PerkManager from "../perks/manager";
 import { world } from "../world/world";
 import { keybinds } from "../events/keybind";
-
+import { FIXED_DT } from "../utils/constants";
 
 type AdditionalData = {
   friendsAlive: number;
@@ -30,13 +30,57 @@ type Spawn = {
   weapons?: any[];
   perks?: any[];
 };
+
 const localNow = () => performance.timeOrigin + performance.now();
+
+/* ------------------------------ frame stats ------------------------------ */
+
+/** Real client-side arrival rate (local clock deltas), smoothed. */
+const stats = {
+  lastArrival: 0,
+  arrivalHz: 0,
+  lastLog: 0,
+};
+
+function trackFrame(frame: Frame) {
+  const now = localNow();
+  let dt = 0;
+  if (stats.lastArrival) {
+    dt = now - stats.lastArrival;
+    if (dt > 0) {
+      const instantaneous = 1000 / dt;
+      // Exponential moving average: instantaneous 1/dt is very noisy.
+      // stats.arrivalHz = instantaneous;
+      stats.arrivalHz = stats.arrivalHz
+        ? stats.arrivalHz * 0.9 + instantaneous * 0.1
+        : instantaneous;
+    }
+  }
+  stats.lastArrival = now;
+
+
+  // Log once per second instead of on every frame.
+  if (now - stats.lastLog >= 1000) {
+    stats.lastLog = now;
+    // console.log(
+    //   `Snapshots received: ${stats.arrivalHz.toFixed(1)}/s | ` +
+    //     `Latency (approx, needs synced clocks): ${(now - frame.t).toFixed(1)} ms`,
+    // );
+  }
+
+  return { dt, stats };
+}
 
 export default class Websocket {
   public socket;
   static socket: Socket;
   static serverTime = localNow();
   static localTime = localNow();
+  static renderTime() {
+    return (
+      Websocket.serverTime + (localNow() - Websocket.localTime) - 1000 / 30
+    );
+  }
 
   constructor(url: string) {
     this.socket = io(url, {
@@ -49,6 +93,10 @@ export default class Websocket {
       reconnectionDelayMax: 5000,
       randomizationFactor: 0.25,
     });
+
+    // FIX: the keybinds use the static socket, which was never assigned,
+    // so every `Websocket.socket?.emit(...)` was silently skipped.
+    Websocket.socket = this.socket;
 
     this.socket.on("connect", () => {
       console.log("Connected to WebSocket server");
@@ -115,24 +163,21 @@ export default class Websocket {
 
     // Volatile, small, frequent (dynamic data only).
     this.socket.on("game:update", (frame: Frame) => {
-      // console.log(
-      //   "Received broadcasted update at",
-      //   Websocket.serverTime,
-      //   "local time of",
-      //   Websocket.localTime,
-      // );
-      // console.log("Date Time", new Date(Websocket.serverTime).getMilliseconds());
+      // FIX: measure real arrival rate with local clock deltas (the old
+      // "Local FPS" subtracted two server timestamps, so it just echoed the
+      // server's rate), smoothed and logged once per second.
+      const { dt } = trackFrame(frame);
 
-      // console.log(frame);
-
-      // console.log()
       updatePlayers(frame.ships, frame.t);
-      updateAsteroids(frame.asteroids);
-      updateWeapons(frame.weapons);
-      updatePerks(frame.perks);
+      updateAsteroids(frame.asteroids, frame.t);
+      updateWeapons(frame.weapons, frame.t);
+      updatePerks(frame.perks, frame.t);
       Websocket.serverTime = frame.t;
       Websocket.localTime = localNow();
-      world.update();
+      // console.log(dt/100, FIXED_DT)
+      world.update(dt/1000);
+      ShipManager.socketUpdate();
+      // world.update(FIXED_DT);
     });
 
     this.socket.on("ship:destroyed", (id) => {
@@ -187,7 +232,7 @@ function pruneMissing<V>(
 function upsertShip(s: any) {
   const existing = ShipManager.ships.get(s.id);
   if (existing) {
-    Object.assign(existing, s);
+    existing.updateFromServer(s, Websocket.serverTime);
     return;
   }
 
@@ -209,7 +254,7 @@ function upsertShip(s: any) {
     friend: s.friend,
   });
 
-  Object.assign(playerShip, s);
+  playerShip.updateFromServer(s, Websocket.serverTime);
   ShipManager.ships.set(s.id, playerShip);
 }
 
@@ -234,7 +279,11 @@ function updatePlayers(ships: any[], t: number) {
   for (const s of ships) {
     const existing = ShipManager.ships.get(s.id);
     if (!existing) continue;
-    Object.assign(existing, s);
+
+    // The server is authoritative, so the local ship is overwritten too.
+    // If you add client-side prediction later, skip or reconcile
+    // `ShipManager.ship.id` here instead of assigning x / y / angle.
+    existing.updateFromServer(s, t);
   }
 }
 
@@ -242,7 +291,7 @@ function updatePlayers(ships: any[], t: number) {
 
 function createAsteroid(a: any) {
   const asteroid = new Asteroid();
-  asteroid.init(a as any);
+  asteroid.init(a as any, Websocket.serverTime);
   Asteroid.asteroids.set(asteroid.id, asteroid);
 }
 
@@ -252,7 +301,7 @@ function setAsteroids(asteroids: any[]) {
   for (const a of asteroids) {
     const existing = Asteroid.asteroids.get(a.id);
     if (existing) {
-      existing.init(a as any);
+      existing.init(a as any, Websocket.serverTime);
     } else {
       createAsteroid(a);
     }
@@ -265,14 +314,17 @@ function spawnAsteroids(asteroids: any[]) {
   }
 }
 
-function updateAsteroids(asteroids: any[]) {
+function updateAsteroids(asteroids: any[], t = Websocket.serverTime) {
   pruneMissing(Asteroid.asteroids, new Set(asteroids.map((a) => a.id)));
 
   for (const a of asteroids) {
     const existing = Asteroid.asteroids.get(a.id);
     if (!existing) continue;
-    const { x, y, angle, ...rest } = a;
-    Object.assign(existing, rest);
+    const rest = { ...a };
+    delete rest.x;
+    delete rest.y;
+    delete rest.angle;
+    existing.updateFromServer(rest, t);
   }
 }
 
@@ -317,6 +369,7 @@ function createWeapon(weapon: any) {
   newWeapon.speed = weapon.speed;
   newWeapon.acceleration = weapon.acceleration;
   newWeapon.distanceTraveled = weapon.distanceTraveled;
+  newWeapon.updateFromServer(weapon, Websocket.serverTime);
   WeaponManager.weapons.set(newWeapon.id, newWeapon);
 }
 
@@ -328,8 +381,12 @@ function setWeapons(weapons: any[]) {
     if (existing && existing.name === weapon.name) {
       const ship = ShipManager.ships.get(weapon.shipId);
       if (!ship) continue;
-      const { x, y, angle, ...rest } = weapon;
-      Object.assign(existing, rest, { ship });
+      const rest = { ...weapon };
+      delete rest.x;
+      delete rest.y;
+      delete rest.angle;
+      existing.updateFromServer(rest, Websocket.serverTime);
+      existing.ship = ship;
     } else {
       createWeapon(weapon);
     }
@@ -342,14 +399,17 @@ function spawnWeapons(weapons: any[]) {
   }
 }
 
-function updateWeapons(weapons: any[]) {
+function updateWeapons(weapons: any[], t = Websocket.serverTime) {
   pruneMissing(WeaponManager.weapons, new Set(weapons.map((w) => w.id)));
 
   for (const w of weapons) {
     const existing = WeaponManager.weapons.get(w.id);
     if (!existing) continue;
-    const { x, y, angle, ...rest } = w;
-    Object.assign(existing, rest);
+    const rest = { ...w };
+    delete rest.x;
+    delete rest.y;
+    delete rest.angle;
+    existing.updateFromServer(rest, t);
   }
 }
 
@@ -379,6 +439,8 @@ function createPerk(perk: any) {
 
   newPerk.startTime = perk.startTime;
   if (perkShip) newPerk.setShip = perkShip;
+  newPerk.updateFromServer(perk, Websocket.serverTime);
+  if (perkShip) newPerk.setShip = perkShip;
   PerkManager.perks.set(newPerk.id, newPerk);
 }
 
@@ -389,7 +451,7 @@ function setPerks(perks: any[]) {
     const existing = PerkManager.perks.get(perk.id);
     if (existing && existing.name === perk.name) {
       const { x, y, angle, shipId, ...rest } = perk;
-      Object.assign(existing, rest);
+      existing.updateFromServer(rest, Websocket.serverTime);
       existing.setShip = (shipId && ShipManager.ships.get(shipId)) || null;
     } else {
       createPerk(perk);
@@ -403,38 +465,42 @@ function spawnPerks(perks: any[]) {
   }
 }
 
-function updatePerks(perks: any[]) {
+function updatePerks(perks: any[], t = Websocket.serverTime) {
   pruneMissing(PerkManager.perks, new Set(perks.map((p) => p.id)));
 
   for (const p of perks) {
     const existing = PerkManager.perks.get(p.id);
     if (!existing) continue;
-    const { x, y, angle, shipId, ...rest } = p;
-    Object.assign(existing, rest);
-    existing.setShip = (shipId && ShipManager.ships.get(shipId)) || null;
+    existing.updateFromServer(p, t);
+    existing.setShip = (p.shipId && ShipManager.ships.get(p.shipId)) || null;
   }
 }
 
-keybinds["ArrowLeft"] = () => {
-  Websocket.socket?.emit("player:turn", { direction: "left" });
-};
+// /* -------------------------------- keybinds ------------------------------- */
 
-keybinds["ArrowRight"] = () => {
-  Websocket.socket?.emit("player:turn", { direction: "right" });
-};
-keybinds["ArrowUp"] = () => {
-  Websocket.socket?.emit("player:ArrowUp", { direction: "forward" });
-};
-keybinds["ArrowDown"] = () => {
-  Websocket.socket?.emit("player:thrust", { direction: "backward" });
-};
+// keybinds["ArrowLeft"] = () => {
+//   Websocket.socket?.emit("player:turn", { direction: "left" });
+// };
 
-keybinds[" "] = () => {
-  Websocket.socket?.emit("player:fire");
-};
-keybinds["Enter"] = () => {
-  Websocket.socket?.emit("player:fire");
-};
-keybinds["Space"] = () => {
-  Websocket.socket?.emit("player:fire");
-};
+// keybinds["ArrowRight"] = () => {
+//   Websocket.socket?.emit("player:turn", { direction: "right" });
+// };
+
+// keybinds["ArrowUp"] = () => {
+//   // FIX: was "player:ArrowUp", which the server has no listener for.
+//   Websocket.socket?.emit("player:thrust", { direction: "forward" });
+// };
+
+// keybinds["ArrowDown"] = () => {
+//   Websocket.socket?.emit("player:thrust", { direction: "backward" });
+// };
+
+// keybinds[" "] = () => {
+//   Websocket.socket?.emit("player:fire");
+// };
+// keybinds["Enter"] = () => {
+//   Websocket.socket?.emit("player:fire");
+// };
+// keybinds["Space"] = () => {
+//   Websocket.socket?.emit("player:fire");
+// };

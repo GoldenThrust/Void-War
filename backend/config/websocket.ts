@@ -15,8 +15,12 @@ import WeaponManager from "../core/weapons/manager.ts";
 import PerkManager from "../core/perks/manager.ts";
 import { world } from "../core/world/world.ts";
 
-/** Snapshots per second sent to clients (simulation still runs at FIXED_DT). */
+/** Room that receives the per-tick stream (only joined players). */
 const PLAYERS_ROOM = "players";
+
+/** Snapshots per second sent to clients (simulation still runs at FIXED_DT). */
+const SNAPSHOT_HZ = 240;
+const SNAPSHOT_MS = 1000 / SNAPSHOT_HZ;
 
 /** Epoch-based, sub-millisecond clock. Clients estimate their offset against it. */
 const serverNow = () => performance.timeOrigin + performance.now();
@@ -62,18 +66,24 @@ export default class Websocket {
 
       socket.on("disconnect", () => {
         const ship = ShipManager.ships.get(socket.id);
+        if (!ship) return;
 
-        if (ship) {
-          socket.broadcast.emit(
-            "player:left",
-            socket.id,
-            shipsAliveCount(ship.friend),
-          );
-          ShipManager.destroy(ship);
-        }
+        const friend = ship.friend;
+
+        // FIX: destroy first, then count, so the counts no longer include
+        // the player who just left.
+        // NOTE: this assumes ShipManager.destroy() decrements
+        // friendsAlive / enemiesAlive. If it doesn't, decrement here.
+        ShipManager.destroy(ship);
+
+        socket.broadcast.emit("player:left", socket.id, shipsAliveCount(friend));
       });
 
       socket.on("player:init", (data: Ship) => {
+        // FIX: ignore duplicate inits (would create a second ship and
+        // double-increment the alive counters).
+        if (ShipManager.ships.has(socket.id)) return;
+
         const friend = ShipManager.ships.size % 2 === 0;
 
         if (friend) {
@@ -103,7 +113,6 @@ export default class Websocket {
           return;
         }
         if (typeof data.speed === "number" && Number.isFinite(data.speed)) {
-          console.log("Updating speed", data.speed);
           ship.speed = data.speed;
         }
 
@@ -221,6 +230,10 @@ export default class Websocket {
     const stepMs = FIXED_DT * 1000;
     let nextTick = performance.now() + stepMs;
 
+    // Snapshots run on their own absolute schedule, decoupled from the
+    // simulation rate.
+    let nextSnapshot = performance.now();
+
     // Drift-corrected loop: each tick is scheduled against an absolute target,
     // so timer lateness doesn't accumulate into uneven step/snapshot spacing.
     const tick = () => {
@@ -229,7 +242,12 @@ export default class Websocket {
       const now = performance.now();
       step(now / 1000);
 
-      broadcast();
+      // FIX: throttle broadcasting to SNAPSHOT_HZ instead of every tick.
+      if (now >= nextSnapshot) {
+        broadcast();
+        nextSnapshot += SNAPSHOT_MS;
+        if (nextSnapshot < now - SNAPSHOT_MS) nextSnapshot = now + SNAPSHOT_MS; // resync
+      }
 
       nextTick += stepMs;
       if (nextTick < now - stepMs * 4) nextTick = now + stepMs; // fell far behind: resync
@@ -249,18 +267,14 @@ function broadcast() {
   const { frame, spawn } = buildFrame();
 
   // `.local` skips the Redis adapter: the simulation lives in this process,
-  // so fanning 30 snapshots/s through Redis streams only adds latency and jitter.
+  // so fanning snapshots through Redis streams only adds latency and jitter.
   const room = Websocket.io.local.to(PLAYERS_ROOM);
 
   // Reliable and ordered before the frame that references the new entities.
   if (spawn) room.emit("entities:spawn", spawn);
 
   // Volatile: if a client's socket is backed up, drop the stale frame instead of queueing it.
-  // console.log("Broadcasting update", serverNow());
-  // console.log("Date Time", new Date(serverNow()).getMilliseconds());
-
-  console.log(frame.ships[0]?.speed)
-
+  // FIX: removed the per-tick console.log(frame.ships[0]?.speed).
   room.volatile.emit("game:update", frame);
 }
 

@@ -75,8 +75,7 @@ async function animate(t: number) {
   let simulationSteps = 0;
   while (timeAccumulator >= FIXED_DT && simulationSteps < maxSimulationSteps) {
     if (gameType !== "online") {
-      ShipManager.ship.update(t, FIXED_DT);
-      // console.log("In loop");
+      world.update(FIXED_DT);
       spatial.clear();
       spatial.insertAll(
         ShipManager.ships.values(),

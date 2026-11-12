@@ -85,6 +85,11 @@ export default class ShipManager {
       ship.update(t, dt);
     }
   }
+  static socketUpdate() {
+    for (const ship of ShipManager.ships.values()) {
+      ship.socketUpdate();
+    }
+  }
 
   static render() {
     for (const ship of ShipManager.ships.values()) {

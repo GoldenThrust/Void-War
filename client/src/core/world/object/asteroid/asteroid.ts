@@ -10,6 +10,11 @@ import {
 import { shapes } from "./shapes.ts";
 import { FIXED_DT, sizeOf } from "../../../utils/constants.ts";
 import { v4 as uuid } from "uuid";
+import {
+  interpolateServerUpdate,
+  recordServerUpdate,
+  type ServerUpdateRecord,
+} from "../../../utils/serverUpdate.ts";
 
 export default class Asteroid {
   public id;
@@ -24,6 +29,9 @@ export default class Asteroid {
   private vertices;
   private path2D;
   static asteroids: Map<string, Asteroid> = new Map();
+  public lastUpdate: Record<string, unknown> | null = null;
+  public lastUpdateTime = 0;
+  public readonly updateHistory: ServerUpdateRecord[] = [];
 
   constructor() {
     this.id = uuid();
@@ -73,17 +81,25 @@ export default class Asteroid {
       x: number;
       y: number;
     }[];
-  }) {
-    if (id) this.id = id;
-    this.x = x;
-    this.y = y;
-    this.width = width;
-    this.height = height;
-    this.vx = vx;
-    this.vy = vy;
-    this.rotationSpeed = rotationSpeed;
-    this.angle = angle;
-    this.vertices = vertices;
+  }, time?: number) {
+    const update: Record<string, unknown> = {
+      x,
+      y,
+      angle,
+      width,
+      height,
+      vx,
+      vy,
+      rotationSpeed,
+      vertices,
+    };
+    if (id) update.id = id;
+    this.updateFromServer(update, time);
+  }
+
+  updateFromServer(update: Record<string, unknown>, time?: number) {
+    recordServerUpdate(this, update, time);
+    Object.assign(this, update);
     this.path2D = createVerticesPath(
       tranformVertices(
         this.vertices,
@@ -94,6 +110,10 @@ export default class Asteroid {
         this.angle,
       ),
     );
+  }
+
+  interpolateFromServer(renderTime: number) {
+    Object.assign(this, interpolateServerUpdate(this, renderTime));
   }
 
   static init() {

@@ -1,12 +1,17 @@
+import { toroidalDelta } from "../world/utils";
+
 const TAU = Math.PI * 2;
 
-
 export function clamp(value: number, min: number, max?: number) {
-  return Math.max(max ? min : -min, Math.min(max ?? min, value))
+  return Math.max(max ? min : -min, Math.min(max ?? min, value));
 }
 
 export function lerp(a: number, b: number, t: number) {
   return a + (b - a) * t;
+}
+
+export function toroidalLerp(a: number, b: number, t: number, size: number) {
+  return a + toroidalDelta(a, b, size) * t;
 }
 
 export function normalizeAngle(angle: number) {
@@ -34,7 +39,5 @@ export function clampAngle(angle: number, min: number, max: number) {
   const toMin = shortestAngleDist(angle, min);
   const toMax = shortestAngleDist(angle, max);
 
-  return Math.abs(toMin) < Math.abs(toMax)
-    ? min
-    : max;
+  return Math.abs(toMin) < Math.abs(toMax) ? min : max;
 }

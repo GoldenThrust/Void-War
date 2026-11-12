@@ -27,6 +27,12 @@ import ShipManager from "./manager.ts";
 // import EngineSound from "../../assets/audio/engine.ts";
 // import AudioManager from "../../assets/audio/manager.ts";
 import { v4 as uuid } from "uuid";
+
+import {
+  interpolateServerUpdate,
+  recordServerUpdate,
+  type ServerUpdateRecord,
+} from "../../utils/serverUpdate.ts";
 import Websocket from "../../socket/websocket.ts";
 
 export default class Ship {
@@ -71,6 +77,9 @@ export default class Ship {
   private static squadTargets = new Map<boolean, Ship>();
   private hitIntervalID?: number;
   private prevColor: string = "white";
+  public lastUpdate: Record<string, unknown> | null = null;
+  public lastUpdateTime = 0;
+  public readonly updateHistory: ServerUpdateRecord[] = [];
 
   constructor({
     id = uuid(),
@@ -157,8 +166,16 @@ export default class Ship {
     return Math.ceil((this.heat / this.maxHeat) * 100);
   }
 
+  updateFromServer(update: Record<string, unknown>, time?: number) {
+    recordServerUpdate(this, update, time);
+    Object.assign(this, update);
+  }
+
+  interpolateFromServer(renderTime: number) {
+    Object.assign(this, interpolateServerUpdate(this, renderTime));
+  }
+
   render() {
-    this.trail.update(this.x, this.y, this.speed);
     ctx.translate(world.width / 2, world.height / 2);
     this.trail.render();
     ctx.translate(-world.width / 2, -world.height / 2);
@@ -334,7 +351,40 @@ export default class Ship {
       this.weaponState = "cool";
     }
 
+    this.trail.update(this.x, this.y, this.speed);
+
     // this.engineSound.update(x, y);
+  }
+
+  socketUpdate() {
+    if (this.controllable) {
+      if (keys["ArrowLeft"] || orientation["beta"] < -0.01) {
+        Websocket.socket?.emit("player:turn", { direction: "left" });
+      }
+  
+      if (keys["ArrowRight"] || orientation["beta"] > 0.01) {
+        Websocket.socket?.emit("player:turn", { direction: "right" });
+      }
+  
+      if (keys["ArrowUp"] || orientation["gamma"] > -0.13) {
+        Websocket.socket?.emit("player:thrust", { direction: "forward" });
+      }
+  
+      if (keys["ArrowDown"] || orientation["gamma"] < -0.15) {
+        Websocket.socket?.emit("player:thrust", { direction: "backward" });
+      }
+  
+      if (
+        keys[" "] ||
+        keys["Enter"] ||
+        keys["Space"] ||
+        touchDetected["touch"] ||
+        touchDetected["mouse"]
+      ) {
+        Websocket.socket?.emit("player:fire");
+      }
+    }
+    this.trail.update(this.x, this.y, this.speed);
   }
 
   canFire() {

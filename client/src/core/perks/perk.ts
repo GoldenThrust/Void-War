@@ -12,6 +12,11 @@ import Ship from "../player/ships/ship";
 import { isSeperatingAxes } from "../utils/collision";
 import { gameType } from "../main";
 import PerkManager from "./manager";
+import {
+  interpolateServerUpdate,
+  recordServerUpdate,
+  type ServerUpdateRecord,
+} from "../utils/serverUpdate";
 
 export default class Perk {
   public id: string;
@@ -27,6 +32,9 @@ export default class Perk {
   protected ship: Ship | null = null;
   public duration;
   public startTime?: number;
+  public lastUpdate: Record<string, unknown> | null = null;
+  public lastUpdateTime = 0;
+  public readonly updateHistory: ServerUpdateRecord[] = [];
   
   constructor({
     id = uuid(),
@@ -53,6 +61,16 @@ export default class Perk {
       tranformVertices(this.vertices, 0, 0, this.width, this.height, 0),
     );
     this.duration = duration;
+  }
+
+  updateFromServer(update: Record<string, unknown>, time?: number) {
+    recordServerUpdate(this, update, time);
+    const { shipId: _shipId, ...state } = update;
+    Object.assign(this, state);
+  }
+
+  interpolateFromServer(renderTime: number) {
+    Object.assign(this, interpolateServerUpdate(this, renderTime));
   }
 
   getVertices() {
