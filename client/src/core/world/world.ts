@@ -1,6 +1,6 @@
 // import { minimap } from "./minimap.ts";
 import { canvas, ctx, resizeCanvas } from "./canvas.ts";
-import { toroidalDelta, wrap } from "./utils.ts";
+import { wrap } from "./utils.ts";
 import { worldSize } from "../utils/constants.ts";
 import type Ship from "../player/ships/ship.ts";
 import { toroidalLerp } from "../utils/math.ts";

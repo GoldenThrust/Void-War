@@ -10,7 +10,7 @@ export let ship: PlayerShip;
 
 export default class PlayerShip extends Ship {
     constructor(prop: ShipC) {
-        super({ ...prop, color: prop.color ?? "red", name: "Player", maxWeaponHeat: prop.maxWeaponHeat ?? 1000, controllable: true, life: 10000, vertices: shapes[0], weapon: PulseCanon, friend: true });
+        super({ ...prop, color: prop.color ?? "red", name: "Player", maxWeaponHeat: prop.maxWeaponHeat ?? 1000, controllable: true, life: 10000, vertices: shapes[0], weapon: PulseCanon });
 
         if (this.controllable === false)
             this.state = "idle";

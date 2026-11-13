@@ -10,7 +10,7 @@ import { world } from "../world/world";
 type AdditionalData = {
   friendsAlive: number;
   enemiesAlive: number;
-  guerrilla: boolean;
+  friend: boolean;
   id: string;
   t?: number;
 };
@@ -61,10 +61,10 @@ function trackFrame(frame: Frame) {
   // Log once per second instead of on every frame.
   if (now - stats.lastLog >= 1000) {
     stats.lastLog = now;
-    // console.log(
-    //   `Snapshots received: ${stats.arrivalHz.toFixed(1)}/s | ` +
-    //     `Latency (approx, needs synced clocks): ${(now - frame.t).toFixed(1)} ms`,
-    // );
+    console.log(
+      `Snapshots received: ${stats.arrivalHz.toFixed(1)}/s | ` +
+        `Latency (approx, needs synced clocks): ${(now - frame.t).toFixed(1)} ms`,
+    );
   }
 
   return { dt, stats };
@@ -119,14 +119,16 @@ export default class Websocket {
     this.socket.on("player:joined", (ship: Ship, t: number) => {
       Websocket.serverTime = t;
       upsertShip(ship);
+      console.log(`Player ${ship.id} joined as ${ship.friend ? "friend" : "enemy"}`);
     });
 
     this.socket.on(
       "players:init",
       (data: Ship[], additional: AdditionalData) => {
+        console.log(`Players initialized with ${data.length} ships, player ID: ${additional.id}, Friend: ${additional.friend}`);
         ShipManager.ship.id = additional.id;
         ShipManager.ships.set(additional.id, ShipManager.ship);
-        ShipManager.ship.friend = additional.guerrilla;
+        ShipManager.ship.friend = additional.friend;
         ShipManager.friendsAlive = additional.friendsAlive;
         ShipManager.enemiesAlive = additional.enemiesAlive;
         setPlayers(data);

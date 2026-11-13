@@ -39,7 +39,6 @@ const announced = {
 
 export default class Websocket {
   static io: Server;
-  private static playerSequence = 0;
   private static gameLoop?: NodeJS.Timeout;
   private static running = false;
   private static uwsApp: ReturnType<typeof uWS.App>;
@@ -78,7 +77,11 @@ export default class Websocket {
         // friendsAlive / enemiesAlive. If it doesn't, decrement here.
         ShipManager.destroy(ship);
 
-        socket.broadcast.emit("player:left", socket.id, shipsAliveCount(friend));
+        socket.broadcast.emit(
+          "player:left",
+          socket.id,
+          shipsAliveCount(friend),
+        );
       });
 
       socket.on("player:init", (data: Ship) => {
@@ -86,7 +89,16 @@ export default class Websocket {
         // double-increment the alive counters).
         if (ShipManager.ships.has(socket.id)) return;
 
-        const friend = Websocket.playerSequence++ % 2 === 0;
+        const friend = ShipManager.ships.size % 2 === 0;
+
+        console.log(
+          `Player ${socket.id} joined as ${friend ? "friend" : "enemy"}`,
+        );
+        console.log(
+          ShipManager.ships.size,
+          ShipManager.friendsAlive,
+          ShipManager.enemiesAlive,
+        );
 
         if (friend) {
           ShipManager.friendsAlive++;
@@ -149,8 +161,14 @@ export default class Websocket {
           width: world.width,
           height: world.height,
         });
+
+        console.log(
+          `Player ${socket.id} joined as ${friend ? "friend" : "enemy"}`,
+        );
+
         socket.emit("players:init", ships, {
           id: socket.id,
+          friend,
           t,
           ...shipsAliveCount(friend),
         });
@@ -158,6 +176,12 @@ export default class Websocket {
         socket.emit("asteroids:init", asteroids, t);
         socket.emit("weapons:init", weapons, t);
         socket.emit("perks:init", perks, t);
+
+        ShipManager.ships.forEach((ship) => {
+          console.log(
+            `Ship ${ship.id} at (${ship.x.toFixed(2)}, ${ship.y.toFixed(2)}) with speed ${ship.speed.toFixed(2)} and angle ${ship.angle.toFixed(2)}. Friend: ${ship.friend}. Life: ${ship.life.toFixed(2)}. Heat: ${ship.heat.toFixed(2)}. Weapon: ${getWeaponName(ship.weapon)}`,
+          );
+        });
       });
 
       socket.on(
@@ -252,6 +276,11 @@ export default class Websocket {
 
       // FIX: throttle broadcasting to SNAPSHOT_HZ instead of every tick.
       if (now >= nextSnapshot) {
+        // ShipManager.ships.forEach((ship) => {
+        //   console.log(
+        //     `Ship ${ship.id} at (${ship.x.toFixed(2)}, ${ship.y.toFixed(2)}) with speed ${ship.speed.toFixed(2)} and angle ${ship.angle.toFixed(2)}. Friend: ${ship.friend}. Life: ${ship.life.toFixed(2)}. Heat: ${ship.heat.toFixed(2)}. Weapon: ${getWeaponName(ship.weapon)}`,
+        //   );
+        // });
         broadcast();
         nextSnapshot += SNAPSHOT_MS;
         if (nextSnapshot < now - SNAPSHOT_MS) nextSnapshot = now + SNAPSHOT_MS; // resync
@@ -434,6 +463,7 @@ function dynShip(id: string, s: Ship) {
     acceleration: s.acceleration,
     life: s.life,
     heat: s.heat,
+    friend: s.friend,
     weaponName: getWeaponName(s.weapon),
   };
 }
@@ -507,6 +537,5 @@ function shipsAliveCount(friend: boolean) {
   return {
     friendsAlive: friend ? ShipManager.friendsAlive : ShipManager.enemiesAlive,
     enemiesAlive: friend ? ShipManager.enemiesAlive : ShipManager.friendsAlive,
-    guerrilla: friend,
   };
 }

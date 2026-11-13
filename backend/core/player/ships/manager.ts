@@ -77,6 +77,10 @@ export default class ShipManager {
     if (ship.friend) --ShipManager.friendsAlive;
     else --ShipManager.enemiesAlive;
 
+    console.log(
+      `Ship ${ship.id} destroyed. Friend: ${ship.friend}. Remaining friends: ${ShipManager.friendsAlive}. Remaining enemies: ${ShipManager.enemiesAlive}`,
+    );
+
     Websocket.io.emit("ship:destroyed", ship.id);
   }
 
